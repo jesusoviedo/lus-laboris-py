@@ -271,8 +271,9 @@ def cleanup_temp_directories(temp_dir: Path) -> None:
 
 
 def set_gcp_credentials():
-    """Busca un archivo .json en .gcpcredentials y setea GOOGLE_APPLICATION_CREDENTIALS si existe."""
-    cred_dir = Path(__file__).resolve().parent.parent.parent / '.gcpcredentials'
+    """Busca un archivo .json en .gcpcredentials dos niveles arriba y setea GOOGLE_APPLICATION_CREDENTIALS si existe."""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    cred_dir = project_root / '.gcpcredentials'
     json_files = list(cred_dir.glob('*.json'))
     if json_files:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(json_files[0])
