@@ -49,9 +49,6 @@ The script should be executed using `uv run` to ensure all dependencies are avai
 ```bash
 # Recommended: Use uv run
 uv run gcp_utils.py [command] [options]
-
-# Alternative: If you have dependencies installed globally
-python3 gcp_utils.py [command] [options]
 ```
 
 **Why use `uv run`?**
@@ -165,9 +162,6 @@ El script debe ejecutarse usando `uv run` para asegurar que todas las dependenci
 ```bash
 # Recomendado: Usar uv run
 uv run gcp_utils.py [comando] [opciones]
-
-# Alternativa: Si tienes las dependencias instaladas globalmente
-python3 gcp_utils.py [comando] [opciones]
 ```
 
 **¿Por qué usar `uv run`?**
