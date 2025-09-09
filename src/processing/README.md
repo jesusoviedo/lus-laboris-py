@@ -84,14 +84,6 @@ To use GCS mode, you need to configure authentication:
 - By default (recommended for Cloud Run), the script will use the environment's credentials (e.g., Cloud Run's default Service Account).
 - If you use the `--use-local-credentials` flag, the script will look for a service account `.json` file in a `.gcpcredentials` folder at the project root and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable automatically. This is useful for local development.
 
-```bash
-# Option 1: Use Application Default Credentials
-gcloud auth application-default login
-
-# Option 2: Use a service account
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account-key.json"
-```
-
 #### Output Structure
 
 The script generates a JSON file with the following structure:
