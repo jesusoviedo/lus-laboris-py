@@ -21,7 +21,7 @@ fi
 
 # Menú interactivo
 while true; do
-  echo "\n========= Terraform Menu ========="
+  echo "========= Terraform Menu ========="
   echo "1) terraform init"
   echo "2) terraform plan"
   echo "3) terraform apply"
