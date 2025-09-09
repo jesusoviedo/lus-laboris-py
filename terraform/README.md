@@ -147,6 +147,21 @@ This Terraform project creates:
 - `.tfvars` files may contain sensitive information, make sure not to commit them to version control
 - Always review the plan before applying changes with `terraform plan`
 
+## Easy Terraform Menu Script
+
+For users who do not want to manually set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable, you can use the provided interactive script:
+
+```bash
+bash ./tf_menu.sh
+```
+
+This script will:
+- Automatically search for a `.json` credentials file in the `.gcpcredentials` folder at the project root (two levels up).
+- Export the `GOOGLE_APPLICATION_CREDENTIALS` variable if not already set.
+- Provide a menu for common Terraform operations: `init`, `plan`, `apply`, `destroy`.
+
+**Note:** You must run this script from the `terraform` directory.
+
 ---
 
 ## ¿Qué es Terraform?
@@ -286,3 +301,20 @@ Este proyecto de Terraform crea:
 - El archivo `terraform.tfstate` contiene el estado de la infraestructura y **NO debe ser eliminado**
 - Los archivos `.tfvars` pueden contener información sensible, asegúrate de no subirlos al control de versiones
 - Siempre revisa el plan antes de aplicar cambios con `terraform plan`
+
+## Script de menú fácil para Terraform
+
+Para quienes no pueden o no quieren setear manualmente la variable de entorno `GOOGLE_APPLICATION_CREDENTIALS`, puedes usar el script interactivo incluido:
+
+```bash
+bash ./tf_menu.sh
+```
+
+Este script:
+- Busca automáticamente un archivo `.json` de credenciales en la carpeta `.gcpcredentials` en la raíz del proyecto (dos niveles arriba).
+- Exporta la variable `GOOGLE_APPLICATION_CREDENTIALS` si no está seteada.
+- Ofrece un menú para las operaciones comunes de Terraform: `init`, `plan`, `apply`, `destroy`.
+
+**Nota:** Debes ejecutar este script desde el directorio `terraform`.
+
+---
