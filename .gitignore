@@ -214,10 +214,10 @@ data/raw/codigo_trabajo_py.html
 data/processed/codigo_trabajo_articulos.json
 
 # Terraform
-terraform/.terraform
-terraform/terraform.tfvars
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-terraform/terraform.tfvars.backup
-terraform/terraform.tfvars.backup.backup
-terraform/terraform.tfvars.backup.backup.backup
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+
+# Terraform lock file
+!.terraform.lock.hcl
