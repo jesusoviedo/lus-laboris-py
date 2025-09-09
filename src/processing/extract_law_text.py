@@ -29,7 +29,7 @@ from google.cloud import storage
 import glob
 
 
-# Patrones para identificar encabezados y artículos
+# Patrones para identificar encabezados y articulos
 HEADER_PATTERNS = {
     'libro': re.compile(r"^LIBRO\s+([A-ZÁÉÍÓÚÑ]+)\s*$", re.IGNORECASE),
     'titulo': re.compile(r"^TITULO\s+([A-ZÁÉÍÓÚÑ]+)\s*$", re.IGNORECASE),
@@ -120,7 +120,7 @@ def extract_articles(lines: List[str]) -> List[Dict[str, Any]]:
     current_capitulo_num = None
     current_capitulo_desc = None
 
-    # Segmentación de artículos
+    # Segmentacion de articulos
     articles = []
     current_article_num = None
     current_article_lines = []
@@ -174,7 +174,7 @@ def extract_articles(lines: List[str]) -> List[Dict[str, Any]]:
             i += 2 if next_desc else 1
             continue
 
-        # Detectar inicio de Artículo
+        # Detectar inicio de Articulo
         m_art = ARTICULO_PATTERN.match(ln)
         if m_art:
             flush_article()

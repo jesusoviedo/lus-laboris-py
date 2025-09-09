@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Determinar la raíz del proyecto (dos niveles arriba de la ubicación de este script)
+# Determinar la raiz del proyecto (dos niveles arriba de la ubicacion de este script)
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(realpath "$SCRIPT_DIR/../..")"
 CRED_DIR="$PROJECT_ROOT/.gcpcredentials"
@@ -19,7 +19,7 @@ else
   echo "ℹ️  GOOGLE_APPLICATION_CREDENTIALS ya está seteada: $GOOGLE_APPLICATION_CREDENTIALS"
 fi
 
-# Menú interactivo
+# Menu interactivo
 while true; do
   echo "========= Terraform Menu ========="
   echo "1) terraform init"
