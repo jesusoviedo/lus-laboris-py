@@ -210,8 +210,8 @@ __marimo__/
 .gcpcredentials
 
 # Data
-data/raw/codigo_trabajo_py.html
-data/processed/codigo_trabajo_articulos.json
+data/raw/*.html
+data/processed/*.json
 
 # Terraform
 .terraform/
