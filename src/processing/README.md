@@ -50,8 +50,8 @@ uv run extract_law_text.py
 uv run extract_law_text.py --raw-filename mylaw.html --processed-filename myoutput.json
 ```
 
-- The raw HTML will be saved to `data/raw/{raw-filename}` (default: `codigo_trabajo_py.html`).
-- The processed JSON will be saved to `data/processed/{processed-filename}` (default: `codigo_trabajo_articulos.json`).
+- The raw HTML will be saved to `data/raw/{raw-filename}` (default: `codigo_trabajo_py.html`) in the project root (not the current directory).
+- The processed JSON will be saved to `data/processed/{processed-filename}` (default: `codigo_trabajo_articulos.json`) in the project root.
 
 ##### Google Cloud Storage Mode
 
@@ -194,8 +194,8 @@ uv run extract_law_text.py
 uv run extract_law_text.py --raw-filename mi_ley.html --processed-filename salida.json
 ```
 
-- El HTML crudo se guardará en `data/raw/{raw-filename}` (por defecto: `codigo_trabajo_py.html`).
-- El JSON procesado se guardará en `data/processed/{processed-filename}` (por defecto: `codigo_trabajo_articulos.json`).
+- El HTML crudo se guardará en `data/raw/{raw-filename}` (por defecto: `codigo_trabajo_py.html`) en la raíz del proyecto (no en el directorio actual).
+- El JSON procesado se guardará en `data/processed/{processed-filename}` (por defecto: `codigo_trabajo_articulos.json`) en la raíz del proyecto.
 
 ##### Modo Google Cloud Storage
 

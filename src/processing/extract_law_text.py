@@ -211,8 +211,9 @@ def parse_law_text(raw_text: str) -> Dict[str, Any]:
 
 
 def save_parsed_json_local(parsed: Dict[str, Any], processed_filename: str = "codigo_trabajo_articulos.json") -> str:
-    """Guarda los datos parseados en un archivo JSON local en data/processed/"""
-    out_dir = Path("data/processed")
+    """Guarda los datos parseados en un archivo JSON local en data/processed/ (raíz del proyecto)"""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    out_dir = project_root / "data/processed"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / processed_filename
     with out_path.open("w", encoding="utf-8") as f:
@@ -279,12 +280,14 @@ def set_gcp_credentials():
 
 
 def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json") -> str:
-    """Procesa la ley en modo local, guardando archivos en data/raw y data/processed"""
+    """Procesa la ley en modo local, guardando archivos en data/raw y data/processed en la raíz del proyecto"""
     print("=== MODO LOCAL ===")
-    raw_path = f"data/raw/{raw_filename}"
-    download_law_page(url, raw_path)
+    project_root = Path(__file__).resolve().parent.parent.parent
+    raw_path = project_root / "data/raw" / raw_filename
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    download_law_page(url, str(raw_path))
     try:
-        texto_limpio = extract_text_from_html(raw_path)
+        texto_limpio = extract_text_from_html(str(raw_path))
     except ValueError as e:
         print(f"Error: {e}")
         raise
