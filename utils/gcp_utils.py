@@ -20,25 +20,26 @@ import sys
 import os
 import glob
 from pathlib import Path
+from typing import Optional
 
 # Supported actions
 TUP_TIPO_ACCION = ("gcs-create", "gcs-list", "gcs-delete")
 
-def params():
+def params() -> argparse.Namespace:
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
         description="Utilidades Google Cloud Platform para lus-laboris-py",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  # Create a bucket for Terraform state
-  uv run gcp_utils.py gcs-create py-labor-law-rag-terraform-state
-  
-  # List all buckets
-  uv run gcp_utils.py gcs-list
-  
-  # Delete a bucket (use with caution)
-  uv run gcp_utils.py gcs-delete py-labor-law-rag-terraform-state
+        Examples:
+        # Create a bucket for Terraform state
+        uv run gcp_utils.py gcs-create py-labor-law-rag-terraform-state
+        
+        # List all buckets
+        uv run gcp_utils.py gcs-list
+        
+        # Delete a bucket (use with caution)
+        uv run gcp_utils.py gcs-delete py-labor-law-rag-terraform-state
         """
     )
     
@@ -74,7 +75,7 @@ Examples:
     
     return args
 
-def get_project_id_from_credentials(project_id=None):
+def get_project_id_from_credentials(project_id: Optional[str] = None) -> Optional[str]:
     """Get the GCP project ID from the JSON credentials file"""
     if project_id:
         return project_id
@@ -104,7 +105,7 @@ def get_project_id_from_credentials(project_id=None):
     
     return None
 
-def setup_gcp_credentials():
+def setup_gcp_credentials() -> bool:
     """Setup GCP credentials by searching for JSON files in .gcpcredentials/ folder"""
     # Check if GOOGLE_APPLICATION_CREDENTIALS is already set
     if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
@@ -155,7 +156,7 @@ def setup_gcp_credentials():
         print("   - ../../.gcpcredentials/ (directorio abuelo)")
         return False
 
-def check_credentials():
+def check_credentials() -> bool:
     """Check if GCP credentials are available"""
     try:
         # Try to create a client to check credentials
@@ -169,7 +170,7 @@ def check_credentials():
         print("   3. O ejecutar 'gcloud auth application-default login'")
         return False
 
-def create_bucket(bucket_name, location="southamerica-east1", project_id=None):
+def create_bucket(bucket_name: str, location: str = "southamerica-east1", project_id: Optional[str] = None) -> bool:
     """Create a Google Cloud Storage bucket"""
     try:
         # Get project ID from credentials file
@@ -214,7 +215,7 @@ def create_bucket(bucket_name, location="southamerica-east1", project_id=None):
         print(f"❌ Error al crear el bucket: {e}")
         return False
 
-def list_buckets(project_id=None):
+def list_buckets(project_id: Optional[str] = None) -> bool:
     """List all buckets in the project"""
     try:
         # Get project ID from credentials file
@@ -248,7 +249,7 @@ def list_buckets(project_id=None):
         print(f"❌ Error al listar buckets: {e}")
         return False
 
-def delete_bucket(bucket_name, project_id=None):
+def delete_bucket(bucket_name: str, project_id: Optional[str] = None) -> bool:
     """Delete a Google Cloud Storage bucket (use with caution)"""
     try:
         # Get project ID from credentials file
@@ -285,7 +286,7 @@ def delete_bucket(bucket_name, project_id=None):
         print(f"❌ Error al eliminar el bucket: {e}")
         return False
 
-def main():
+def main() -> None:
     """Main function"""
     print("🚀 Utilidades Google Cloud Platform - lus-laboris-py")
     print("=" * 60)

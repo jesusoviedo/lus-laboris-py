@@ -1,3 +1,12 @@
+<div align="center">
+
+**Language / Idioma:**
+[🇺🇸 English](#legal-text-processing) | [🇪🇸 Español](#procesamiento-de-texto-legal)
+
+</div>
+
+---
+
 # Legal Text Processing
 
 This directory contains scripts for extracting and processing text from Paraguay's Labor Code.
@@ -22,13 +31,11 @@ Main script for extracting and processing text from Paraguay's Labor Code from i
 
 #### Dependencies Installation
 
+- See the [UV documentation](https://github.com/astral-sh/uv) for more details.
+
 ```bash
 # Install dependencies using uv
-# See UV Guide for detailed commands: ../../docs/uv_guide.md
 uv sync
-
-# Or using pip
-pip install -r requirements.txt
 ```
 
 #### Usage
@@ -37,41 +44,45 @@ pip install -r requirements.txt
 
 ```bash
 # Basic execution
-python src/processing/extract_law_text.py
+uv run extract_law_text.py
 
-# With custom directory
-python src/processing/extract_law_text.py --mode local --output-dir /path/to/output
-
-# With custom URL
-python src/processing/extract_law_text.py --url "https://other-url.com"
+# Custom filenames
+uv run extract_law_text.py --raw-filename mylaw.html --processed-filename myoutput.json
 ```
+
+- The raw HTML will be saved to `data/raw/{raw-filename}` (default: `codigo_trabajo_py.html`).
+- The processed JSON will be saved to `data/processed/{processed-filename}` (default: `codigo_trabajo_articulos.json`).
 
 ##### Google Cloud Storage Mode
 
 ```bash
 # Basic GCS execution
-python src/processing/extract_law_text.py --mode gcs --bucket-name my-bucket
+uv run extract_law_text.py --mode gcs --bucket-name my-bucket
 
-# With custom filename
-python src/processing/extract_law_text.py --mode gcs --bucket-name my-bucket --blob-name labor_code.json
-
-# With custom URL
-python src/processing/extract_law_text.py --mode gcs --bucket-name my-bucket --url "https://other-url.com"
+# Use local credentials (for local development)
+uv run extract_law_text.py --mode gcs --bucket-name my-bucket --use-local-credentials
 ```
+
+- The raw HTML will always be uploaded to `raw/{raw-filename}` in the bucket (default: `codigo_trabajo_py.html`).
+- The processed JSON will always be uploaded to `processed/{processed-filename}` in the bucket (default: `codigo_trabajo_articulos.json`).
 
 #### Command Line Arguments
 
-| Argument | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `--mode` | Execution mode: `local` or `gcs` | No | `local` |
-| `--url` | Law page URL | No | Official Labor Code URL |
-| `--output-dir` | Output directory (local mode) | No | `data/processed` |
-| `--bucket-name` | GCS bucket name (gcs mode) | Yes (for gcs mode) | - |
-| `--blob-name` | GCS filename | No | `codigo_trabajo_articulos.json` |
+| Argument             | Description                                         | Required           | Default                        |
+|----------------------|-----------------------------------------------------|--------------------|---------------------------------|
+| `--mode`             | Execution mode: `local` or `gcs`                    | No                 | `local`                         |
+| `--url`              | Law page URL                                        | No                 | Official URL                    |
+| `--bucket-name`      | GCS bucket name (gcs mode)                          | Yes (for gcs mode) | -                               |
+| `--raw-filename`     | Name for raw HTML file                              | No                 | `codigo_trabajo_py.html`        |
+| `--processed-filename`| Name for processed JSON file                        | No                 | `codigo_trabajo_articulos.json` |
+| `--use-local-credentials`| Force use of local credentials file (for local dev, not Cloud Run) | No                 | False                           |
 
 #### Google Cloud Storage Configuration
 
 To use GCS mode, you need to configure authentication:
+
+- By default (recommended for Cloud Run), the script will use the environment's credentials (e.g., Cloud Run's default Service Account).
+- If you use the `--use-local-credentials` flag, the script will look for a service account `.json` file in a `.gcpcredentials` folder at the project root and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable automatically. This is useful for local development.
 
 ```bash
 # Option 1: Use Application Default Credentials
@@ -111,20 +122,22 @@ The script generates a JSON file with the following structure:
 
 ```bash
 # Help
-python src/processing/extract_law_text.py --help
+uv run extract_law_text.py --help
 
-# Local mode with custom configuration
-python src/processing/extract_law_text.py \
-  --mode local \
-  --output-dir /home/user/data \
-  --url "https://www.bacn.gov.py/leyes-paraguayas/2608/ley-n-213-establece-el-codigo-del-trabajo"
+# Local mode
+uv run extract_law_text.py
 
-# GCS mode with custom configuration
-python src/processing/extract_law_text.py \
-  --mode gcs \
-  --bucket-name my-legal-bucket \
-  --blob-name paraguay_labor_code.json \
-  --url "https://www.bacn.gov.py/leyes-paraguayas/2608/ley-n-213-establece-el-codigo-del-trabajo"
+# Local mode with custom filenames
+uv run extract_law_text.py --raw-filename ley.html --processed-filename salida.json
+
+# GCS mode (Cloud Run or default credentials)
+uv run extract_law_text.py --mode gcs --bucket-name my-bucket
+
+# GCS mode with local credentials (for local development)
+uv run extract_law_text.py --mode gcs --bucket-name my-bucket --use-local-credentials
+
+# GCS mode with custom filenames
+uv run extract_law_text.py --mode gcs --bucket-name my-bucket --raw-filename ley.html --processed-filename salida.json
 ```
 
 #### Important Notes
@@ -134,12 +147,7 @@ python src/processing/extract_law_text.py \
 - The script handles network and processing errors robustly
 - Temporary files are created with the `lus_laboris_` prefix for easy identification
 
-<div align="center">
 
-**Language / Idioma:**
-[🇺🇸 English](#legal-text-processing) | [🇪🇸 Español](#legal-text-processing-1)
-
-</div>
 
 ---
 
@@ -167,13 +175,11 @@ Script principal para extraer y procesar el texto del Código Laboral de Paragua
 
 #### Instalación de Dependencias
 
+- Consulta la [documentación de UV](https://github.com/astral-sh/uv) para más detalles.
+
 ```bash
 # Instalar dependencias usando uv
-# Ver Guía de UV para comandos detallados: ../../docs/uv_guide.md
 uv sync
-
-# O usando pip
-pip install -r requirements.txt
 ```
 
 #### Uso
@@ -182,49 +188,45 @@ pip install -r requirements.txt
 
 ```bash
 # Ejecución básica
-python src/processing/extract_law_text.py
+uv run extract_law_text.py
 
-# Con directorio personalizado
-python src/processing/extract_law_text.py --mode local --output-dir /path/to/output
-
-# Con URL personalizada
-python src/processing/extract_law_text.py --url "https://otra-url.com"
+# Personalizando nombres de archivos
+uv run extract_law_text.py --raw-filename mi_ley.html --processed-filename salida.json
 ```
+
+- El HTML crudo se guardará en `data/raw/{raw-filename}` (por defecto: `codigo_trabajo_py.html`).
+- El JSON procesado se guardará en `data/processed/{processed-filename}` (por defecto: `codigo_trabajo_articulos.json`).
 
 ##### Modo Google Cloud Storage
 
 ```bash
 # Ejecución básica con GCS
-python src/processing/extract_law_text.py --mode gcs --bucket-name mi-bucket
+uv run extract_law_text.py --mode gcs --bucket-name mi-bucket
 
-# Con nombre de archivo personalizado
-python src/processing/extract_law_text.py --mode gcs --bucket-name mi-bucket --blob-name codigo_trabajo.json
-
-# Con URL personalizada
-python src/processing/extract_law_text.py --mode gcs --bucket-name mi-bucket --url "https://otra-url.com"
+# Forzar uso de credenciales locales (para desarrollo local)
+uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-credentials
 ```
+
+- El HTML crudo siempre se subirá a `raw/{raw-filename}` en el bucket (por defecto: `codigo_trabajo_py.html`).
+- El JSON procesado siempre se subirá a `processed/{processed-filename}` en el bucket (por defecto: `codigo_trabajo_articulos.json`).
 
 #### Argumentos de Línea de Comandos
 
-| Argumento | Descripción | Requerido | Por Defecto |
-|-----------|-------------|-----------|-------------|
-| `--mode` | Modo de ejecución: `local` o `gcs` | No | `local` |
-| `--url` | URL de la página de la ley | No | URL oficial del Código Laboral |
-| `--output-dir` | Directorio de salida (modo local) | No | `data/processed` |
-| `--bucket-name` | Nombre del bucket de GCS (modo gcs) | Sí (para modo gcs) | - |
-| `--blob-name` | Nombre del archivo en GCS | No | `codigo_trabajo_articulos.json` |
+| Argumento             | Descripción                                         | Requerido           | Por Defecto                    |
+|-----------------------|-----------------------------------------------------|---------------------|-------------------------------|
+| `--mode`              | Modo de ejecución: `local` o `gcs`                  | No                  | `local`                       |
+| `--url`               | URL de la página de la ley                          | No                  | URL oficial                   |
+| `--bucket-name`       | Nombre del bucket de GCS (modo gcs)                 | Sí (para modo gcs)  | -                             |
+| `--raw-filename`      | Nombre para el archivo HTML crudo                   | No                  | `codigo_trabajo_py.html`      |
+| `--processed-filename`| Nombre para el archivo JSON procesado               | No                  | `codigo_trabajo_articulos.json`|
+| `--use-local-credentials`| Forzar uso de credenciales locales (para desarrollo local, no Cloud Run) | No                  | False                         |
 
 #### Configuración para Google Cloud Storage
 
 Para usar el modo GCS, necesitas configurar la autenticación:
 
-```bash
-# Opción 1: Usar Application Default Credentials
-gcloud auth application-default login
-
-# Opción 2: Usar una cuenta de servicio
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account-key.json"
-```
+- Por defecto (recomendado para Cloud Run), el script usará las credenciales del entorno (por ejemplo, la Service Account por defecto de Cloud Run).
+- Si usas el flag `--use-local-credentials`, el script buscará automáticamente un archivo `.json` de cuenta de servicio en la carpeta `.gcpcredentials` en la raíz del proyecto y establecerá la variable de entorno `GOOGLE_APPLICATION_CREDENTIALS`. Esto es útil para desarrollo local.
 
 #### Estructura de Salida
 
@@ -256,20 +258,22 @@ El script genera un archivo JSON con la siguiente estructura:
 
 ```bash
 # Ayuda
-python src/processing/extract_law_text.py --help
+uv run extract_law_text.py --help
 
-# Modo local con configuración personalizada
-python src/processing/extract_law_text.py \
-  --mode local \
-  --output-dir /home/user/datos \
-  --url "https://www.bacn.gov.py/leyes-paraguayas/2608/ley-n-213-establece-el-codigo-del-trabajo"
+# Modo local
+uv run extract_law_text.py
 
-# Modo GCS con configuración personalizada
-python src/processing/extract_law_text.py \
-  --mode gcs \
-  --bucket-name mi-bucket-legal \
-  --blob-name codigo_trabajo_paraguay.json \
-  --url "https://www.bacn.gov.py/leyes-paraguayas/2608/ley-n-213-establece-el-codigo-del-trabajo"
+# Modo local con nombres personalizados
+uv run extract_law_text.py --raw-filename ley.html --processed-filename salida.json
+
+# Modo GCS (Cloud Run o credenciales por defecto)
+uv run extract_law_text.py --mode gcs --bucket-name mi-bucket
+
+# Modo GCS con credenciales locales (para desarrollo local)
+uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-credentials
+
+# Modo GCS con nombres personalizados
+uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --raw-filename ley.html --processed-filename salida.json
 ```
 
 #### Notas Importantes

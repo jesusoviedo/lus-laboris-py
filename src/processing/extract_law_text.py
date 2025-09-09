@@ -26,6 +26,7 @@ from ftfy import fix_text
 from bs4 import BeautifulSoup
 from typing import Dict, List, Any, Optional
 from google.cloud import storage
+import glob
 
 
 # Patrones para identificar encabezados y artículos
@@ -209,52 +210,38 @@ def parse_law_text(raw_text: str) -> Dict[str, Any]:
     }
 
 
-def save_parsed_json_local(parsed: Dict[str, Any], filename: str = "codigo_trabajo_articulos.json", out_dir: str = "data/processed") -> str:
-    """Guarda los datos parseados en un archivo JSON local."""
-    out_dir = Path(out_dir)
+def save_parsed_json_local(parsed: Dict[str, Any], processed_filename: str = "codigo_trabajo_articulos.json") -> str:
+    """Guarda los datos parseados en un archivo JSON local en data/processed/"""
+    out_dir = Path("data/processed")
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / filename
-
+    out_path = out_dir / processed_filename
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(parsed, f, ensure_ascii=False, indent=2)
-
     print(f"Guardado localmente: {out_path}")
     print(f"Artículos totales: {len(parsed.get('articulos', []))}")
     return str(out_path)
 
 
-def save_parsed_json_gcs(parsed: Dict[str, Any], bucket_name: str, blob_name: str = "codigo_trabajo_articulos.json") -> str:
-    """Guarda los datos parseados en un archivo JSON en Google Cloud Storage."""
+def save_parsed_json_gcs(parsed: Dict[str, Any], bucket_name: str, processed_filename: str = "codigo_trabajo_articulos.json") -> str:
+    """Guarda los datos parseados en un archivo JSON en GCS en processed/codigo_trabajo_articulos.json"""
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    
-    # Convertir a JSON string
+    blob = bucket.blob(f"processed/{processed_filename}")
     json_str = json.dumps(parsed, ensure_ascii=False, indent=2)
-    
-    # Subir a GCS
     blob.upload_from_string(json_str, content_type='application/json')
-    
-    gcs_path = f"gs://{bucket_name}/{blob_name}"
+    gcs_path = f"gs://{bucket_name}/processed/{processed_filename}"
     print(f"Guardado en GCS: {gcs_path}")
     print(f"Artículos totales: {len(parsed.get('articulos', []))}")
     return gcs_path
 
 
-def upload_file_to_gcs(file_path: str, bucket_name: str, blob_name: str, content_type: str | None = None) -> str:
-    """Sube un archivo existente a Google Cloud Storage y devuelve su ruta gs://.
-
-    Args:
-        file_path: Ruta local del archivo a subir
-        bucket_name: Nombre del bucket de GCS
-        blob_name: Ruta/nombre del blob de destino en el bucket
-        content_type: Content-Type opcional del archivo
-    """
+def upload_file_to_gcs(file_path: str, bucket_name: str, raw_filename: str = "codigo_trabajo_py.html") -> str:
+    """Sube el HTML crudo a GCS en raw/codigo_trabajo_py.html"""
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    blob.upload_from_filename(file_path, content_type=content_type)
-    gcs_path = f"gs://{bucket_name}/{blob_name}"
+    blob = bucket.blob(f"raw/{raw_filename}")
+    blob.upload_from_filename(file_path, content_type='text/html; charset=utf-8')
+    gcs_path = f"gs://{bucket_name}/raw/{raw_filename}"
     print(f"Archivo subido a GCS: {gcs_path}")
     return gcs_path
 
@@ -282,67 +269,55 @@ def cleanup_temp_directories(temp_dir: Path) -> None:
         print(f"Advertencia: No se pudo limpiar el directorio temporal {temp_dir}: {e}")
 
 
-def process_law_local(url: str, output_dir: str = "data/processed") -> str:
-    """Procesa la ley en modo local."""
+def set_gcp_credentials():
+    """Busca un archivo .json en .gcpcredentials y setea GOOGLE_APPLICATION_CREDENTIALS si existe."""
+    cred_dir = Path(__file__).resolve().parent.parent.parent / '.gcpcredentials'
+    json_files = list(cred_dir.glob('*.json'))
+    if json_files:
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(json_files[0])
+        print(f"Usando credenciales de servicio: {json_files[0]}")
+
+
+def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json") -> str:
+    """Procesa la ley en modo local, guardando archivos en data/raw y data/processed"""
     print("=== MODO LOCAL ===")
-    
-    # Descargar HTML
-    download_law_page(url)
-    
-    # Extraer texto del HTML
-    html_path = "data/raw/codigo_trabajo_py.html"
+    raw_path = f"data/raw/{raw_filename}"
+    download_law_page(url, raw_path)
     try:
-        texto_limpio = extract_text_from_html(html_path)
+        texto_limpio = extract_text_from_html(raw_path)
     except ValueError as e:
         print(f"Error: {e}")
         raise
-    
-    # Parsear texto completo
     parsed = parse_law_text(texto_limpio)
-    
-    # Guardar resultado localmente
-    output_path = save_parsed_json_local(parsed, out_dir=output_dir)
-    
+    output_path = save_parsed_json_local(parsed, processed_filename)
     return output_path
 
 
-def process_law_gcs(url: str, bucket_name: str, blob_name: str = "codigo_trabajo_articulos.json", upload_raw: bool = False, raw_blob_name: str = "codigo_trabajo_py.html") -> str:
-    """Procesa la ley en modo GCS con directorios temporales."""
+def process_law_gcs(url: str, bucket_name: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", use_local_credentials: bool = False) -> str:
+    """Procesa la ley en modo GCS, subiendo archivos a raw/ y processed/ en el bucket"""
     print("=== MODO GOOGLE CLOUD STORAGE ===")
-    
-    # Crear directorios temporales
+    if use_local_credentials:
+        set_gcp_credentials()
     raw_dir, processed_dir = create_temp_directories()
     temp_dir = raw_dir.parent
-    
     try:
-        # Descargar HTML a directorio temporal
-        html_path = raw_dir / "codigo_trabajo_py.html"
+        html_path = raw_dir / raw_filename
         download_law_page(url, str(html_path))
-        
-        # Subir HTML crudo si corresponde
-        if upload_raw:
-            try:
-                upload_file_to_gcs(str(html_path), bucket_name, raw_blob_name, content_type='text/html; charset=utf-8')
-            except Exception as e:
-                print(f"Advertencia: No se pudo subir el HTML crudo a GCS: {e}")
-
-        # Extraer texto del HTML
+        # Siempre subir el HTML crudo
+        try:
+            upload_file_to_gcs(str(html_path), bucket_name, raw_filename)
+        except Exception as e:
+            print(f"Advertencia: No se pudo subir el HTML crudo a GCS: {e}")
         try:
             texto_limpio = extract_text_from_html(str(html_path))
         except ValueError as e:
             print(f"Error: {e}")
             raise
-        
-        # Parsear texto completo
         parsed = parse_law_text(texto_limpio)
-        
-        # Guardar resultado en GCS
-        gcs_path = save_parsed_json_gcs(parsed, bucket_name, blob_name)
-        
+        # Siempre subir el JSON procesado
+        gcs_path = save_parsed_json_gcs(parsed, bucket_name, processed_filename)
         return gcs_path
-        
     finally:
-        # Limpiar directorios temporales
         cleanup_temp_directories(temp_dir)
 
 
@@ -377,103 +352,77 @@ def extract_text_from_html(html_path: str) -> str:
 
 
 def parse_arguments():
-    """Parsea los argumentos de línea de comandos."""
     parser = argparse.ArgumentParser(
         description="Extrae y procesa el texto del Código Laboral de Paraguay",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Ejemplos de uso:
-  # Modo local (por defecto)
-  python extract_law_text.py
-  
-  # Modo local con directorio personalizado
-  python extract_law_text.py --mode local --output-dir /path/to/output
-  
-  # Modo GCS
-  python extract_law_text.py --mode gcs --bucket-name mi-bucket --blob-name codigo_trabajo.json
-  
-  # Modo GCS con URL personalizada
-  python extract_law_text.py --mode gcs --bucket-name mi-bucket --url "https://otra-url.com"
+        Ejemplos de uso:
+        # Modo local (por defecto)
+        python extract_law_text.py
+        # Modo GCS
+        python extract_law_text.py --mode gcs --bucket-name mi-bucket
+        # Personalizando nombres de archivos
+        python extract_law_text.py --raw-filename ley.html --processed-filename salida.json
+        # Forzar uso de credenciales locales (desarrollo local)
+        python extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-credentials
         """
     )
     
     parser.add_argument(
-        '--mode',
-        choices=['local', 'gcs'],
-        default='local',
-        help='Modo de ejecución: local (archivos locales) o gcs (Google Cloud Storage)'
-    )
+        '--mode', 
+        choices=['local', 'gcs'], 
+        default='local', 
+        help='Modo de ejecución: local (archivos locales) o gcs (Google Cloud Storage)')
     
     parser.add_argument(
-        '--url',
-        default='https://www.bacn.gov.py/leyes-paraguayas/2608/ley-n-213-establece-el-codigo-del-trabajo',
-        help='URL de la página de la ley'
-    )
+        '--url', 
+        default='https://www.bacn.gov.py/leyes-paraguayas/2608/ley-n-213-establece-el-codigo-del-trabajo', 
+        help='URL de la página de la ley')
     
     parser.add_argument(
-        '--output-dir',
-        default='data/processed',
-        help='Directorio de salida para modo local (por defecto: data/processed)'
-    )
+        '--bucket-name', 
+        help='Nombre del bucket de GCS (requerido para modo gcs)')
     
     parser.add_argument(
-        '--bucket-name',
-        help='Nombre del bucket de GCS (requerido para modo gcs)'
-    )
+        '--raw-filename', 
+        default='codigo_trabajo_py.html', 
+        help='Nombre del archivo HTML crudo (por defecto: codigo_trabajo_py.html)')
     
     parser.add_argument(
-        '--blob-name',
-        default='codigo_trabajo_articulos.json',
-        help='Nombre del archivo en GCS (por defecto: codigo_trabajo_articulos.json)'
-    )
-
-    parser.add_argument(
-        '--upload-raw',
-        action='store_true',
-        help='Si se especifica, sube el HTML crudo al bucket de GCS'
-    )
-
-    parser.add_argument(
-        '--raw-blob-name',
-        default='codigo_trabajo_py.html',
-        help='Nombre del archivo HTML crudo en GCS (por defecto: codigo_trabajo_py.html)'
-    )
+        '--processed-filename', 
+        default='codigo_trabajo_articulos.json', 
+        help='Nombre del archivo JSON procesado (por defecto: codigo_trabajo_articulos.json)')
+    
+    parser.add_argument('--use-local-credentials', action='store_true', help='Forzar uso de credenciales desde archivo local (para desarrollo local).')
     
     return parser.parse_args()
 
 
-def main():
-    """Función principal que ejecuta todo el proceso."""
+def main() -> int:
     args = parse_arguments()
-    
     print(f"Iniciando procesamiento en modo: {args.mode.upper()}")
     print(f"URL: {args.url}")
-    
     try:
         if args.mode == 'local':
-            output_path = process_law_local(args.url, args.output_dir)
+            output_path = process_law_local(args.url, args.raw_filename, args.processed_filename)
             print(f"\n✅ Proceso completado exitosamente!")
             print(f"📁 Archivo guardado en: {output_path}")
-            
         elif args.mode == 'gcs':
             if not args.bucket_name:
                 print("❌ Error: --bucket-name es requerido para el modo GCS")
                 return 1
-            
             gcs_path = process_law_gcs(
                 args.url,
                 args.bucket_name,
-                args.blob_name,
-                upload_raw=args.upload_raw,
-                raw_blob_name=args.raw_blob_name,
+                raw_filename=args.raw_filename,
+                processed_filename=args.processed_filename,
+                use_local_credentials=args.use_local_credentials,
             )
             print(f"\n✅ Proceso completado exitosamente!")
             print(f"☁️  Archivo guardado en: {gcs_path}")
-            
     except Exception as e:
         print(f"❌ Error durante el procesamiento: {e}")
         return 1
-    
     return 0
 
 
