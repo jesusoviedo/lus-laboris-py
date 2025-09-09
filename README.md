@@ -39,6 +39,7 @@ The project is organized in folders such as:
 - `evaluation/` — Scripts and notebooks for RAG application evaluation
 - `monitoring/` — Scripts and configuration for monitoring with Phoenix
 - `deploy/` — Deployment and configuration files for Google Cloud Run
+- `utils/` — Utility scripts for project management and automation
 - `.github/workflows/` — GitHub Actions workflows for automation
 
 ## Project Structure
@@ -62,6 +63,11 @@ lus-laboris-py/
 │   ├── processing/        # Data extraction and processing scripts
 │   └── vectorstore/       # Qdrant vector database scripts
 ├── tests/                 # Unit and integration tests
+├── utils/                 # Utility scripts and tools
+│   ├── gcp_utils.py       # GCP utilities for bucket management
+│   ├── create_terraform_bucket.sh  # Script to create Terraform state bucket
+│   ├── pyproject.toml     # Dependencies for utils
+│   └── README.md          # Utils documentation
 ├── .github/workflows/     # GitHub Actions workflows
 ├── LICENSE                # Project license
 ├── README.md              # This file
@@ -80,6 +86,7 @@ lus-laboris-py/
 - **`src/processing/`**: Scripts for data extraction, cleaning, and processing.
 - **`src/vectorstore/`**: Scripts for loading, managing, and querying the Qdrant vector database.
 - **`tests/`**: Unit and integration tests to ensure code quality and correctness.
+- **`utils/`**: Utility scripts and tools for project management, including GCP bucket management for Terraform state.
 
 ## Features
 
