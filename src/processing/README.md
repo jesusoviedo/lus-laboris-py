@@ -188,6 +188,70 @@ docker run --rm \
 
 This allows you to run the script in GCS mode from Docker, mounting the GCP credentials securely.
 
+#### Publish Docker Image to Docker Hub
+
+You can upload the generated Docker image to Docker Hub manually or automatically.
+
+##### Manual method
+
+1. Load the environment variables from the `.env` file located at the project root (run this from the `src/processing` folder):
+```bash
+set -o allexport
+source ../../.env
+set +o allexport
+```
+
+2. Make sure you have a `.env` file at the project root with the variables:
+   - `DOCKER_HUB_USERNAME`
+   - `DOCKER_HUB_PASSWORD`
+   - `IMAGE_NAME_PROCESSING`
+
+3. Build the Docker image:
+```bash
+docker build -t "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" .
+```
+
+4. Log in to Docker Hub:
+```bash
+echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
+```
+
+5. Tag the image with the date:
+```bash
+DATE_TAG=$(date +%Y%m%d)
+docker tag "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+```
+
+6. Push both tags:
+```bash
+docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest"
+docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+```
+
+> **Note:** The script and commands generate two tags: one with `latest` and one with the current date (`YYYYMMDD`).
+> **Best practice:** In production, always use the date tag (`YYYYMMDD`) to avoid running unexpected versions that may be under the `latest` tag.
+
+For more details about Docker and Docker Hub usage, see the guides:
+- [docker_guide.md](../../docs/docker_guide.md)
+- [docker_hub_guide.md](../../docs/docker_hub_guide.md)
+
+##### Automatic method (recommended)
+
+You can use the `docker_build_push.sh` script to automate the entire process. The script looks for the `.env` file at the project root (two levels above the `processing` folder).
+
+```bash
+bash docker_build_push.sh
+```
+
+The script will validate the required variables, build the image, tag it, and push it to Docker Hub with both tags.
+
+> **Note:** The script also generates both `latest` and date tags. Use the date tag for safer production deployments.
+
+For more information about scripts and automation, also see:
+- [docker_build_push.sh](./docker_build_push.sh)
+- [docker_guide.md](../../docs/docker_guide.md)
+- [docker_hub_guide.md](../../docs/docker_hub_guide.md)
+
 ---
 
 # Procesamiento de Texto Legal
@@ -370,3 +434,67 @@ docker run --rm \
 ```
 
 Esto permite ejecutar el script en modo GCS desde Docker, montando las credenciales de GCP de forma segura.
+
+#### Publicar imagen en Docker Hub
+
+Puedes subir la imagen Docker generada a Docker Hub de forma manual o automática.
+
+##### Método manual
+
+1. Carga las variables de entorno desde el archivo `.env` ubicado en la raíz del proyecto (ejecuta esto desde la carpeta `src/processing`):
+```bash
+set -o allexport
+source ../../.env
+set +o allexport
+```
+
+2. Asegúrate de tener un archivo `.env` en la raíz del proyecto con las variables:
+   - `DOCKER_HUB_USERNAME`
+   - `DOCKER_HUB_PASSWORD`
+   - `IMAGE_NAME_PROCESSING`
+
+3. Construye la imagen Docker:
+```bash
+docker build -t "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" .
+```
+
+4. Inicia sesión en Docker Hub:
+```bash
+echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
+```
+
+5. Etiqueta la imagen con la fecha:
+```bash
+DATE_TAG=$(date +%Y%m%d)
+docker tag "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+```
+
+6. Sube ambas etiquetas:
+```bash
+docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest"
+docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+```
+
+> **Nota:** El script y los comandos generan dos tags: uno con la palabra `latest` y otro con la fecha actual (formato `YYYYMMDD`).
+> **Buena práctica:** En producción, siempre utiliza el tag de fecha (`YYYYMMDD`) para evitar ejecutar versiones inesperadas que puedan estar bajo el tag `latest`.
+
+Para más detalles sobre el uso de Docker y Docker Hub, consulta los manuales:
+- [docker_guide.md](../../docs/docker_guide.md)
+- [docker_hub_guide.md](../../docs/docker_hub_guide.md)
+
+##### Método automático (recomendado)
+
+Puedes usar el script `docker_build_push.sh` que automatiza todo el proceso. El script busca el archivo `.env` en la raíz del proyecto (dos niveles arriba de la carpeta `processing`).
+
+```bash
+bash docker_build_push.sh
+```
+
+El script validará las variables necesarias, construirá la imagen, la etiquetará y la subirá a Docker Hub con los tags correspondientes.
+
+> **Nota:** El script también genera los tags `latest` y de fecha. Usa el tag de fecha para mayor seguridad en producción.
+
+Para más información sobre scripts y automatización, revisa también:
+- [docker_build_push.sh](./docker_build_push.sh)
+- [docker_guide.md](../../docs/docker_guide.md)
+- [docker_hub_guide.md](../../docs/docker_hub_guide.md)
