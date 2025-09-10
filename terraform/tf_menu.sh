@@ -2,7 +2,7 @@
 
 # Determinar la raiz del proyecto (dos niveles arriba de la ubicacion de este script)
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_ROOT="$(realpath "$SCRIPT_DIR/../..")"
+PROJECT_ROOT="$(realpath "$SCRIPT_DIR/..")"
 CRED_DIR="$PROJECT_ROOT/.gcpcredentials"
 
 # Buscar archivo .json de credenciales
