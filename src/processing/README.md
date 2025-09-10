@@ -76,6 +76,8 @@ uv run extract_law_text.py --mode gcs --bucket-name my-bucket --use-local-creden
 | `--raw-filename`     | Name for raw HTML file                              | No                 | `codigo_trabajo_py.html`        |
 | `--processed-filename`| Name for processed JSON file                        | No                 | `codigo_trabajo_articulos.json` |
 | `--use-local-credentials`| Force use of local credentials file (for local dev, not Cloud Run) | No                 | False                           |
+| `--gcp-credentials-dir` | Path to the folder where the GCP .json credentials file is located (optional, useful for Docker) | No | Project root `.gcpcredentials` |
+| `--output-root`        | Root directory for local output (data/raw and data/processed) (optional, useful for Docker) | No | Project root |
 
 #### Google Cloud Storage Configuration
 
@@ -83,6 +85,7 @@ To use GCS mode, you need to configure authentication:
 
 - By default (recommended for Cloud Run), the script will use the environment's credentials (e.g., Cloud Run's default Service Account).
 - If you use the `--use-local-credentials` flag, the script will look for a service account `.json` file in a `.gcpcredentials` folder at the project root and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable automatically. This is useful for local development.
+- You can override the credentials folder location with the `--gcp-credentials-dir` flag (recommended for Docker).
 
 #### Output Structure
 
@@ -119,6 +122,9 @@ uv run extract_law_text.py --help
 # Local mode
 uv run extract_law_text.py
 
+# Local mode with custom output root (e.g., for Docker volume)
+uv run extract_law_text.py --output-root /app
+
 # Local mode with custom filenames
 uv run extract_law_text.py --raw-filename ley.html --processed-filename salida.json
 
@@ -139,7 +145,48 @@ uv run extract_law_text.py --mode gcs --bucket-name my-bucket --raw-filename ley
 - The script handles network and processing errors robustly
 - Temporary files are created with the `lus_laboris_` prefix for easy identification
 
+#### Docker Usage
 
+You can build and run the script in a Docker container for maximum portability. See [docker_guide.md](../../docs/docker_guide.md) for more details.
+
+**Build the image:**
+```bash
+docker build -t labor-law-extractor .
+```
+
+**Docker Usage - Local Mode**
+
+You can also run the script in local mode and persist output to a mounted volume:
+
+```bash
+# Get the absolute path to the data folder
+DATA_DIR=$(realpath ../../data)
+
+docker run --rm \
+  -v "${DATA_DIR}:/app/data" \
+  labor-law-extractor \
+  uv run extract_law_text.py --output-root /app
+```
+
+This will save all output in your local 'data' folder.
+
+**Docker Usage - GCS Mode (mounting credentials):**
+
+```bash
+# Get the absolute path to the GCP credentials folder
+GCP_CREDS=$(realpath ../../.gcpcredentials)
+
+docker run --rm \
+  -v "${GCP_CREDS}:/gcpcreds:ro" \
+  labor-law-extractor \
+  uv run extract_law_text.py \
+    --mode gcs \
+    --bucket-name py-labor-law-rag-bucket \
+    --use-local-credentials \
+    --gcp-credentials-dir /gcpcreds
+```
+
+This allows you to run the script in GCS mode from Docker, mounting the GCP credentials securely.
 
 ---
 
@@ -212,6 +259,8 @@ uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-creden
 | `--raw-filename`      | Nombre para el archivo HTML crudo                   | No                  | `codigo_trabajo_py.html`      |
 | `--processed-filename`| Nombre para el archivo JSON procesado               | No                  | `codigo_trabajo_articulos.json`|
 | `--use-local-credentials`| Forzar uso de credenciales locales (para desarrollo local, no Cloud Run) | No                  | False                         |
+| `--gcp-credentials-dir` | Ruta a la carpeta donde buscar el archivo .json de credenciales de GCP (opcional, util para Docker) | No | `.gcpcredentials` en la raíz |
+| `--output-root`        | Raíz donde se crearán las carpetas data/raw y data/processed en modo local (opcional, útil para Docker) | No | Raíz del proyecto |
 
 #### Configuración para Google Cloud Storage
 
@@ -219,6 +268,7 @@ Para usar el modo GCS, necesitas configurar la autenticación:
 
 - Por defecto (recomendado para Cloud Run), el script usará las credenciales del entorno (por ejemplo, la Service Account por defecto de Cloud Run).
 - Si usas el flag `--use-local-credentials`, el script buscará automáticamente un archivo `.json` de cuenta de servicio en la carpeta `.gcpcredentials` en la raíz del proyecto y establecerá la variable de entorno `GOOGLE_APPLICATION_CREDENTIALS`. Esto es útil para desarrollo local.
+- Puedes sobrescribir la ubicación de la carpeta de credenciales con el flag `--gcp-credentials-dir` (recomendado para Docker).
 
 #### Estructura de Salida
 
@@ -255,6 +305,9 @@ uv run extract_law_text.py --help
 # Modo local
 uv run extract_law_text.py
 
+# Modo local con raíz de salida personalizada (por ejemplo, para volumen Docker)
+uv run extract_law_text.py --output-root /app
+
 # Modo local con nombres personalizados
 uv run extract_law_text.py --raw-filename ley.html --processed-filename salida.json
 
@@ -274,3 +327,46 @@ uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --raw-filename ley
 - Para el modo GCS, asegúrate de tener permisos de escritura en el bucket especificado
 - El script maneja errores de red y de procesamiento de manera robusta
 - Los archivos temporales se crean con el prefijo `lus_laboris_` para facilitar la identificación
+
+#### Uso con Docker
+
+Puedes construir y ejecutar el script en un contenedor Docker para máxima portabilidad. Consulta [docker_guide.md](../../docs/docker_guide.md) para más detalles.
+
+**Construir la imagen:**
+```bash
+docker build -t labor-law-extractor .
+```
+
+**Uso con Docker - Modo Local**
+
+Puedes ejecutar el script en modo local y persistir la salida en un volumen montado:
+
+```bash
+# Obtener la ruta absoluta de la carpeta data
+DATA_DIR=$(realpath ../../data)
+
+docker run --rm \
+  -v "${DATA_DIR}:/app/data" \
+  labor-law-extractor \
+  uv run extract_law_text.py --output-root /app
+```
+
+Esto guardará toda la salida en tu carpeta local 'data'.
+
+**Uso con Docker - Modo GCS (montando credenciales):**
+
+```bash
+# Obtener la ruta absoluta de la carpeta de credenciales GCP
+GCP_CREDS=$(realpath ../../.gcpcredentials)
+
+docker run --rm \
+  -v "${GCP_CREDS}:/gcpcreds:ro" \
+  labor-law-extractor \
+  uv run extract_law_text.py \
+    --mode gcs \
+    --bucket-name py-labor-law-rag-bucket \
+    --use-local-credentials \
+    --gcp-credentials-dir /gcpcreds
+```
+
+Esto permite ejecutar el script en modo GCS desde Docker, montando las credenciales de GCP de forma segura.

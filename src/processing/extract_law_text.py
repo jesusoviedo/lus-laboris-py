@@ -210,9 +210,12 @@ def parse_law_text(raw_text: str) -> Dict[str, Any]:
     }
 
 
-def save_parsed_json_local(parsed: Dict[str, Any], processed_filename: str = "codigo_trabajo_articulos.json") -> str:
-    """Guarda los datos parseados en un archivo JSON local en data/processed/ (raíz del proyecto)"""
-    project_root = Path(__file__).resolve().parent.parent.parent
+def save_parsed_json_local(parsed: Dict[str, Any], processed_filename: str = "codigo_trabajo_articulos.json", output_root: str = None) -> str:
+    """Guarda los datos parseados en un archivo JSON local en data/processed/ (raíz del proyecto o la indicada)"""
+    if output_root:
+        project_root = Path(output_root)
+    else:
+        project_root = Path(__file__).resolve().parent.parent.parent
     out_dir = project_root / "data/processed"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / processed_filename
@@ -270,20 +273,28 @@ def cleanup_temp_directories(temp_dir: Path) -> None:
         print(f"Advertencia: No se pudo limpiar el directorio temporal {temp_dir}: {e}")
 
 
-def set_gcp_credentials():
-    """Busca un archivo .json en .gcpcredentials dos niveles arriba y setea GOOGLE_APPLICATION_CREDENTIALS si existe."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    cred_dir = project_root / '.gcpcredentials'
+def set_gcp_credentials(gcp_credentials_dir: str = None):
+    """Busca un archivo .json en la carpeta indicada o en .gcpcredentials dos niveles arriba y setea GOOGLE_APPLICATION_CREDENTIALS si existe."""
+    from pathlib import Path
+    import os
+    if gcp_credentials_dir:
+        cred_dir = Path(gcp_credentials_dir)
+    else:
+        project_root = Path(__file__).resolve().parent.parent.parent
+        cred_dir = project_root / '.gcpcredentials'
     json_files = list(cred_dir.glob('*.json'))
     if json_files:
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(json_files[0])
         print(f"Usando credenciales de servicio: {json_files[0]}")
 
 
-def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json") -> str:
-    """Procesa la ley en modo local, guardando archivos en data/raw y data/processed en la raíz del proyecto"""
+def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", output_root: str = None) -> str:
+    """Procesa la ley en modo local, guardando archivos en data/raw y data/processed en la raíz del proyecto o la indicada"""
     print("=== MODO LOCAL ===")
-    project_root = Path(__file__).resolve().parent.parent.parent
+    if output_root:
+        project_root = Path(output_root)
+    else:
+        project_root = Path(__file__).resolve().parent.parent.parent
     raw_path = project_root / "data/raw" / raw_filename
     raw_path.parent.mkdir(parents=True, exist_ok=True)
     download_law_page(url, str(raw_path))
@@ -293,15 +304,15 @@ def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", pr
         print(f"Error: {e}")
         raise
     parsed = parse_law_text(texto_limpio)
-    output_path = save_parsed_json_local(parsed, processed_filename)
+    output_path = save_parsed_json_local(parsed, processed_filename, output_root=output_root)
     return output_path
 
 
-def process_law_gcs(url: str, bucket_name: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", use_local_credentials: bool = False) -> str:
+def process_law_gcs(url: str, bucket_name: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", use_local_credentials: bool = False, gcp_credentials_dir: str = None) -> str:
     """Procesa la ley en modo GCS, subiendo archivos a raw/ y processed/ en el bucket"""
     print("=== MODO GOOGLE CLOUD STORAGE ===")
     if use_local_credentials:
-        set_gcp_credentials()
+        set_gcp_credentials(gcp_credentials_dir)
     raw_dir, processed_dir = create_temp_directories()
     temp_dir = raw_dir.parent
     try:
@@ -369,6 +380,10 @@ def parse_arguments():
         python extract_law_text.py --raw-filename ley.html --processed-filename salida.json
         # Forzar uso de credenciales locales (desarrollo local)
         python extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-credentials
+        # Especificar carpeta de credenciales
+        python extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-credentials --gcp-credentials-dir /ruta/a/credenciales
+        # Cambiar la raíz de salida local
+        python extract_law_text.py --output-root /ruta/deseada
         """
     )
     
@@ -398,7 +413,8 @@ def parse_arguments():
         help='Nombre del archivo JSON procesado (por defecto: codigo_trabajo_articulos.json)')
     
     parser.add_argument('--use-local-credentials', action='store_true', help='Forzar uso de credenciales desde archivo local (para desarrollo local).')
-    
+    parser.add_argument('--gcp-credentials-dir', default=None, help='Ruta a la carpeta donde buscar el archivo .json de credenciales de GCP (opcional, por defecto busca en la raíz del proyecto).')
+    parser.add_argument('--output-root', default=None, help='Raíz donde se crearán las carpetas data/raw y data/processed en modo local (opcional).')
     return parser.parse_args()
 
 
@@ -408,7 +424,7 @@ def main() -> int:
     print(f"URL: {args.url}")
     try:
         if args.mode == 'local':
-            output_path = process_law_local(args.url, args.raw_filename, args.processed_filename)
+            output_path = process_law_local(args.url, args.raw_filename, args.processed_filename, output_root=args.output_root)
             print(f"\n✅ Proceso completado exitosamente!")
             print(f"📁 Archivo guardado en: {output_path}")
         elif args.mode == 'gcs':
@@ -421,6 +437,7 @@ def main() -> int:
                 raw_filename=args.raw_filename,
                 processed_filename=args.processed_filename,
                 use_local_credentials=args.use_local_credentials,
+                gcp_credentials_dir=args.gcp_credentials_dir,
             )
             print(f"\n✅ Proceso completado exitosamente!")
             print(f"☁️  Archivo guardado en: {gcs_path}")
