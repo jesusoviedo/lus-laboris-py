@@ -1,5 +1,12 @@
 # Processed Data
 
+<div align="center">
+
+**Language / Idioma:**
+[🇺🇸 English](#processed-data) | [🇪🇸 Español](#processed-data-1)
+
+</div>
+
 This folder stores processed and cleaned data, ready for indexing, analysis, or use by the application.
 
 ## Contents
@@ -17,13 +24,6 @@ To generate processed data, run:
 python ../../src/processing/extract_law_text.py
 ```
 
-
-<div align="center">
-
-**Language / Idioma:**
-[🇺🇸 English](#processed-data) | [🇪🇸 Español](#processed-data-1)
-
-</div>
 
 ---
 
