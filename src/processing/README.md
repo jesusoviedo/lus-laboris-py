@@ -231,9 +231,8 @@ docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 > **Note:** The script and commands generate two tags: one with `latest` and one with the current date (`YYYYMMDD`).
 > **Best practice:** In production, always use the date tag (`YYYYMMDD`) to avoid running unexpected versions that may be under the `latest` tag.
 
-For more details about Docker and Docker Hub usage, see the guides:
+For more details about Docker usage (including Compose and Hub), see the guide:
 - [docker_guide.md](../../docs/docker_guide.md)
-- [docker_hub_guide.md](../../docs/docker_hub_guide.md)
 
 ##### Automatic method (recommended)
 
@@ -243,14 +242,8 @@ You can use the `docker_build_push.sh` script to automate the entire process. Th
 bash docker_build_push.sh
 ```
 
-The script will validate the required variables, build the image, tag it, and push it to Docker Hub with both tags.
-
-> **Note:** The script also generates both `latest` and date tags. Use the date tag for safer production deployments.
-
-For more information about scripts and automation, also see:
-- [docker_build_push.sh](./docker_build_push.sh)
+The script will validate the required variables, build the image, tag it, and push it to Docker Hub with both tags. For more information, see:
 - [docker_guide.md](../../docs/docker_guide.md)
-- [docker_hub_guide.md](../../docs/docker_hub_guide.md)
 
 ---
 
@@ -478,9 +471,8 @@ docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 > **Nota:** El script y los comandos generan dos tags: uno con la palabra `latest` y otro con la fecha actual (formato `YYYYMMDD`).
 > **Buena práctica:** En producción, siempre utiliza el tag de fecha (`YYYYMMDD`) para evitar ejecutar versiones inesperadas que puedan estar bajo el tag `latest`.
 
-Para más detalles sobre el uso de Docker y Docker Hub, consulta los manuales:
+Para más detalles sobre el uso de Docker (incluyendo Compose y Hub), consulta la guía:
 - [docker_guide.md](../../docs/docker_guide.md)
-- [docker_hub_guide.md](../../docs/docker_hub_guide.md)
 
 ##### Método automático (recomendado)
 
@@ -490,11 +482,5 @@ Puedes usar el script `docker_build_push.sh` que automatiza todo el proceso. El 
 bash docker_build_push.sh
 ```
 
-El script validará las variables necesarias, construirá la imagen, la etiquetará y la subirá a Docker Hub con los tags correspondientes.
-
-> **Nota:** El script también genera los tags `latest` y de fecha. Usa el tag de fecha para mayor seguridad en producción.
-
-Para más información sobre scripts y automatización, revisa también:
-- [docker_build_push.sh](./docker_build_push.sh)
+El script validará las variables necesarias, construirá la imagen, la etiquetará y la subirá a Docker Hub con los tags correspondientes. Para más información, revisa:
 - [docker_guide.md](../../docs/docker_guide.md)
-- [docker_hub_guide.md](../../docs/docker_hub_guide.md)

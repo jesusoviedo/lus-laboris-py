@@ -1,638 +1,431 @@
-# Docker Guide
+# Docker, Docker Compose & Docker Hub Guide
 
 <div align="center">
 
 **Language / Idioma:**
-[🇺🇸 English](#docker-guide) | [🇪🇸 Español](#guía-de-docker)
+[🇺🇸 English](#Table-of-Contents) | [🇪🇸 Español](#Tabla-de-Contenidos)
 
 </div>
 
 ---
 
-## Docker Guide
-
-Docker is a platform that uses containerization to package applications and their dependencies into lightweight, portable containers. This guide covers Docker basics, best practices, and common commands.
-
-## Installation
-
-### Install Docker
-```bash
-# Ubuntu/Debian
-sudo apt update
-sudo apt install docker.io
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-
-# macOS (using Homebrew)
-brew install --cask docker
-
-# Windows
-# Download Docker Desktop from https://www.docker.com/products/docker-desktop
-```
-
-### Verify Installation
-```bash
-docker --version
-docker run hello-world
-```
-
-## Basic Concepts
-
-### Images vs Containers
-- **Image**: A read-only template with instructions for creating a container
-- **Container**: A running instance of an image
-
-### Dockerfile
-A text file with instructions to build a Docker image.
-
-## Essential Commands
-
-### Image Management
-```bash
-# List images
-docker images
-
-# Pull an image
-docker pull ubuntu:20.04
-
-# Remove an image
-docker rmi ubuntu:20.04
-
-# Remove unused images
-docker image prune
-
-# Build an image
-docker build -t my-app:latest .
-
-# Build with specific Dockerfile
-docker build -f Dockerfile.prod -t my-app:prod .
-```
-
-### Container Management
-```bash
-# Run a container
-docker run ubuntu:20.04
-
-# Run interactively
-docker run -it ubuntu:20.04 /bin/bash
-
-# Run in background (detached)
-docker run -d nginx
-
-# Run with port mapping
-docker run -p 8080:80 nginx
-
-# Run with volume mount
-docker run -v /host/path:/container/path ubuntu
-
-# Run with environment variables
-docker run -e ENV_VAR=value ubuntu
-
-# List running containers
-docker ps
-
-# List all containers
-docker ps -a
-
-# Stop a container
-docker stop container_id
-
-# Start a stopped container
-docker start container_id
-
-# Remove a container
-docker rm container_id
-
-# Remove all stopped containers
-docker container prune
-```
-
-### Container Interaction
-```bash
-# Execute command in running container
-docker exec -it container_id /bin/bash
-
-# View container logs
-docker logs container_id
-
-# Follow logs in real-time
-docker logs -f container_id
-
-# Copy files to/from container
-docker cp file.txt container_id:/path/to/destination
-docker cp container_id:/path/to/file.txt ./
-```
-
-## Dockerfile Best Practices
-
-### Basic Dockerfile Structure
-```dockerfile
-# Use official base image
-FROM python:3.11-slim
-
-# Set working directory
-WORKDIR /app
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first (for better caching)
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY . .
-
-# Create non-root user
-RUN useradd --create-home --shell /bin/bash app
-USER app
-
-# Expose port
-EXPOSE 8000
-
-# Set default command
-CMD ["python", "app.py"]
-```
-
-### Multi-stage Builds
-```dockerfile
-# Build stage
-FROM node:18 AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Production stage
-FROM node:18-alpine
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
-
-## Docker Compose
-
-### Basic docker-compose.yml
-```yaml
-version: '3.8'
-
-services:
-  web:
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      - DEBUG=1
-    volumes:
-      - .:/app
-    depends_on:
-      - db
-
-  db:
-    image: postgres:13
-    environment:
-      POSTGRES_DB: myapp
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-```
-
-### Docker Compose Commands
-```bash
-# Start services
-docker-compose up
-
-# Start in background
-docker-compose up -d
-
-# Build and start
-docker-compose up --build
-
-# Stop services
-docker-compose down
-
-# View logs
-docker-compose logs
-
-# Execute command in service
-docker-compose exec web python manage.py migrate
-```
-
-## Registry and Publishing
-
-### Docker Hub
-```bash
-# Login to Docker Hub
-docker login
-
-# Tag image
-docker tag my-app:latest username/my-app:latest
-
-# Push to registry
-docker push username/my-app:latest
-
-# Pull from registry
-docker pull username/my-app:latest
-```
-
-### Private Registry
-```bash
-# Run local registry
-docker run -d -p 5000:5000 --name registry registry:2
-
-# Tag for local registry
-docker tag my-app:latest localhost:5000/my-app:latest
-
-# Push to local registry
-docker push localhost:5000/my-app:latest
-```
-
-## Security Best Practices
-
-### Image Security
-```dockerfile
-# Use specific versions
-FROM python:3.11.4-slim
-
-# Don't run as root
-RUN useradd --create-home app
-USER app
-
-# Use .dockerignore
-# Add .dockerignore file to exclude unnecessary files
-```
-
-### Container Security
-```bash
-# Run with read-only filesystem
-docker run --read-only ubuntu
-
-# Limit resources
-docker run --memory=512m --cpus=1 ubuntu
-
-# Use security options
-docker run --security-opt=no-new-privileges ubuntu
-```
-
-## Troubleshooting
-
-### Common Issues
-```bash
-# Check container logs
-docker logs container_name
-
-# Inspect container
-docker inspect container_name
-
-# Check resource usage
-docker stats
-
-# Debug container
-docker run -it --entrypoint /bin/bash image_name
-```
-
-### Performance Optimization
-```bash
-# Use .dockerignore to reduce build context
-echo "node_modules" >> .dockerignore
-echo ".git" >> .dockerignore
-
-# Use multi-stage builds for smaller images
-# Use alpine images when possible
-FROM python:3.11-alpine
-
-# Clean up in same RUN command
-RUN apt-get update && apt-get install -y package && \
-    rm -rf /var/lib/apt/lists/*
-```
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Basic Concepts](#basic-concepts)
+- [Essential Commands](#essential-commands)
+- [Intermediate & Advanced Commands](#intermediate--advanced-commands)
+- [Configuration Files](#configuration-files)
+- [Best Practices](#best-practices)
+- [Automation & CI/CD](#automation--cicd)
+- [Troubleshooting](#troubleshooting)
+- [Resources](#resources)
 
 ---
 
-## Guía de Docker
+## Introduction
 
-Docker es una plataforma que usa containerización para empaquetar aplicaciones y sus dependencias en contenedores ligeros y portátiles. Esta guía cubre los conceptos básicos de Docker, mejores prácticas y comandos comunes.
+Docker is a platform for containerizing applications, Docker Compose helps orchestrate multi-container setups, and Docker Hub is a cloud registry for images.
 
-## Instalación
+## Installation
 
-### Instalar Docker
+### Docker
+- Ubuntu/Debian:
 ```bash
-# Ubuntu/Debian
 sudo apt update
 sudo apt install docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
-
-# Agregar usuario al grupo docker
 sudo usermod -aG docker $USER
-
-# macOS (usando Homebrew)
+  ```
+- macOS:
+  ```bash
 brew install --cask docker
-
-# Windows
-# Descargar Docker Desktop desde https://www.docker.com/products/docker-desktop
 ```
+- Windows:  
+  Download Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop)
 
-### Verificar Instalación
+### Docker Compose
+- Linux:
 ```bash
-docker --version
-docker run hello-world
+  sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  sudo chmod +x /usr/local/bin/docker-compose
+  docker-compose --version
 ```
+- Included in Docker Desktop for Windows/macOS.
+
+### Docker Hub
+- Go to [hub.docker.com](https://hub.docker.com), sign up, and verify your email.
+
+## Basic Concepts
+
+- **Image**: Read-only template for containers.
+- **Container**: Running instance of an image.
+- **Service**: A container managed by Compose.
+- **Network**: Communication channel between containers.
+- **Volume**: Persistent data storage.
+
+## Essential Commands
+
+### Docker
+
+- List images: `docker images`
+- Run container: `docker run ubuntu:20.04`
+- Interactive shell: `docker run -it ubuntu:20.04 /bin/bash`
+- List running containers: `docker ps`
+- Stop container: `docker stop <container_id>`
+- Remove container: `docker rm <container_id>`
+- Build image: `docker build -t my-app:latest .`
+- Copy files: `docker cp file.txt container_id:/path/`
+
+### Docker Compose
+
+- Start services: `docker-compose up`
+- Start in background: `docker-compose up -d`
+- Stop services: `docker-compose down`
+- View logs: `docker-compose logs`
+- Execute command: `docker-compose exec web python manage.py migrate`
+- Interactive shell: `docker-compose exec -it web /bin/bash`
+
+### Docker Hub
+
+- Login: `docker login`
+- Tag image: `docker tag my-app:latest username/my-app:latest`
+- Push image: `docker push username/my-app:latest`
+- Pull image: `docker pull username/my-app:latest`
+
+## Configuration Files
+
+- **Dockerfile**: Instructions to build an image.
+- **docker-compose.yml**: Multi-container configuration.
+- **.dockerignore**: Files to exclude from build context.
+
+## Best Practices
+
+- Use specific image versions.
+- Don’t run containers as root.
+- Use `.dockerignore` to reduce build context.
+- Use multi-stage builds for smaller images.
+- Regularly scan images for vulnerabilities.
+- Limit resources and use security options.
+
+## Automation & CI/CD
+
+- Use GitHub Actions to build and push images to Docker Hub.
+- Example:
+  ```yaml
+  name: Build and Push
+  on:
+    push:
+      branches: [main]
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Build and push
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            push: true
+            tags: username/my-app:latest
+  ```
+
+## Troubleshooting
+
+- View logs: `docker logs <container>`
+- Inspect container: `docker inspect <container>`
+- Check Compose service status: `docker-compose ps`
+- Debug service: `docker-compose exec web /bin/bash`
+- Validate configuration: `docker-compose config --quiet`
+
+## Intermediate & Advanced Commands
+
+## English
+
+- View detailed container info: `docker inspect <container_id>`
+- Show container resource usage: `docker stats`
+- Show container processes: `docker top <container_id>`
+- Attach to a running container: `docker attach <container_id>`
+- Commit changes to a new image: `docker commit <container_id> new_image_name`
+- Export container filesystem: `docker export <container_id> > container.tar`
+- Import a container filesystem: `docker import container.tar`
+- Prune unused resources: `docker system prune`
+- Remove all stopped containers: `docker container prune`
+- Remove all unused images: `docker image prune -a`
+- Run with resource limits: `docker run --memory=512m --cpus=1 ubuntu`
+- Run with read-only filesystem: `docker run --read-only ubuntu`
+- Set restart policy: `docker run --restart=always nginx`
+- Create a named volume: `docker volume create mydata`
+- Mount a named volume: `docker run -v mydata:/data ubuntu`
+- Network inspect: `docker network inspect bridge`
+- Connect a container to a network: `docker network connect <network> <container>`
+- Disconnect a container from a network: `docker network disconnect <network> <container>`
+- Build with build-args: `docker build --build-arg VAR=value .`
+- Multi-stage build example: see Dockerfile section.
+
+## Español
+
+- Ver información detallada del contenedor: `docker inspect <container_id>`
+- Mostrar uso de recursos del contenedor: `docker stats`
+- Mostrar procesos del contenedor: `docker top <container_id>`
+- Adjuntarse a un contenedor en ejecución: `docker attach <container_id>`
+- Guardar cambios en una nueva imagen: `docker commit <container_id> nombre_nueva_imagen`
+- Exportar el sistema de archivos de un contenedor: `docker export <container_id> > contenedor.tar`
+- Importar un sistema de archivos de contenedor: `docker import contenedor.tar`
+- Limpiar recursos no usados: `docker system prune`
+- Eliminar todos los contenedores detenidos: `docker container prune`
+- Eliminar todas las imágenes no usadas: `docker image prune -a`
+- Ejecutar con límites de recursos: `docker run --memory=512m --cpus=1 ubuntu`
+- Ejecutar con sistema de archivos de solo lectura: `docker run --read-only ubuntu`
+- Establecer política de reinicio: `docker run --restart=always nginx`
+- Crear un volumen nombrado: `docker volume create midatos`
+- Montar un volumen nombrado: `docker run -v midatos:/data ubuntu`
+- Inspeccionar red: `docker network inspect bridge`
+- Conectar un contenedor a una red: `docker network connect <red> <contenedor>`
+- Desconectar un contenedor de una red: `docker network disconnect <red> <contenedor>`
+- Build con argumentos: `docker build --build-arg VAR=valor .`
+- Ejemplo de build multi-etapa: ver sección Dockerfile.
+
+## Intermediate & Advanced Docker Compose Commands
+
+## English
+
+- List all services and their status: `docker-compose ps`
+- Build images without starting containers: `docker-compose build`
+- Rebuild images (no cache): `docker-compose build --no-cache`
+- Pull latest images: `docker-compose pull`
+- Push built images to registry: `docker-compose push`
+- Restart all services: `docker-compose restart`
+- Stop and remove all containers, networks, volumes, and images: `docker-compose down --rmi all --volumes --remove-orphans`
+- Run a one-off command in a service: `docker-compose run --rm web python manage.py shell`
+- Scale a service: `docker-compose up --scale web=3`
+- Override configuration with another file: `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`
+- View environment variables: `docker-compose config`
+- Show full config (merged): `docker-compose config --resolve-image-digests`
+- Remove orphaned containers: `docker-compose up --remove-orphans`
+- Tail logs for a specific service: `docker-compose logs -f web`
+- Execute a command as a different user: `docker-compose exec -u root web bash`
+- Run in detached mode and build if needed: `docker-compose up -d --build`
+
+## Español
+
+- Listar todos los servicios y su estado: `docker-compose ps`
+- Construir imágenes sin iniciar contenedores: `docker-compose build`
+- Reconstruir imágenes (sin caché): `docker-compose build --no-cache`
+- Descargar las últimas imágenes: `docker-compose pull`
+- Subir imágenes construidas al registro: `docker-compose push`
+- Reiniciar todos los servicios: `docker-compose restart`
+- Detener y eliminar todos los contenedores, redes, volúmenes e imágenes: `docker-compose down --rmi all --volumes --remove-orphans`
+- Ejecutar un comando puntual en un servicio: `docker-compose run --rm web python manage.py shell`
+- Escalar un servicio: `docker-compose up --scale web=3`
+- Sobrescribir configuración con otro archivo: `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`
+- Ver variables de entorno: `docker-compose config`
+- Mostrar configuración completa (fusionada): `docker-compose config --resolve-image-digests`
+- Eliminar contenedores huérfanos: `docker-compose up --remove-orphans`
+- Seguir logs de un servicio específico: `docker-compose logs -f web`
+- Ejecutar un comando como otro usuario: `docker-compose exec -u root web bash`
+- Ejecutar en modo detach y construir si es necesario: `docker-compose up -d --build`
+
+## Resources
+
+- [Docker Documentation](https://docs.docker.com/)
+- [Docker Compose Docs](https://docs.docker.com/compose/)
+- [Docker Hub Docs](https://docs.docker.com/docker-hub/)
+
+---
+
+# Guía de Docker, Docker Compose y Docker Hub
+
+<div align="center">
+
+**Idioma / Language:**  
+[🇪🇸 Español](#guía-de-docker-compose--docker-hub) | [🇺🇸 English](#docker-compose--docker-hub-guide)
+
+</div>
+
+---
+
+## Tabla de Contenidos
+
+- [Introducción](#introducción)
+- [Instalación](#instalación)
+- [Conceptos Básicos](#conceptos-básicos)
+- [Comandos Esenciales](#comandos-esenciales)
+- [Comandos Intermedios y Avanzados](#comandos-intermedios-y-avanzados)
+- [Archivos de Configuración](#archivos-de-configuración)
+- [Mejores Prácticas](#mejores-prácticas)
+- [Automatización y CI/CD](#automatización-y-cicd)
+- [Solución de Problemas](#solución-de-problemas)
+- [Recursos](#recursos)
+
+---
+
+## Introducción
+
+Docker es una plataforma para contenerizar aplicaciones, Docker Compose ayuda a orquestar configuraciones multi-contenedor y Docker Hub es un registro en la nube para imágenes.
+
+## Instalación
+
+### Docker
+- Ubuntu/Debian:
+```bash
+sudo apt update
+sudo apt install docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+  ```
+- macOS:
+  ```bash
+brew install --cask docker
+```
+- Windows:  
+  Descarga Docker Desktop desde [docker.com](https://www.docker.com/products/docker-desktop)
+
+### Docker Compose
+- Linux:
+```bash
+  sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  sudo chmod +x /usr/local/bin/docker-compose
+  docker-compose --version
+```
+- Incluido en Docker Desktop para Windows/macOS.
+
+### Docker Hub
+- Ve a [hub.docker.com](https://hub.docker.com), regístrate y verifica tu email.
 
 ## Conceptos Básicos
 
-### Imágenes vs Contenedores
-- **Imagen**: Una plantilla de solo lectura con instrucciones para crear un contenedor
-- **Contenedor**: Una instancia en ejecución de una imagen
-
-### Dockerfile
-Un archivo de texto con instrucciones para construir una imagen Docker.
+- **Imagen**: Plantilla de solo lectura para contenedores.
+- **Contenedor**: Instancia en ejecución de una imagen.
+- **Servicio**: Un contenedor gestionado por Compose.
+- **Red**: Canal de comunicación entre contenedores.
+- **Volumen**: Almacenamiento de datos persistente.
 
 ## Comandos Esenciales
 
-### Gestión de Imágenes
-```bash
-# Listar imágenes
-docker images
+### Docker
 
-# Descargar una imagen
-docker pull ubuntu:20.04
+- Listar imágenes: `docker images`
+- Ejecutar contenedor: `docker run ubuntu:20.04`
+- Shell interactivo: `docker run -it ubuntu:20.04 /bin/bash`
+- Listar contenedores en ejecución: `docker ps`
+- Detener contenedor: `docker stop <container_id>`
+- Eliminar contenedor: `docker rm <container_id>`
+- Construir imagen: `docker build -t mi-app:latest .`
+- Copiar archivos: `docker cp archivo.txt container_id:/ruta/`
 
-# Eliminar una imagen
-docker rmi ubuntu:20.04
+### Docker Compose
 
-# Eliminar imágenes no utilizadas
-docker image prune
-
-# Construir una imagen
-docker build -t mi-app:latest .
-
-# Construir con Dockerfile específico
-docker build -f Dockerfile.prod -t mi-app:prod .
-```
-
-### Gestión de Contenedores
-```bash
-# Ejecutar un contenedor
-docker run ubuntu:20.04
-
-# Ejecutar interactivamente
-docker run -it ubuntu:20.04 /bin/bash
-
-# Ejecutar en segundo plano (detached)
-docker run -d nginx
-
-# Ejecutar con mapeo de puertos
-docker run -p 8080:80 nginx
-
-# Ejecutar con montaje de volumen
-docker run -v /ruta/host:/ruta/contenedor ubuntu
-
-# Ejecutar con variables de entorno
-docker run -e ENV_VAR=valor ubuntu
-
-# Listar contenedores en ejecución
-docker ps
-
-# Listar todos los contenedores
-docker ps -a
-
-# Detener un contenedor
-docker stop container_id
-
-# Iniciar un contenedor detenido
-docker start container_id
-
-# Eliminar un contenedor
-docker rm container_id
-
-# Eliminar todos los contenedores detenidos
-docker container prune
-```
-
-### Interacción con Contenedores
-```bash
-# Ejecutar comando en contenedor en ejecución
-docker exec -it container_id /bin/bash
-
-# Ver logs del contenedor
-docker logs container_id
-
-# Seguir logs en tiempo real
-docker logs -f container_id
-
-# Copiar archivos hacia/desde contenedor
-docker cp archivo.txt container_id:/ruta/destino
-docker cp container_id:/ruta/archivo.txt ./
-```
-
-## Mejores Prácticas de Dockerfile
-
-### Estructura Básica de Dockerfile
-```dockerfile
-# Usar imagen base oficial
-FROM python:3.11-slim
-
-# Establecer directorio de trabajo
-WORKDIR /app
-
-# Establecer variables de entorno
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copiar requirements primero (para mejor caché)
-COPY requirements.txt .
-
-# Instalar dependencias de Python
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copiar código de la aplicación
-COPY . .
-
-# Crear usuario no-root
-RUN useradd --create-home --shell /bin/bash app
-USER app
-
-# Exponer puerto
-EXPOSE 8000
-
-# Establecer comando por defecto
-CMD ["python", "app.py"]
-```
-
-### Builds Multi-etapa
-```dockerfile
-# Etapa de construcción
-FROM node:18 AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Etapa de producción
-FROM node:18-alpine
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
-
-## Docker Compose
-
-### docker-compose.yml básico
-```yaml
-version: '3.8'
-
-services:
-  web:
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      - DEBUG=1
-    volumes:
-      - .:/app
-    depends_on:
-      - db
-
-  db:
-    image: postgres:13
-    environment:
-      POSTGRES_DB: myapp
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-```
-
-### Comandos de Docker Compose
-```bash
-# Iniciar servicios
-docker-compose up
-
-# Iniciar en segundo plano
-docker-compose up -d
-
-# Construir e iniciar
-docker-compose up --build
-
-# Detener servicios
-docker-compose down
-
-# Ver logs
-docker-compose logs
-
-# Ejecutar comando en servicio
-docker-compose exec web python manage.py migrate
-```
-
-## Registry y Publicación
+- Iniciar servicios: `docker-compose up`
+- Iniciar en segundo plano: `docker-compose up -d`
+- Detener servicios: `docker-compose down`
+- Ver logs: `docker-compose logs`
+- Ejecutar comando: `docker-compose exec web python manage.py migrate`
+- Shell interactivo: `docker-compose exec -it web /bin/bash`
 
 ### Docker Hub
-```bash
-# Iniciar sesión en Docker Hub
-docker login
 
-# Etiquetar imagen
-docker tag mi-app:latest usuario/mi-app:latest
+- Iniciar sesión: `docker login`
+- Etiquetar imagen: `docker tag mi-app:latest usuario/mi-app:latest`
+- Subir imagen: `docker push usuario/mi-app:latest`
+- Descargar imagen: `docker pull usuario/mi-app:latest`
 
-# Subir a registry
-docker push usuario/mi-app:latest
+## Archivos de Configuración
 
-# Descargar desde registry
-docker pull usuario/mi-app:latest
-```
+- **Dockerfile**: Instrucciones para construir una imagen.
+- **docker-compose.yml**: Configuración multi-contenedor.
+- **.dockerignore**: Archivos a excluir del contexto de build.
 
-### Registry Privado
-```bash
-# Ejecutar registry local
-docker run -d -p 5000:5000 --name registry registry:2
+## Mejores Prácticas
 
-# Etiquetar para registry local
-docker tag mi-app:latest localhost:5000/mi-app:latest
+- Usa versiones específicas de imágenes.
+- No ejecutes contenedores como root.
+- Usa `.dockerignore` para reducir el contexto de build.
+- Usa builds multi-etapa para imágenes más pequeñas.
+- Escanea imágenes regularmente por vulnerabilidades.
+- Limita recursos y usa opciones de seguridad.
 
-# Subir a registry local
-docker push localhost:5000/mi-app:latest
-```
+## Automatización y CI/CD
 
-## Mejores Prácticas de Seguridad
-
-### Seguridad de Imágenes
-```dockerfile
-# Usar versiones específicas
-FROM python:3.11.4-slim
-
-# No ejecutar como root
-RUN useradd --create-home app
-USER app
-
-# Usar .dockerignore
-# Agregar archivo .dockerignore para excluir archivos innecesarios
-```
-
-### Seguridad de Contenedores
-```bash
-# Ejecutar con sistema de archivos de solo lectura
-docker run --read-only ubuntu
-
-# Limitar recursos
-docker run --memory=512m --cpus=1 ubuntu
-
-# Usar opciones de seguridad
-docker run --security-opt=no-new-privileges ubuntu
+- Usa GitHub Actions para construir y subir imágenes a Docker Hub.
+- Ejemplo:
+  ```yaml
+  name: Build and Push
+  on:
+    push:
+      branches: [main]
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Build and push
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            push: true
+            tags: usuario/mi-app:latest
 ```
 
 ## Solución de Problemas
 
-### Problemas Comunes
-```bash
-# Verificar logs del contenedor
-docker logs nombre_contenedor
+- Ver logs: `docker logs <contenedor>`
+- Inspeccionar contenedor: `docker inspect <contenedor>`
+- Ver estado de servicios Compose: `docker-compose ps`
+- Debuggear servicio: `docker-compose exec web /bin/bash`
+- Validar configuración: `docker-compose config --quiet`
 
-# Inspeccionar contenedor
-docker inspect nombre_contenedor
+## Comandos Intermedios y Avanzados
 
-# Verificar uso de recursos
-docker stats
+### Docker
 
-# Debuggear contenedor
-docker run -it --entrypoint /bin/bash nombre_imagen
-```
+- Ver información detallada del contenedor: `docker inspect <container_id>`
+- Mostrar uso de recursos del contenedor: `docker stats`
+- Mostrar procesos del contenedor: `docker top <container_id>`
+- Adjuntarse a un contenedor en ejecución: `docker attach <container_id>`
+- Guardar cambios en una nueva imagen: `docker commit <container_id> nombre_nueva_imagen`
+- Exportar el sistema de archivos de un contenedor: `docker export <container_id> > contenedor.tar`
+- Importar un sistema de archivos de contenedor: `docker import contenedor.tar`
+- Limpiar recursos no usados: `docker system prune`
+- Eliminar todos los contenedores detenidos: `docker container prune`
+- Eliminar todas las imágenes no usadas: `docker image prune -a`
+- Ejecutar con límites de recursos: `docker run --memory=512m --cpus=1 ubuntu`
+- Ejecutar con sistema de archivos de solo lectura: `docker run --read-only ubuntu`
+- Establecer política de reinicio: `docker run --restart=always nginx`
+- Crear un volumen nombrado: `docker volume create midatos`
+- Montar un volumen nombrado: `docker run -v midatos:/data ubuntu`
+- Inspeccionar red: `docker network inspect bridge`
+- Conectar un contenedor a una red: `docker network connect <red> <contenedor>`
+- Desconectar un contenedor de una red: `docker network disconnect <red> <contenedor>`
+- Build con argumentos: `docker build --build-arg VAR=valor .`
+- Ejemplo de build multi-etapa: ver sección Dockerfile.
 
-### Optimización de Rendimiento
-```bash
-# Usar .dockerignore para reducir contexto de build
-echo "node_modules" >> .dockerignore
-echo ".git" >> .dockerignore
+### Docker Compose
 
-# Usar builds multi-etapa para imágenes más pequeñas
-# Usar imágenes alpine cuando sea posible
-FROM python:3.11-alpine
+- Listar todos los servicios y su estado: `docker-compose ps`
+- Construir imágenes sin iniciar contenedores: `docker-compose build`
+- Reconstruir imágenes (sin caché): `docker-compose build --no-cache`
+- Descargar las últimas imágenes: `docker-compose pull`
+- Subir imágenes construidas al registro: `docker-compose push`
+- Reiniciar todos los servicios: `docker-compose restart`
+- Detener y eliminar todos los contenedores, redes, volúmenes e imágenes: `docker-compose down --rmi all --volumes --remove-orphans`
+- Ejecutar un comando puntual en un servicio: `docker-compose run --rm web python manage.py shell`
+- Escalar un servicio: `docker-compose up --scale web=3`
+- Sobrescribir configuración con otro archivo: `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`
+- Ver variables de entorno: `docker-compose config`
+- Mostrar configuración completa (fusionada): `docker-compose config --resolve-image-digests`
+- Eliminar contenedores huérfanos: `docker-compose up --remove-orphans`
+- Seguir logs de un servicio específico: `docker-compose logs -f web`
+- Ejecutar un comando como otro usuario: `docker-compose exec -u root web bash`
+- Ejecutar en modo detach y construir si es necesario: `docker-compose up -d --build`
 
-# Limpiar en el mismo comando RUN
-RUN apt-get update && apt-get install -y paquete && \
-    rm -rf /var/lib/apt/lists/*
-```
+## Resources
+
+- [Documentación de Docker](https://docs.docker.com/)
+- [Documentación de Docker Compose](https://docs.docker.com/compose/)
+- [Documentación de Docker Hub](https://docs.docker.com/docker-hub/)
+
+---
