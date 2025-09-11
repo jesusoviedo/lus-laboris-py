@@ -65,6 +65,8 @@ These variables are required for the interactive script and for generating the `
 
 ### Step 1: Create Terraform State Bucket
 
+> **Note:** This bucket is used to store the Terraform state file remotely, enabling team collaboration and safe state management. **You only need to create this bucket once per project.**
+
 Before running Terraform commands, you need to create a bucket to store the Terraform state:
 
 ```bash
@@ -78,7 +80,7 @@ uv run gcp_utils.py gcs-create py-labor-law-rag-terraform-state
 cd ../terraform
 ```
 
-This bucket will be used to store the Terraform state file remotely, enabling team collaboration and state management.
+
 
 ### Step 2: Configure Environment Variables
 
@@ -238,6 +240,8 @@ Estas variables son requeridas por el script interactivo y para la generación a
 
 ### Paso 1: Crear Bucket para Estado de Terraform
 
+> **Nota:** Este bucket se utiliza para almacenar el archivo de estado de Terraform de forma remota, permitiendo colaboración en equipo y gestión segura del estado. **Este bucket solo debe crearse una vez por proyecto.**
+
 Antes de ejecutar comandos de Terraform, necesitas crear un bucket para almacenar el estado de Terraform:
 
 ```bash
@@ -251,7 +255,7 @@ uv run gcp_utils.py gcs-create py-labor-law-rag-terraform-state
 cd ../terraform
 ```
 
-Este bucket se utilizará para almacenar el archivo de estado de Terraform de forma remota, permitiendo colaboración en equipo y gestión del estado.
+Este bucket se utilizará para almacenar el archivo de estado de Terraform de forma remota, permitiendo colaboración en equipo y gestión segura del estado.
 
 ### Paso 2: Configurar Variables de Entorno
 
