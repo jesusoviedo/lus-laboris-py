@@ -1,0 +1,69 @@
+name: Terraform Apply on .tf Change
+
+on:
+  push:
+    paths:
+      - 'terraform/**/*.tf'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
+      GCP_CLOUD_RUN_BATCH_JOB_NAME: ${{ secrets.GCP_CLOUD_RUN_BATCH_JOB_NAME }}
+      GCP_CLOUD_RUN_BATCH_ARGS: ${{ secrets.GCP_CLOUD_RUN_BATCH_ARGS }}
+      GCP_CLOUD_RUN_BATCH_SCHEDULE: ${{ secrets.GCP_CLOUD_RUN_BATCH_SCHEDULE }}
+      GCP_CLOUD_RUN_BATCH_IMAGE: ${{ secrets.GCP_CLOUD_RUN_BATCH_IMAGE }}
+      GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL: ${{ secrets.GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL }}
+    steps:
+      - id: checkout
+        name: Checkout code
+        uses: actions/checkout@v4
+
+      - id: setup_gcloud
+        name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GSA_KEY }}
+          export_default_credentials: true
+
+      - id: setup_terraform
+        name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - id: generate_env
+        name: Generate .env file
+        run: |
+          cat <<EOF > .env
+          GCP_PROJECT_ID=${GCP_PROJECT_ID}
+          GCP_REGION=${GCP_REGION}
+          GCP_BUCKET_NAME=${GCP_BUCKET_NAME}
+          GCP_CLOUD_RUN_BATCH_JOB_NAME=${GCP_CLOUD_RUN_BATCH_JOB_NAME}
+          GCP_CLOUD_RUN_BATCH_ARGS=${GCP_CLOUD_RUN_BATCH_ARGS}
+          GCP_CLOUD_RUN_BATCH_SCHEDULE=${GCP_CLOUD_RUN_BATCH_SCHEDULE}
+          GCP_CLOUD_RUN_BATCH_IMAGE=${GCP_CLOUD_RUN_BATCH_IMAGE}
+          GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=${GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL}
+          EOF
+
+      - id: terraform_init
+        name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - id: create_tfvars
+        name: Crear archivo terraform.tfvars
+        working-directory: ./terraform
+        run: bash tf_menu.sh 2
+
+      - id: terraform_plan
+        name: Terraform Plan
+        working-directory: ./terraform
+        run: terraform plan
+
+      - id: terraform_apply
+        name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve

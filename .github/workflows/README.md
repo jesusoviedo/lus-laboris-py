@@ -22,6 +22,14 @@ Automates the build and publishing of the Docker image for the legal text proces
   - Tags the image with both `latest` and the current date (`YYYYMMDD`).
   - Pushes both tags to Docker Hub.
 
+- **terraform-apply-on-tf-change.yml**:
+Runs Terraform automatically when any `.tf` file changes in the `terraform/` folder (or its subfolders).
+  - Triggers on push events affecting any Terraform file inside `terraform/`.
+  - Sets up Google Cloud authentication using a service account key stored as a secret.
+  - Generates the required `.env` file and runs the menu script to create `terraform.tfvars`.
+  - Executes `terraform init`, `plan`, and `apply` to update the infrastructure.
+  - All required variables are passed as GitHub secrets or environment variables.
+
 For a detailed explanation of how GitHub Actions work in this project, see the guide:
 - [docs/github_actions_guide.md](../../docs/github_actions_guide.md)
 
@@ -42,5 +50,14 @@ Automatiza la construcción y publicación de la imagen Docker para el procesami
   - Etiqueta la imagen con `latest` y con la fecha (`YYYYMMDD`).
   - Sube ambas etiquetas a Docker Hub.
 
+- **terraform-apply-on-tf-change.yml**:
+Ejecuta Terraform automáticamente cuando se modifica cualquier archivo `.tf` dentro de la carpeta `terraform/` (o sus subcarpetas).
+  - Se activa ante un push que afecte archivos de Terraform en `terraform/`.
+  - Configura la autenticación de Google Cloud usando una service account almacenada como secret.
+  - Genera el archivo `.env` necesario y ejecuta el script de menú para crear `terraform.tfvars`.
+  - Ejecuta `terraform init`, `plan` y `apply` para actualizar la infraestructura.
+  - Todas las variables requeridas se pasan como secrets de GitHub o variables de entorno.
+
 Para una explicación detallada sobre el uso de GitHub Actions en este proyecto, consulta la guía:
 - [docs/github_actions_guide.md](../../docs/github_actions_guide.md)
+
