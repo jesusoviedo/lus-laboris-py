@@ -55,6 +55,11 @@ gcloud config set project py-labor-law-rag
 # Enable required APIs
 gcloud services enable storage.googleapis.com
 gcloud services enable cloudresourcemanager.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable cloudscheduler.googleapis.com
+gcloud services enable iam.googleapis.com
+gcloud services enable logging.googleapis.com
+gcloud services enable monitoring.googleapis.com
 ```
 
 ## Step 3: Create a Service Account
@@ -76,6 +81,9 @@ gcloud services enable cloudresourcemanager.googleapis.com
    - In the "Grant this service account access to project" section, add the following roles:
      - **Storage Admin** (`roles/storage.admin`)
      - **Storage Object Admin** (`roles/storage.objectAdmin`)
+     - **Cloud Run Admin** (`roles/run.admin`)
+     - **Service Account User** (`roles/iam.serviceAccountUser`)
+     - **Cloud Scheduler Admin** (`roles/cloudscheduler.admin`)
    - Click "Continue" and then "Done"
 
 ### Using Google Cloud CLI
@@ -95,6 +103,21 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
 gcloud projects add-iam-policy-binding py-labor-law-rag \
     --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
     --role="roles/storage.objectAdmin"
+
+# Assign Cloud Run Admin role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/run.admin"
+
+# Assign Service Account User role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser"
+
+# Assign Cloud Scheduler Admin role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/cloudscheduler.admin"
 ```
 
 ## Step 4: Generate JSON Key
@@ -158,6 +181,17 @@ gsutil ls
 - Allows managing objects within buckets
 - Includes permissions to upload, download, modify, and delete objects
 - Allows configuring object metadata and ACLs
+
+### Cloud Run Admin (`roles/run.admin`)
+- Allows managing Cloud Run resources (services, jobs)
+- Includes permissions to create, update, delete, and invoke Cloud Run jobs
+
+### Service Account User (`roles/iam.serviceAccountUser`)
+- Allows the service account to act as other service accounts (required for Cloud Run jobs)
+
+### Cloud Scheduler Admin (`roles/cloudscheduler.admin`)
+- Allows managing Cloud Scheduler jobs
+- Includes permissions to create, update, and delete scheduler jobs
 
 ## Security
 
@@ -260,6 +294,11 @@ gcloud config set project py-labor-law-rag
 # Habilitar APIs necesarias
 gcloud services enable storage.googleapis.com
 gcloud services enable cloudresourcemanager.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable cloudscheduler.googleapis.com
+gcloud services enable iam.googleapis.com
+gcloud services enable logging.googleapis.com
+gcloud services enable monitoring.googleapis.com
 ```
 
 ## Paso 3: Crear una Cuenta de Servicio
@@ -281,6 +320,9 @@ gcloud services enable cloudresourcemanager.googleapis.com
    - En la sección "Otorgar acceso a esta cuenta de servicio al proyecto", agrega los siguientes roles:
      - **Administrador de almacenamiento** (`roles/storage.admin`)
      - **Administrador de objetos de Storage** (`roles/storage.objectAdmin`)
+     - **Administrador de Cloud Run** (`roles/run.admin`)
+     - **Usuario de cuentas de servicio** (`roles/iam.serviceAccountUser`)
+     - **Administrador de Cloud Scheduler** (`roles/cloudscheduler.admin`)
    - Haz clic en "Continuar" y luego en "Listo"
 
 ### Usando Google Cloud CLI
@@ -300,6 +342,21 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
 gcloud projects add-iam-policy-binding py-labor-law-rag \
     --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
     --role="roles/storage.objectAdmin"
+
+# Asignar rol de Administrador de Cloud Run
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/run.admin"
+
+# Asignar rol de Usuario de cuentas de servicio
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser"
+
+# Asignar rol de Administrador de Cloud Scheduler
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/cloudscheduler.admin"
 ```
 
 ## Paso 4: Generar Clave JSON
@@ -363,6 +420,17 @@ gsutil ls
 - Permite gestionar objetos dentro de buckets
 - Incluye permisos para subir, descargar, modificar y eliminar objetos
 - Permite configurar metadatos y ACLs de objetos
+
+### Administrador de Cloud Run (`roles/run.admin`)
+- Permite gestionar recursos de Cloud Run (servicios, jobs)
+- Incluye permisos para crear, actualizar, eliminar e invocar jobs de Cloud Run
+
+### Usuario de cuentas de servicio (`roles/iam.serviceAccountUser`)
+- Permite que la cuenta de servicio actúe como otras cuentas de servicio (requerido para jobs de Cloud Run)
+
+### Administrador de Cloud Scheduler (`roles/cloudscheduler.admin`)
+- Permite gestionar jobs de Cloud Scheduler
+- Incluye permisos para crear, actualizar y eliminar jobs de scheduler
 
 ## Seguridad
 

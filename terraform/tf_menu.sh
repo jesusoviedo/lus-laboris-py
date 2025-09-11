@@ -4,70 +4,100 @@
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(realpath "$SCRIPT_DIR/..")"
 CRED_DIR="$PROJECT_ROOT/.gcpcredentials"
-
-# === NUEVO: Cargar variables del .env y generar terraform.tfvars ===
 ENV_FILE="$PROJECT_ROOT/.env"
 TFVARS_FILE="$SCRIPT_DIR/terraform.tfvars"
 
-if [ -f "$ENV_FILE" ]; then
-  # Extraer variables del .env
-  GCP_PROJECT_ID=$(grep '^GCP_PROJECT_ID=' "$ENV_FILE" | cut -d '=' -f2-)
-  GCP_REGION=$(grep '^GCP_REGION=' "$ENV_FILE" | cut -d '=' -f2-)
-  GCP_BUCKET_NAME=$(grep '^GCP_BUCKET_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
-
-  # Validar que existan
-  if [[ -z "$GCP_PROJECT_ID" || -z "$GCP_REGION" || -z "$GCP_BUCKET_NAME" ]]; then
-    echo "❌ ERROR: Faltan variables en $ENV_FILE. Se requieren GCP_PROJECT_ID, GCP_REGION y GCP_BUCKET_NAME."
+set_gac() {
+  CRED_FILE=$(find "$CRED_DIR" -maxdepth 1 -name '*.json' | head -n 1)
+  if [ -z "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+    if [ -n "$CRED_FILE" ]; then
+      export GOOGLE_APPLICATION_CREDENTIALS="$CRED_FILE"
+      echo "✅ Variable GOOGLE_APPLICATION_CREDENTIALS seteada"
+    else
+      echo "⚠️  No se encontró archivo .json en $CRED_DIR. Terraform puede fallar si requiere autenticación."
+    fi
   else
-    # Crear el archivo terraform.tfvars
+    echo "ℹ️  GOOGLE_APPLICATION_CREDENTIALS ya está seteada: $GOOGLE_APPLICATION_CREDENTIALS"
+  fi
+}
+
+create_tfvars() {
+  if [ -f "$ENV_FILE" ]; then
+    GCP_PROJECT_ID=$(grep '^GCP_PROJECT_ID=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_REGION=$(grep '^GCP_REGION=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_BUCKET_NAME=$(grep '^GCP_BUCKET_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_BATCH_JOB_NAME=$(grep '^GCP_CLOUD_RUN_BATCH_JOB_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_BATCH_IMAGE=$(grep '^GCP_CLOUD_RUN_BATCH_IMAGE=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_BATCH_ARGS=$(grep '^GCP_CLOUD_RUN_BATCH_ARGS=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_BATCH_SCHEDULE=$(grep '^GCP_CLOUD_RUN_BATCH_SCHEDULE=' "$ENV_FILE" | cut -d '=' -f2-)
+
+    # Validar que existan todas las variables requeridas (excepto schedule)
+    if [[ -z "$GCP_PROJECT_ID" || -z "$GCP_REGION" || -z "$GCP_BUCKET_NAME" || -z "$GCP_CLOUD_RUN_BATCH_JOB_NAME" || -z "$GCP_CLOUD_RUN_BATCH_IMAGE" || -z "$GCP_CLOUD_RUN_BATCH_ARGS" ]]; then
+      echo "❌ ERROR: Faltan variables en $ENV_FILE. Se requieren:"
+      echo "  GCP_PROJECT_ID, GCP_REGION, GCP_BUCKET_NAME, GCP_CLOUD_RUN_BATCH_JOB_NAME, GCP_CLOUD_RUN_BATCH_IMAGE, GCP_CLOUD_RUN_BATCH_ARGS"
+      return 1
+    fi
     cat > "$TFVARS_FILE" <<EOF
 project_id   = "$GCP_PROJECT_ID"
 region       = "$GCP_REGION"
 bucket_name  = "$GCP_BUCKET_NAME"
+job_name     = "$GCP_CLOUD_RUN_BATCH_JOB_NAME"
+image        = "$GCP_CLOUD_RUN_BATCH_IMAGE"
 EOF
+    ARGS_LIST=$(echo $GCP_CLOUD_RUN_BATCH_ARGS | awk '{for(i=1;i<=NF;i++) printf "\"%s\"%s", $i, (i<NF?", ":"") }')
+    echo "args       = [$ARGS_LIST]" >> "$TFVARS_FILE"
+    if [[ -n "$GCP_CLOUD_RUN_BATCH_SCHEDULE" ]]; then
+      echo "schedule   = \"$GCP_CLOUD_RUN_BATCH_SCHEDULE\"" >> "$TFVARS_FILE"
+    fi
     echo "✅ Archivo terraform.tfvars generado correctamente"
-  fi
-else
-  echo "⚠️  No se encontró el archivo .env en $PROJECT_ROOT. No se generó terraform.tfvars."
-fi
-
-# Buscar archivo .json de credenciales
-CRED_FILE=$(find "$CRED_DIR" -maxdepth 1 -name '*.json' | head -n 1)
-
-if [ -z "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
-  if [ -n "$CRED_FILE" ]; then
-    export GOOGLE_APPLICATION_CREDENTIALS="$CRED_FILE"
-    echo "✅ Variable GOOGLE_APPLICATION_CREDENTIALS seteada"
   else
-    echo "⚠️  No se encontró archivo .json en $CRED_DIR. Terraform puede fallar si requiere autenticación."
+    echo "⚠️  No se encontró el archivo .env en $PROJECT_ROOT. No se generó terraform.tfvars."
+    return 1
   fi
-else
-  echo "ℹ️  GOOGLE_APPLICATION_CREDENTIALS ya está seteada: $GOOGLE_APPLICATION_CREDENTIALS"
-fi
+}
 
-# Menu interactivo
+validate_env() {
+  if [ -z "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+    echo "❌ ERROR: La variable de entorno GOOGLE_APPLICATION_CREDENTIALS no está seteada. Usa la opción 1 del menú."
+    return 1
+  fi
+  if [ ! -f "$TFVARS_FILE" ]; then
+    echo "❌ ERROR: No existe el archivo terraform.tfvars. Usa la opción 2 del menú."
+    return 1
+  fi
+  return 0
+}
+
 while true; do
   echo "========= Terraform Menu ========="
-  echo "1) terraform init"
-  echo "2) terraform plan"
-  echo "3) terraform apply"
-  echo "4) terraform destroy"
-  echo "5) Salir"
+  echo "1) Setear GOOGLE_APPLICATION_CREDENTIALS"
+  echo "2) Crear archivo terraform.tfvars"
+  echo "3) terraform init"
+  echo "4) terraform plan"
+  echo "5) terraform apply"
+  echo "6) terraform destroy"
+  echo "7) Salir"
   read -p "Seleccione una opción: " opt
   case $opt in
     1)
-      terraform init
+      set_gac
       ;;
     2)
-      terraform plan
+      create_tfvars
       ;;
     3)
-      terraform apply
+      validate_env && terraform init
       ;;
     4)
-      terraform destroy
+      validate_env && terraform plan
       ;;
     5)
+      validate_env && terraform apply
+      ;;
+    6)
+      validate_env && terraform destroy
+      ;;
+    7)
       echo "Saliendo..."
       break
       ;;

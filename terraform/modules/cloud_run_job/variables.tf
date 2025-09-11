@@ -8,11 +8,6 @@ variable "region" {
   type        = string
 }
 
-variable "bucket_name" {
-  description = "Nombre del bucket a crear"
-  type        = string
-}
-
 variable "job_name" {
   description = "Nombre del Cloud Run Job"
   type        = string
@@ -32,4 +27,3 @@ variable "schedule" {
   description = "Schedule en formato cron para el job"
   type        = string
 }
-

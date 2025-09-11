@@ -25,10 +25,8 @@ project-root/
 │   ├── terraform.tfvars      # Specific values for variables
 │   ├── tf_menu.sh            # Interactive menu script for Terraform
 │   └── modules/              # Reusable modules
-│       └── gcs/              # Google Cloud Storage module
-│           ├── main.tf       # GCS bucket resources
-│           ├── variables.tf  # Module-specific variables
-│           └── outputs.tf    # Module output values
+│       ├── gcs/              # Google Cloud Storage module
+│       └── cloud_run_job/    # Cloud Run Job (batch) module
 └── ...
 ```
 
@@ -41,6 +39,7 @@ project-root/
 - **`terraform.tfvars`**: Contains specific values for variables
 - **`tf_menu.sh`**: Interactive menu script for common Terraform operations
 - **`modules/gcs/`**: Reusable module for creating Google Cloud Storage buckets
+- **`modules/cloud_run_job/`**: Module to deploy a scheduled Cloud Run Job (batch) using a Docker image from Docker Hub.
 
 ## Steps to Implement Infrastructure
 
@@ -59,9 +58,13 @@ At the root of the project, create a file named `.env` with the following variab
 GCP_PROJECT_ID=your-gcp-project-id
 GCP_REGION=your-region
 GCP_BUCKET_NAME=your-bucket-name
+GCP_CLOUD_RUN_BATCH_JOB_NAME=my-cloud-run-batch-job
+GCP_CLOUD_RUN_BATCH_SCHEDULE=0 22 * * *
+GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
+GCP_CLOUD_RUN_BATCH_ARGS=--param1 valor1
 ```
 
-These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically.
+These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically. The Cloud Run variables are used to configure the scheduled batch job.
 
 ### Step 1: Create Terraform State Bucket
 
@@ -139,6 +142,10 @@ Before running `terraform apply`, make sure to configure variables in `terraform
 project_id  = "your-gcp-project"
 region      = "southamerica-east1"
 bucket_name = "your-bucket-name"
+job_name    = "my-cloud-run-batch-job"
+image       = "docker.io/usuario/mi-imagen:20240911"
+args        = ["--param1", "valor1"]
+schedule    = "0 23 * * *"
 ```
 
 **Note**: The Terraform state bucket (`py-labor-law-rag-terraform-state`) is hardcoded in `providers.tf` and should match the bucket created in Step 1 using the `gcp_utils.py` script.
@@ -158,7 +165,8 @@ This project uses a service account JSON credentials file. The file should be lo
 This Terraform project creates:
 
 - **Google Cloud Storage Bucket**: A bucket for storing files with uniform bucket-level access
-- **Regional configuration**: The bucket is created in the region specified in `terraform.tfvars`
+- **Cloud Run Job (batch)**: A scheduled job that runs a Docker image from Docker Hub every day at 23:00
+- **Regional configuration**: The bucket and job are created in the region specified in `terraform.tfvars`
 
 ## Important Notes
 
@@ -181,6 +189,17 @@ This script will:
 - Provide a menu for common Terraform operations: `init`, `plan`, `apply`, `destroy`.
 
 **Note:** You must run this script from the `terraform` directory. The `.env` file must exist at the project root.
+> ⚠️ **Warning:** The script `tf_menu.sh` requires that all the following variables are defined in your `.env` file:
+> 
+> - GCP_PROJECT_ID
+> - GCP_REGION
+> - GCP_BUCKET_NAME
+> - GCP_CLOUD_RUN_BATCH_JOB_NAME
+> - GCP_CLOUD_RUN_BATCH_IMAGE
+> - GCP_CLOUD_RUN_BATCH_ARGS
+> - GCP_CLOUD_RUN_BATCH_SCHEDULE
+>
+> If any of these variables are missing, the script will show a clear error and will not generate the `terraform.tfvars` file. You will not be able to run Terraform commands until all are set.
 
 ---
 
@@ -200,10 +219,8 @@ raiz-del-proyecto/
 │   ├── terraform.tfvars      # Valores específicos de las variables 
 │   ├── tf_menu.sh            # Script de menú interactivo para Terraform
 │   └── modules/              # Módulos reutilizables
-│       └── gcs/              # Módulo para Google Cloud Storage
-│           ├── main.tf       # Recursos del bucket de GCS
-│           ├── variables.tf  # Variables específicas del módulo
-│           └── outputs.tf    # Valores de salida del módulo
+│       ├── gcs/              # Módulo para Google Cloud Storage
+│       └── cloud_run_job/    # Módulo para Cloud Run Job (batch)
 └── ...
 ```
 
@@ -216,6 +233,7 @@ raiz-del-proyecto/
 - **`terraform.tfvars`**: Contiene los valores específicos para las variables 
 - **`tf_menu.sh`**: Script de menú interactivo para operaciones comunes de Terraform
 - **`modules/gcs/`**: Módulo reutilizable para crear buckets de Google Cloud Storage
+- **`modules/cloud_run_job/`**: Módulo para desplegar un Cloud Run Job (batch) programado usando una imagen de Docker Hub.
 
 ## Pasos para Implementar la Infraestructura
 
@@ -234,9 +252,13 @@ En la raíz del proyecto, crea un archivo llamado `.env` con las siguientes vari
 GCP_PROJECT_ID=tu-proyecto-gcp
 GCP_REGION=tu-region
 GCP_BUCKET_NAME=nombre-de-tu-bucket
+GCP_CLOUD_RUN_BATCH_JOB_NAME=mi-cloud-run-batch-job
+GCP_CLOUD_RUN_BATCH_SCHEDULE=0 22 * * *
+GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
+GCP_CLOUD_RUN_BATCH_ARGS=--param1 valor1
 ```
 
-Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`.
+Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`. Las variables de Cloud Run se usan para configurar el job batch programado.
 
 ### Paso 1: Crear Bucket para Estado de Terraform
 
@@ -314,6 +336,10 @@ Antes de ejecutar `terraform apply`, asegúrate de configurar las variables en `
 project_id  = "tu-proyecto-gcp"
 region      = "southamerica-east1"
 bucket_name = "nombre-de-tu-bucket"
+job_name    = "mi-cloud-run-batch-job"
+image       = "docker.io/usuario/mi-imagen:20240911"
+args        = ["--param1", "valor1"]
+schedule    = "0 23 * * *"
 ```
 
 **Nota**: El bucket de estado de Terraform (`py-labor-law-rag-terraform-state`) está hardcodeado en `providers.tf` y debe coincidir con el bucket creado en el Paso 1 usando el script `gcp_utils.py`.
@@ -333,7 +359,8 @@ Este proyecto utiliza un archivo JSON de credenciales de cuenta de servicio. El 
 Este proyecto de Terraform crea:
 
 - **Google Cloud Storage Bucket**: Un bucket para almacenar archivos con acceso uniforme a nivel de bucket
-- **Configuración regional**: El bucket se crea en la región especificada en `terraform.tfvars`
+- **Cloud Run Job (batch)**: Un job programado que ejecuta una imagen de Docker Hub todos los días a las 23:00
+- **Configuración regional**: El bucket y el job se crean en la región especificada en `terraform.tfvars`
 
 ## Notas Importantes
 
@@ -356,5 +383,16 @@ Este script:
 - Ofrece un menú para las operaciones comunes de Terraform: `init`, `plan`, `apply`, `destroy`.
 
 **Nota:** Debes ejecutar este script desde el directorio `terraform`. El archivo `.env` debe existir en la raíz del proyecto.
+> ⚠️ **Advertencia:** El script `tf_menu.sh` requiere que todas las siguientes variables estén definidas en tu archivo `.env`:
+>
+> - GCP_PROJECT_ID
+> - GCP_REGION
+> - GCP_BUCKET_NAME
+> - GCP_CLOUD_RUN_BATCH_JOB_NAME
+> - GCP_CLOUD_RUN_BATCH_IMAGE
+> - GCP_CLOUD_RUN_BATCH_ARGS
+> - GCP_CLOUD_RUN_BATCH_SCHEDULE
+>
+> Si falta alguna de estas variables, el script mostrará un error claro y no generará el archivo `terraform.tfvars`. No podrás ejecutar comandos de Terraform hasta que todas estén definidas.
 
 ---
