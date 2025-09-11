@@ -15,7 +15,7 @@ jobs:
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      IMAGE_NAME_PROCESSING: ${{ secrets.IMAGE_NAME_PROCESSING }}
+      IMAGE_NAME_PROCESSING: ${{ secrets.DOCKER_IMAGE_NAME_PROCESSING }}
     steps:
       - name: Checkout code
         id: checkout
