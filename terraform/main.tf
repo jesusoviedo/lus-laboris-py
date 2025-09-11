@@ -1,3 +1,4 @@
+# Modules
 module "gcs" {
   source      = "./modules/gcs"
   project_id  = var.project_id
@@ -16,6 +17,15 @@ module "cloud_run_job" {
   notify_email = var.notify_email
 }
 
+# Outputs
 output "bucket_name" {
   value = module.gcs.bucket_name
+}
+
+output "job_name" {
+  value = module.cloud_run_job.job_name
+}
+
+output "scheduler_name" {	
+  value = module.cloud_run_job.scheduler_name
 }

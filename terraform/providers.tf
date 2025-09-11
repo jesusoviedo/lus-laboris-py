@@ -1,3 +1,4 @@
+# Terraform Configuration
 terraform {
   required_providers {
     google = {
@@ -13,6 +14,7 @@ terraform {
   
 }
 
+# Providers for Google Cloud
 provider "google" {
   credentials = file("../.gcpcredentials/lus-laboris-py-service-account.json")
   project = var.project_id
