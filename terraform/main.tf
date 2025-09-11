@@ -13,6 +13,7 @@ module "cloud_run_job" {
   image      = var.image
   args       = var.args
   schedule   = var.schedule
+  notify_email = var.notify_email
 }
 
 output "bucket_name" {

@@ -27,3 +27,8 @@ variable "schedule" {
   description = "Schedule en formato cron para el job"
   type        = string
 }
+
+variable "notify_email" {
+  description = "Correo para notificaciones de estado del Cloud Run Batch (éxito o error)"
+  type        = string
+}

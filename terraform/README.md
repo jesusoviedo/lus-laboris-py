@@ -62,6 +62,7 @@ GCP_CLOUD_RUN_BATCH_JOB_NAME=my-cloud-run-batch-job
 GCP_CLOUD_RUN_BATCH_SCHEDULE=0 22 * * *
 GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
 GCP_CLOUD_RUN_BATCH_ARGS=--param1 valor1
+GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=micorreo@ejemplo.com
 ```
 
 These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically. The Cloud Run variables are used to configure the scheduled batch job.
@@ -139,13 +140,14 @@ terraform destroy
 Before running `terraform apply`, make sure to configure variables in `terraform.tfvars`:
 
 ```hcl
-project_id  = "your-gcp-project"
-region      = "southamerica-east1"
-bucket_name = "your-bucket-name"
-job_name    = "my-cloud-run-batch-job"
-image       = "docker.io/usuario/mi-imagen:20240911"
-args        = ["--param1", "valor1"]
-schedule    = "0 23 * * *"
+project_id   = "your-gcp-project"
+region       = "southamerica-east1"
+bucket_name  = "your-bucket-name"
+job_name     = "my-cloud-run-batch-job"
+image        = "docker.io/usuario/mi-imagen:20240911"
+args         = ["--param1", "valor1"]
+schedule     = "0 23 * * *"
+notify_email = "mail@domain.com"
 ```
 
 **Note**: The Terraform state bucket (`py-labor-law-rag-terraform-state`) is hardcoded in `providers.tf` and should match the bucket created in Step 1 using the `gcp_utils.py` script.
@@ -195,9 +197,10 @@ This script will:
 > - GCP_REGION
 > - GCP_BUCKET_NAME
 > - GCP_CLOUD_RUN_BATCH_JOB_NAME
+> - GCP_CLOUD_RUN_BATCH_SCHEDULE
 > - GCP_CLOUD_RUN_BATCH_IMAGE
 > - GCP_CLOUD_RUN_BATCH_ARGS
-> - GCP_CLOUD_RUN_BATCH_SCHEDULE
+> - GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL
 >
 > If any of these variables are missing, the script will show a clear error and will not generate the `terraform.tfvars` file. You will not be able to run Terraform commands until all are set.
 
@@ -256,6 +259,7 @@ GCP_CLOUD_RUN_BATCH_JOB_NAME=mi-cloud-run-batch-job
 GCP_CLOUD_RUN_BATCH_SCHEDULE=0 22 * * *
 GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
 GCP_CLOUD_RUN_BATCH_ARGS=--param1 valor1
+GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=micorreo@ejemplo.com
 ```
 
 Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`. Las variables de Cloud Run se usan para configurar el job batch programado.
@@ -333,13 +337,14 @@ terraform destroy
 Antes de ejecutar `terraform apply`, asegúrate de configurar las variables en `terraform.tfvars`:
 
 ```hcl
-project_id  = "tu-proyecto-gcp"
-region      = "southamerica-east1"
-bucket_name = "nombre-de-tu-bucket"
-job_name    = "mi-cloud-run-batch-job"
-image       = "docker.io/usuario/mi-imagen:20240911"
-args        = ["--param1", "valor1"]
-schedule    = "0 23 * * *"
+project_id   = "tu-proyecto-gcp"
+region       = "southamerica-east1"
+bucket_name  = "nombre-de-tu-bucket"
+job_name     = "mi-cloud-run-batch-job"
+image        = "docker.io/usuario/mi-imagen:20240911"
+args         = ["--param1", "valor1"]
+schedule     = "0 23 * * *"
+notify_email = "correo@dominio.com"
 ```
 
 **Nota**: El bucket de estado de Terraform (`py-labor-law-rag-terraform-state`) está hardcodeado en `providers.tf` y debe coincidir con el bucket creado en el Paso 1 usando el script `gcp_utils.py`.
@@ -389,9 +394,10 @@ Este script:
 > - GCP_REGION
 > - GCP_BUCKET_NAME
 > - GCP_CLOUD_RUN_BATCH_JOB_NAME
+> - GCP_CLOUD_RUN_BATCH_SCHEDULE
 > - GCP_CLOUD_RUN_BATCH_IMAGE
 > - GCP_CLOUD_RUN_BATCH_ARGS
-> - GCP_CLOUD_RUN_BATCH_SCHEDULE
+> - GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL
 >
 > Si falta alguna de estas variables, el script mostrará un error claro y no generará el archivo `terraform.tfvars`. No podrás ejecutar comandos de Terraform hasta que todas estén definidas.
 

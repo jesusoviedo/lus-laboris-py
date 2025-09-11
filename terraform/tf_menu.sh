@@ -30,11 +30,12 @@ create_tfvars() {
     GCP_CLOUD_RUN_BATCH_IMAGE=$(grep '^GCP_CLOUD_RUN_BATCH_IMAGE=' "$ENV_FILE" | cut -d '=' -f2-)
     GCP_CLOUD_RUN_BATCH_ARGS=$(grep '^GCP_CLOUD_RUN_BATCH_ARGS=' "$ENV_FILE" | cut -d '=' -f2-)
     GCP_CLOUD_RUN_BATCH_SCHEDULE=$(grep '^GCP_CLOUD_RUN_BATCH_SCHEDULE=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=$(grep '^GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=' "$ENV_FILE" | cut -d '=' -f2-)
 
-    # Validar que existan todas las variables requeridas (excepto schedule)
-    if [[ -z "$GCP_PROJECT_ID" || -z "$GCP_REGION" || -z "$GCP_BUCKET_NAME" || -z "$GCP_CLOUD_RUN_BATCH_JOB_NAME" || -z "$GCP_CLOUD_RUN_BATCH_IMAGE" || -z "$GCP_CLOUD_RUN_BATCH_ARGS" ]]; then
+    # Validar que existan todas las variables requeridas
+    if [[ -z "$GCP_PROJECT_ID" || -z "$GCP_REGION" || -z "$GCP_BUCKET_NAME" || -z "$GCP_CLOUD_RUN_BATCH_JOB_NAME" || -z "$GCP_CLOUD_RUN_BATCH_SCHEDULE" || -z "$GCP_CLOUD_RUN_BATCH_IMAGE" || -z "$GCP_CLOUD_RUN_BATCH_ARGS" || -z "$GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL" ]]; then
       echo "❌ ERROR: Faltan variables en $ENV_FILE. Se requieren:"
-      echo "  GCP_PROJECT_ID, GCP_REGION, GCP_BUCKET_NAME, GCP_CLOUD_RUN_BATCH_JOB_NAME, GCP_CLOUD_RUN_BATCH_IMAGE, GCP_CLOUD_RUN_BATCH_ARGS"
+      echo "  GCP_PROJECT_ID, GCP_REGION, GCP_BUCKET_NAME, GCP_CLOUD_RUN_BATCH_JOB_NAME, GCP_CLOUD_RUN_BATCH_SCHEDULE, GCP_CLOUD_RUN_BATCH_IMAGE, GCP_CLOUD_RUN_BATCH_ARGS, GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL"
       return 1
     fi
     cat > "$TFVARS_FILE" <<EOF
@@ -42,13 +43,12 @@ project_id   = "$GCP_PROJECT_ID"
 region       = "$GCP_REGION"
 bucket_name  = "$GCP_BUCKET_NAME"
 job_name     = "$GCP_CLOUD_RUN_BATCH_JOB_NAME"
+schedule     = "$GCP_CLOUD_RUN_BATCH_SCHEDULE"
 image        = "$GCP_CLOUD_RUN_BATCH_IMAGE"
 EOF
     ARGS_LIST=$(echo $GCP_CLOUD_RUN_BATCH_ARGS | awk '{for(i=1;i<=NF;i++) printf "\"%s\"%s", $i, (i<NF?", ":"") }')
-    echo "args       = [$ARGS_LIST]" >> "$TFVARS_FILE"
-    if [[ -n "$GCP_CLOUD_RUN_BATCH_SCHEDULE" ]]; then
-      echo "schedule   = \"$GCP_CLOUD_RUN_BATCH_SCHEDULE\"" >> "$TFVARS_FILE"
-    fi
+    echo "args         = [$ARGS_LIST]" >> "$TFVARS_FILE"
+    echo "notify_email = \"$GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL\"" >> "$TFVARS_FILE"
     echo "✅ Archivo terraform.tfvars generado correctamente"
   else
     echo "⚠️  No se encontró el archivo .env en $PROJECT_ROOT. No se generó terraform.tfvars."

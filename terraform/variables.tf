@@ -33,3 +33,7 @@ variable "schedule" {
   type        = string
 }
 
+variable "notify_email" {
+  description = "Correo para notificaciones de estado del Cloud Run Batch (éxito o error)"
+  type        = string
+}
