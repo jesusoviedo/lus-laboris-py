@@ -38,9 +38,9 @@ sudo apt install docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
-  ```
+```
 - macOS:
-  ```bash
+```bash
 brew install --cask docker
 ```
 - Windows:  
@@ -112,8 +112,8 @@ brew install --cask docker
 
 ## Automation & CI/CD
 
-- Use GitHub Actions to build and push images to Docker Hub.
-- Example:
+Use GitHub Actions to build and push images to Docker Hub.
+Example:
   ```yaml
   name: Build and Push
   on:
@@ -130,7 +130,7 @@ brew install --cask docker
             context: .
             push: true
             tags: username/my-app:latest
-  ```
+```
 
 ## Troubleshooting
 
@@ -142,7 +142,7 @@ brew install --cask docker
 
 ## Intermediate & Advanced Commands
 
-## English
+### Docker
 
 - View detailed container info: `docker inspect <container_id>`
 - Show container resource usage: `docker stats`
@@ -165,32 +165,7 @@ brew install --cask docker
 - Build with build-args: `docker build --build-arg VAR=value .`
 - Multi-stage build example: see Dockerfile section.
 
-## Español
-
-- Ver información detallada del contenedor: `docker inspect <container_id>`
-- Mostrar uso de recursos del contenedor: `docker stats`
-- Mostrar procesos del contenedor: `docker top <container_id>`
-- Adjuntarse a un contenedor en ejecución: `docker attach <container_id>`
-- Guardar cambios en una nueva imagen: `docker commit <container_id> nombre_nueva_imagen`
-- Exportar el sistema de archivos de un contenedor: `docker export <container_id> > contenedor.tar`
-- Importar un sistema de archivos de contenedor: `docker import contenedor.tar`
-- Limpiar recursos no usados: `docker system prune`
-- Eliminar todos los contenedores detenidos: `docker container prune`
-- Eliminar todas las imágenes no usadas: `docker image prune -a`
-- Ejecutar con límites de recursos: `docker run --memory=512m --cpus=1 ubuntu`
-- Ejecutar con sistema de archivos de solo lectura: `docker run --read-only ubuntu`
-- Establecer política de reinicio: `docker run --restart=always nginx`
-- Crear un volumen nombrado: `docker volume create midatos`
-- Montar un volumen nombrado: `docker run -v midatos:/data ubuntu`
-- Inspeccionar red: `docker network inspect bridge`
-- Conectar un contenedor a una red: `docker network connect <red> <contenedor>`
-- Desconectar un contenedor de una red: `docker network disconnect <red> <contenedor>`
-- Build con argumentos: `docker build --build-arg VAR=valor .`
-- Ejemplo de build multi-etapa: ver sección Dockerfile.
-
-## Intermediate & Advanced Docker Compose Commands
-
-## English
+### Docker Compose
 
 - List all services and their status: `docker-compose ps`
 - Build images without starting containers: `docker-compose build`
@@ -209,25 +184,6 @@ brew install --cask docker
 - Execute a command as a different user: `docker-compose exec -u root web bash`
 - Run in detached mode and build if needed: `docker-compose up -d --build`
 
-## Español
-
-- Listar todos los servicios y su estado: `docker-compose ps`
-- Construir imágenes sin iniciar contenedores: `docker-compose build`
-- Reconstruir imágenes (sin caché): `docker-compose build --no-cache`
-- Descargar las últimas imágenes: `docker-compose pull`
-- Subir imágenes construidas al registro: `docker-compose push`
-- Reiniciar todos los servicios: `docker-compose restart`
-- Detener y eliminar todos los contenedores, redes, volúmenes e imágenes: `docker-compose down --rmi all --volumes --remove-orphans`
-- Ejecutar un comando puntual en un servicio: `docker-compose run --rm web python manage.py shell`
-- Escalar un servicio: `docker-compose up --scale web=3`
-- Sobrescribir configuración con otro archivo: `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`
-- Ver variables de entorno: `docker-compose config`
-- Mostrar configuración completa (fusionada): `docker-compose config --resolve-image-digests`
-- Eliminar contenedores huérfanos: `docker-compose up --remove-orphans`
-- Seguir logs de un servicio específico: `docker-compose logs -f web`
-- Ejecutar un comando como otro usuario: `docker-compose exec -u root web bash`
-- Ejecutar en modo detach y construir si es necesario: `docker-compose up -d --build`
-
 ## Resources
 
 - [Docker Documentation](https://docs.docker.com/)
@@ -240,12 +196,9 @@ brew install --cask docker
 
 <div align="center">
 
-**Idioma / Language:**  
-[🇪🇸 Español](#guía-de-docker-compose--docker-hub) | [🇺🇸 English](#docker-compose--docker-hub-guide)
-
 </div>
 
----
+
 
 ## Tabla de Contenidos
 
@@ -276,9 +229,9 @@ sudo apt install docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
-  ```
+```
 - macOS:
-  ```bash
+```bash
 brew install --cask docker
 ```
 - Windows:  
@@ -350,24 +303,24 @@ brew install --cask docker
 
 ## Automatización y CI/CD
 
-- Usa GitHub Actions para construir y subir imágenes a Docker Hub.
-- Ejemplo:
-  ```yaml
-  name: Build and Push
-  on:
-    push:
-      branches: [main]
-  jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Build and push
-          uses: docker/build-push-action@v2
-          with:
-            context: .
-            push: true
-            tags: usuario/mi-app:latest
+Usa GitHub Actions para construir y subir imágenes a Docker Hub.
+Ejemplo:
+```yaml
+name: Build and Push
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: usuario/mi-app:latest
 ```
 
 ## Solución de Problemas
