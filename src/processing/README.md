@@ -204,11 +204,11 @@ set +o allexport
 2. Make sure you have a `.env` file at the project root with the variables:
    - `DOCKER_HUB_USERNAME`
    - `DOCKER_HUB_PASSWORD`
-   - `IMAGE_NAME_PROCESSING`
+   - `DOCKER_IMAGE_NAME_PROCESSING`
 
 3. Build the Docker image:
 ```bash
-docker build -t "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" .
+docker build -t "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" .
 ```
 
 4. Log in to Docker Hub:
@@ -219,13 +219,13 @@ echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --p
 5. Tag the image with the date:
 ```bash
 DATE_TAG=$(date +%Y%m%d)
-docker tag "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+docker tag "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 ```
 
 6. Push both tags:
 ```bash
-docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest"
-docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest"
+docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 ```
 
 > **Note:** The script and commands generate two tags: one with `latest` and one with the current date (`YYYYMMDD`).
@@ -451,11 +451,11 @@ set +o allexport
 2. Asegúrate de tener un archivo `.env` en la raíz del proyecto con las variables:
    - `DOCKER_HUB_USERNAME`
    - `DOCKER_HUB_PASSWORD`
-   - `IMAGE_NAME_PROCESSING`
+   - `DOCKER_IMAGE_NAME_PROCESSING`
 
 3. Construye la imagen Docker:
 ```bash
-docker build -t "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" .
+docker build -t "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" .
 ```
 
 4. Inicia sesión en Docker Hub:
@@ -466,13 +466,13 @@ echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --p
 5. Etiqueta la imagen con la fecha:
 ```bash
 DATE_TAG=$(date +%Y%m%d)
-docker tag "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+docker tag "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 ```
 
 6. Sube ambas etiquetas:
 ```bash
-docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:latest"
-docker push "$DOCKER_HUB_USERNAME/$IMAGE_NAME_PROCESSING:$DATE_TAG"
+docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest"
+docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 ```
 
 > **Nota:** El script y los comandos generan dos tags: uno con la palabra `latest` y otro con la fecha actual (formato `YYYYMMDD`).
