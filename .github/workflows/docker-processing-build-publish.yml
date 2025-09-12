@@ -15,11 +15,11 @@ jobs:
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      IMAGE_NAME_PROCESSING: ${{ vars.DOCKER_IMAGE_NAME_PROCESSING }}
+      DOCKER_IMAGE_NAME_PROCESSING: ${{ vars.DOCKER_IMAGE_NAME_PROCESSING }}
     steps:
       - name: Checkout code
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         id: setup_buildx
@@ -38,10 +38,10 @@ jobs:
 
       - name: Build and push Docker image (latest)
         id: build_and_push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./src/processing
           push: true
           tags: |
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_PROCESSING }}:latest
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_PROCESSING }}:${{ steps.date_tag.outputs.tag }}
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_PROCESSING }}:latest
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_PROCESSING }}:${{ steps.date_tag.outputs.tag }}

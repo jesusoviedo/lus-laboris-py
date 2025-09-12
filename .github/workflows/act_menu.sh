@@ -7,9 +7,6 @@
 
 set -e
 
-# login en docker hub
-echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
-
 # Required variables per workflow
 WORKFLOW1="docker-processing-build-publish.yml"
 WORKFLOW2="terraform-apply-on-tf-change.yml"
@@ -28,6 +25,16 @@ REQUIRED_VARS_WORKFLOW2=(
   "GCP_BUCKET_NAME"
   "GCP_CLOUD_RUN_BATCH_IMAGE"
   "GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL"
+)
+
+# List of variables that should be treated as secrets (use -s instead of --var)
+SECRET_VARS=(
+  "DOCKER_HUB_USERNAME"
+  "DOCKER_HUB_PASSWORD"
+  "GSA_KEY"
+  "GCP_PROJECT_ID"
+  "GCP_REGION"
+  # Add more secret variables here as needed
 )
 
 # Paths
@@ -49,6 +56,17 @@ find_gsa_key_file() {
 get_env_var() {
   local var="$1"
   grep -E "^$var=" "$ENV_FILE" | tail -n1 | cut -d'=' -f2-
+}
+
+# Function to check if a variable is in the secrets list
+is_secret() {
+  local var="$1"
+  for secret in "${SECRET_VARS[@]}"; do
+    if [ "$var" = "$secret" ]; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 # Function to validate variables
@@ -106,9 +124,20 @@ esac
 # Validate variables
 validar_vars "${VARS[@]}"
 
+# Always try Docker login if credentials are present in .env
+DOCKER_HUB_USERNAME=$(grep '^DOCKER_HUB_USERNAME=' "$ENV_FILE" | cut -d'=' -f2-)
+DOCKER_HUB_PASSWORD=$(grep '^DOCKER_HUB_PASSWORD=' "$ENV_FILE" | cut -d'=' -f2-)
+if [[ -n "$DOCKER_HUB_USERNAME" && -n "$DOCKER_HUB_PASSWORD" ]]; then
+  echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin > /dev/null 2>&1 || {
+    echo "⚠️  Docker login failed. You may not be able to pull/push images.";
+  }
+else
+  echo "⚠️  Docker Hub credentials not found in .env. Skipping docker login."
+fi
+
 # Build arguments
-ENV_PREFIX=""
 declare -a ACT_SECRETS=()
+declare -a ACT_VARS=()
 for var in "${VARS[@]}"; do
   if [ "$var" = "GSA_KEY" ]; then
     GSA_KEY_FILE=$(find_gsa_key_file)
@@ -116,35 +145,37 @@ for var in "${VARS[@]}"; do
     ACT_SECRETS+=("-s" "GSA_KEY=$value")
   else
     value=$(get_env_var "$var")
-    # If the name contains PASSWORD, SECRET, KEY, USERNAME, TOKEN => -s, else => env
-    if [[ "$var" =~ (PASSWORD|SECRET|KEY|TOKEN|USERNAME) ]]; then
+    # Check if variable is in the secrets list
+    if is_secret "$var"; then
       ACT_SECRETS+=("-s" "$var=$value")
     else
-      # Concatenate to environment prefix
-      ENV_PREFIX+="$var='$value' "
+      # Use --var for environment variables
+      ACT_VARS+=("--var" "$var=$value")
     fi
   fi
 done
 
 # Show and run command (hiding values)
-CMD="${ENV_PREFIX}act -W \"$WORKFLOW\" ${ACT_SECRETS[@]}"
+CMD="cd ../../ && act -W \".github/workflows/$WORKFLOW\" ${ACT_VARS[@]} ${ACT_SECRETS[@]}"
 
 # Build hidden version of the command to display
-ENV_PREFIX_HIDDEN=""
+ACT_VARS_HIDDEN=()
 ACT_SECRETS_HIDDEN=()
 for var in "${VARS[@]}"; do
   if [ "$var" = "GSA_KEY" ]; then
     ACT_SECRETS_HIDDEN+=("-s" "$var=****")
   else
-    # If the name contains PASSWORD, SECRET, KEY, USERNAME, TOKEN => -s, else => env
-    if [[ "$var" =~ (PASSWORD|SECRET|KEY|TOKEN|USERNAME) ]]; then
+    # Check if variable is in the secrets list
+    if is_secret "$var"; then
       ACT_SECRETS_HIDDEN+=("-s" "$var=****")
     else
-      ENV_PREFIX_HIDDEN+="$var='****' "
+      ACT_VARS_HIDDEN+=("--var" "$var=****")
     fi
   fi
 done
-CMD_HIDDEN="${ENV_PREFIX_HIDDEN}act -W \"$WORKFLOW\" ${ACT_SECRETS_HIDDEN[@]}"
+
+
+CMD_HIDDEN="cd ../../ && act -W \".github/workflows/$WORKFLOW\" ${ACT_VARS_HIDDEN[@]} ${ACT_SECRETS_HIDDEN[@]}"
 
 echo -e "\nComando a ejecutar (valores ocultos):\n$CMD_HIDDEN\n"
 read -p "¿Desea continuar? (s/n): " confirm
