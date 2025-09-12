@@ -59,9 +59,9 @@ GCP_PROJECT_ID=your-gcp-project-id
 GCP_REGION=your-region
 GCP_BUCKET_NAME=your-bucket-name
 GCP_CLOUD_RUN_BATCH_JOB_NAME=my-cloud-run-batch-job
-GCP_CLOUD_RUN_BATCH_SCHEDULE=0 22 * * *
+GCP_CLOUD_RUN_BATCH_SCHEDULE="0 22 * * *"
 GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
-GCP_CLOUD_RUN_BATCH_ARGS=--param1 valor1
+GCP_CLOUD_RUN_BATCH_ARGS="--param1 valor1"
 GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=micorreo@ejemplo.com
 ```
 
@@ -256,9 +256,9 @@ GCP_PROJECT_ID=tu-proyecto-gcp
 GCP_REGION=tu-region
 GCP_BUCKET_NAME=nombre-de-tu-bucket
 GCP_CLOUD_RUN_BATCH_JOB_NAME=mi-cloud-run-batch-job
-GCP_CLOUD_RUN_BATCH_SCHEDULE=0 22 * * *
+GCP_CLOUD_RUN_BATCH_SCHEDULE="0 22 * * *"
 GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
-GCP_CLOUD_RUN_BATCH_ARGS=--param1 valor1
+GCP_CLOUD_RUN_BATCH_ARGS="--param1 valor1"
 GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=micorreo@ejemplo.com
 ```
 

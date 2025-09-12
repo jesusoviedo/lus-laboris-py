@@ -1,29 +1,29 @@
 #!/bin/bash
 set -e
 
-# Cargar variables desde .env (dos niveles arriba)
+# Load variables from .env (two levels up)
 set -o allexport
 source ../../.env
 set +o allexport
 
-# Validar que existan las variables necesarias
+# Validate that the required variables exist
 if [[ -z "$DOCKER_HUB_USERNAME" || -z "$DOCKER_HUB_PASSWORD" || -z "$DOCKER_IMAGE_NAME_PROCESSING" ]]; then
   echo "❌ ERROR: Asegurate de definir DOCKER_HUB_USERNAME, DOCKER_HUB_PASSWORD e DOCKER_IMAGE_NAME_PROCESSING en .env"
   exit 1
 fi
 
-# Login en Docker Hub
+# Login to Docker Hub
 echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
 
-# Definir tags
+# Define tags
 DATE_TAG=$(date +%Y%m%d)
 LATEST_TAG="latest"
 
-# Construir imagen
+# Build image
 docker build -t "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG" .
 docker tag "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG" "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$LATEST_TAG"
 
-# Push de ambas imagenes
+# Push both images
 docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$LATEST_TAG"
 

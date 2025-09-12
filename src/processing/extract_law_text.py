@@ -412,9 +412,21 @@ def parse_arguments():
         default='codigo_trabajo_articulos.json', 
         help='Nombre del archivo JSON procesado (por defecto: codigo_trabajo_articulos.json)')
     
-    parser.add_argument('--use-local-credentials', action='store_true', help='Forzar uso de credenciales desde archivo local (para desarrollo local).')
-    parser.add_argument('--gcp-credentials-dir', default=None, help='Ruta a la carpeta donde buscar el archivo .json de credenciales de GCP (opcional, por defecto busca en la raíz del proyecto).')
-    parser.add_argument('--output-root', default=None, help='Raíz donde se crearán las carpetas data/raw y data/processed en modo local (opcional).')
+    parser.add_argument(
+        '--use-local-credentials', 
+        action='store_true', 
+        help='Forzar uso de credenciales desde archivo local (para desarrollo local).')
+
+    parser.add_argument(
+        '--gcp-credentials-dir', 
+        default=None, 
+        help='Ruta a la carpeta donde buscar el archivo .json de credenciales de GCP (opcional, por defecto busca en la raíz del proyecto).')
+    
+    parser.add_argument(
+        '--output-root', 
+        default=None, 
+        help='Raíz donde se crearán las carpetas data/raw y data/processed en modo local (opcional).')
+        
     return parser.parse_args()
 
 

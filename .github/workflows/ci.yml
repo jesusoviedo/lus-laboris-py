@@ -1,26 +1,26 @@
-# name: CI & Build Docker
+ name: CI & Build Docker
 
-# on:
-#   push:
-#     branches: [ main ]
-#   pull_request:
-#     branches: [ main ]
+ on:
+   push:
+     branches: [ main ]
+   pull_request:
+     branches: [ main ]
 
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - name: Set up Python
-#         uses: actions/setup-python@v4
-#         with:
-#           python-version: '3.13'
-#       - name: Install dependencies
-#         run: |
-#           pip install -r requirements.txt
-#       - name: Run tests
-#         run: |
-#           pytest
+ jobs:
+   test:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v3
+       - name: Set up Python
+         uses: actions/setup-python@v4
+         with:
+           python-version: '3.13'
+       - name: Install dependencies
+         run: |
+           pip install -r requirements.txt
+       - name: Run tests
+         run: |
+           pytest
 
 #   build-and-push-docker:
 #     needs: test

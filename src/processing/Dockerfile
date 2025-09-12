@@ -25,5 +25,8 @@ COPY extract_law_text.py ./
 RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser /app
 USER appuser
 
-# Comando por defecto
-CMD ["uv", "run", "extract_law_text.py", "--mode", "gcs", "--bucket-name", "py-labor-law-rag-bucket"]
+# Entrypoint para ejecutar el script
+ENTRYPOINT ["uv", "run", "extract_law_text.py"]
+
+# CMD vacio para permitir args flexibles
+CMD []

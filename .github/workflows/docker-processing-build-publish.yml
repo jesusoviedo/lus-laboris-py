@@ -10,12 +10,12 @@ on:
       - 'src/processing/.python-version'
 
 jobs:
-  build-and-push:
+  build-and-push-processing:
     runs-on: ubuntu-latest
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      IMAGE_NAME_PROCESSING: ${{ secrets.DOCKER_IMAGE_NAME_PROCESSING }}
+      IMAGE_NAME_PROCESSING: ${{ vars.DOCKER_IMAGE_NAME_PROCESSING }}
     steps:
       - name: Checkout code
         id: checkout

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Determinar la raiz del proyecto (un nivel arriba de la ubicacion de este script)
+# Determine the project root (one level above the location of this script)
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(realpath "$SCRIPT_DIR/..")"
 CRED_DIR="$PROJECT_ROOT/.gcpcredentials"
@@ -32,7 +32,7 @@ create_tfvars() {
     GCP_CLOUD_RUN_BATCH_SCHEDULE=$(grep '^GCP_CLOUD_RUN_BATCH_SCHEDULE=' "$ENV_FILE" | cut -d '=' -f2-)
     GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=$(grep '^GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=' "$ENV_FILE" | cut -d '=' -f2-)
 
-    # Validar que existan todas las variables requeridas
+    # Validate that all required variables exist
     if [[ -z "$GCP_PROJECT_ID" || -z "$GCP_REGION" || -z "$GCP_BUCKET_NAME" || -z "$GCP_CLOUD_RUN_BATCH_JOB_NAME" || -z "$GCP_CLOUD_RUN_BATCH_SCHEDULE" || -z "$GCP_CLOUD_RUN_BATCH_IMAGE" || -z "$GCP_CLOUD_RUN_BATCH_ARGS" || -z "$GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL" ]]; then
       echo "❌ ERROR: Faltan variables en $ENV_FILE. Se requieren:"
       echo "  GCP_PROJECT_ID, GCP_REGION, GCP_BUCKET_NAME, GCP_CLOUD_RUN_BATCH_JOB_NAME, GCP_CLOUD_RUN_BATCH_SCHEDULE, GCP_CLOUD_RUN_BATCH_IMAGE, GCP_CLOUD_RUN_BATCH_ARGS, GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL"
