@@ -13,6 +13,17 @@ This folder contains configuration files (`.yml`) for GitHub Actions workflows t
 
 A **workflow** is an automated process defined as code, which runs on GitHub's infrastructure in response to specific events (such as code pushes, pull requests, or manual triggers). Workflows are used for tasks like testing, building, deploying, or automating maintenance.
 
+## Local Development Scripts
+
+- **act_menu.sh**: 
+Interactive script to run GitHub Actions workflows locally using `act`.
+  - Must be executed from `.github/workflows/` directory.
+  - Reads environment variables from the project root `.env` file.
+  - Automatically handles Docker Hub login and GCP credentials.
+  - Supports both workflows with proper variable mapping.
+  - Provides a user-friendly menu interface in Spanish.
+  - Hides sensitive values in command preview for security.
+
 ## Existing Workflows
 
 - **docker-processing-build-publish.yml**: 
@@ -30,6 +41,17 @@ Runs Terraform automatically when any `.tf` file changes in the `terraform/` fol
   - Executes `terraform init`, `plan`, and `apply` to update the infrastructure.
   - All required variables are passed as GitHub secrets or environment variables.
 
+## Local Testing with act
+
+To test workflows locally before pushing changes, use the interactive script (run from the current directory):
+
+```bash
+bash act_menu.sh
+```
+
+For detailed information about act installation and usage, see:
+- [docs/act_guide.md](../../docs/act_guide.md)
+
 For a detailed explanation of how GitHub Actions work in this project, see the guide:
 - [docs/github_actions_guide.md](../../docs/github_actions_guide.md)
 
@@ -40,6 +62,17 @@ For a detailed explanation of how GitHub Actions work in this project, see the g
 Esta carpeta contiene los archivos de configuración (`.yml`) para los workflows de GitHub Actions que automatizan tareas del proyecto.
 
 Un **workflow** es un proceso automatizado definido como código, que se ejecuta en la infraestructura de GitHub en respuesta a eventos específicos (como push, pull request o ejecución manual). Los workflows se utilizan para tareas como pruebas, construcción, despliegue o automatización de mantenimiento.
+
+## Scripts de desarrollo local
+
+- **act_menu.sh**: 
+Script interactivo para ejecutar workflows de GitHub Actions localmente usando `act`.
+  - Debe ejecutarse desde el directorio `.github/workflows/`.
+  - Lee las variables de entorno desde el archivo `.env` en la raíz del proyecto.
+  - Maneja automáticamente el login a Docker Hub y las credenciales de GCP.
+  - Soporta ambos workflows con mapeo correcto de variables.
+  - Proporciona una interfaz de menú amigable en español.
+  - Oculta valores sensibles en la vista previa del comando por seguridad.
 
 ## Workflows existentes
 
@@ -57,6 +90,17 @@ Ejecuta Terraform automáticamente cuando se modifica cualquier archivo `.tf` de
   - Genera el archivo `.env` necesario y ejecuta el script de menú para crear `terraform.tfvars`.
   - Ejecuta `terraform init`, `plan` y `apply` para actualizar la infraestructura.
   - Todas las variables requeridas se pasan como secrets de GitHub o variables de entorno.
+
+## Pruebas locales con act
+
+Para probar workflows localmente antes de hacer push de los cambios, usa el script interactivo (ejecutar desde el directorio actual):
+
+```bash
+bash act_menu.sh
+```
+
+Para información detallada sobre la instalación y uso de act, consulta:
+- [docs/act_guide.md](../../docs/act_guide.md)
 
 Para una explicación detallada sobre el uso de GitHub Actions en este proyecto, consulta la guía:
 - [docs/github_actions_guide.md](../../docs/github_actions_guide.md)

@@ -21,6 +21,7 @@ This directory contains comprehensive guides and documentation for setting up an
 | [uv_guide.md](uv_guide.md) | UV Package Manager | Python package management with UV, including installation, usage, and best practices |
 | [docker_guide.md](docker_guide.md) | Docker, Compose & Hub | Containerization, multi-container management, and image registry |
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | CI/CD automation, including workflow creation, testing, and deployment |
+| [act_guide.md](act_guide.md) | Local GitHub Actions Testing | Local workflow testing with act for debugging and validation |
 
 ### Quick Start
 
@@ -28,6 +29,7 @@ This directory contains comprehensive guides and documentation for setting up an
 2. **For Python Development**: Follow [uv_guide.md](uv_guide.md)
 3. **For Containerization**: Use [docker_guide.md](docker_guide.md)
 4. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
+5. **For Local Testing**: Use [act_guide.md](act_guide.md)
 
 ### Prerequisites
 
@@ -49,6 +51,7 @@ Este directorio contiene guías completas y documentación para configurar y usa
 | [uv_guide.md](uv_guide.md) | Gestor de Paquetes UV | Gestión de paquetes Python con UV, incluyendo instalación, uso y mejores prácticas |
 | [docker_guide.md](docker_guide.md) | Docker, Compose & Hub | Containerización, multi-contenedor y registro de imágenes |
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | Automatización CI/CD, incluyendo creación de workflows, pruebas y despliegue |
+| [act_guide.md](act_guide.md) | Pruebas Locales de GitHub Actions | Pruebas locales de workflows con act para depuración y validación |
 
 ### Inicio Rápido
 
@@ -56,6 +59,7 @@ Este directorio contiene guías completas y documentación para configurar y usa
 2. **Para Desarrollo Python**: Sigue [uv_guide.md](uv_guide.md)
 3. **Para Containerización**: Usa [docker_guide.md](docker_guide.md)
 4. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
+5. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
 
 ### Prerrequisitos
 
