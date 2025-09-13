@@ -126,7 +126,6 @@ validate_qdrant_vm_vars() {
     return 1
   fi
 
-  echo "✅ Validación de variables de VM exitosa"
 }
 
 validate_env() {
