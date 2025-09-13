@@ -29,8 +29,8 @@ create_tfvars() {
     GCP_BUCKET_NAME=$(grep '^GCP_BUCKET_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
     GCP_CLOUD_RUN_BATCH_JOB_NAME=$(grep '^GCP_CLOUD_RUN_BATCH_JOB_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
     GCP_CLOUD_RUN_BATCH_IMAGE=$(grep '^GCP_CLOUD_RUN_BATCH_IMAGE=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_BATCH_ARGS=$(grep '^GCP_CLOUD_RUN_BATCH_ARGS=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_BATCH_SCHEDULE=$(grep '^GCP_CLOUD_RUN_BATCH_SCHEDULE=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_BATCH_ARGS=$(grep '^GCP_CLOUD_RUN_BATCH_ARGS=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_BATCH_SCHEDULE=$(grep '^GCP_CLOUD_RUN_BATCH_SCHEDULE=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=$(grep '^GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=' "$ENV_FILE" | cut -d '=' -f2-)
     
     # Read new Qdrant VM variables
@@ -80,7 +80,13 @@ qdrant_vm_machine_type = "$GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE"
 qdrant_vm_zone        = "$GCP_COMPUTE_ENGINE_VM_ZONE"
 qdrant_vm_disk_size   = $GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 EOF
-    ARGS_LIST=$(echo $GCP_CLOUD_RUN_BATCH_ARGS | awk '{for(i=1;i<=NF;i++) printf "\"%s\"%s", $i, (i<NF?", ":"") }')
+    # Parse args properly to avoid double quotes
+    ARGS_ARRAY=()
+    IFS=' ' read -ra ARGS <<< "$GCP_CLOUD_RUN_BATCH_ARGS"
+    for arg in "${ARGS[@]}"; do
+        ARGS_ARRAY+=("\"$arg\"")
+    done
+    ARGS_LIST=$(IFS=', '; echo "${ARGS_ARRAY[*]}")
     echo "args         = [$ARGS_LIST]" >> "$TFVARS_FILE"
     echo "✅ Archivo terraform.tfvars generado correctamente"
   else

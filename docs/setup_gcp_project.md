@@ -8,6 +8,32 @@ This guide will help you set up a Google Cloud Platform project with a service a
 - Access to Google Cloud Console
 - Google Cloud CLI installed (optional, but recommended)
 
+### Initial Authentication Setup
+
+Before proceeding with the project setup, you need to authenticate with Google Cloud:
+
+1. **Install Google Cloud CLI** (if not already installed):
+   ```bash
+   # Install gcloud CLI
+   curl https://sdk.cloud.google.com | bash
+   exec -l $SHELL
+   ```
+
+2. **Authenticate with your Google account**:
+   ```bash
+   # Interactive login (opens browser)
+   gcloud auth login
+   ```
+
+3. **Verify authentication**:
+   ```bash
+   # Check active authentication
+   gcloud auth list
+   
+   # Check current project
+   gcloud config list project
+   ```
+
 ## Step 1: Create a Project in GCP
 
 ### Using Google Cloud Console
@@ -290,6 +316,32 @@ Esta guía te ayudará a configurar un proyecto de Google Cloud Platform con una
 - Cuenta de Google Cloud Platform activa
 - Acceso a la consola de Google Cloud
 - Google Cloud CLI instalado (opcional, pero recomendado)
+
+### Configuración Inicial de Autenticación
+
+Antes de proceder con la configuración del proyecto, necesitas autenticarte con Google Cloud:
+
+1. **Instalar Google Cloud CLI** (si no está instalado):
+   ```bash
+   # Instalar gcloud CLI
+   curl https://sdk.cloud.google.com | bash
+   exec -l $SHELL
+   ```
+
+2. **Autenticarse con tu cuenta de Google**:
+   ```bash
+   # Login interactivo (abre el navegador)
+   gcloud auth login
+   ```
+
+3. **Verificar autenticación**:
+   ```bash
+   # Verificar autenticación activa
+   gcloud auth list
+   
+   # Verificar proyecto actual
+   gcloud config list project
+   ```
 
 ## Paso 1: Crear un Proyecto en GCP
 
