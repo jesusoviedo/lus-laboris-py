@@ -49,6 +49,30 @@ gcloud config set project py-labor-law-rag
    - Search for "Cloud Resource Manager API"
    - Click "Enable"
 
+3. **Enable Compute Engine API**
+   - Search for "Compute Engine API"
+   - Click "Enable"
+
+4. **Enable Cloud Run API**
+   - Search for "Cloud Run API"
+   - Click "Enable"
+
+5. **Enable Cloud Scheduler API**
+   - Search for "Cloud Scheduler API"
+   - Click "Enable"
+
+6. **Enable IAM Service Account Credentials API**
+   - Search for "IAM Service Account Credentials API"
+   - Click "Enable"
+
+7. **Enable Cloud Logging API**
+   - Search for "Cloud Logging API"
+   - Click "Enable"
+
+8. **Enable Cloud Monitoring API**
+   - Search for "Cloud Monitoring API"
+   - Click "Enable"
+
 ### Using Google Cloud CLI
 
 ```bash
@@ -60,6 +84,7 @@ gcloud services enable cloudscheduler.googleapis.com
 gcloud services enable iam.googleapis.com
 gcloud services enable logging.googleapis.com
 gcloud services enable monitoring.googleapis.com
+gcloud services enable compute.googleapis.com
 ```
 
 ## Step 3: Create a Service Account
@@ -84,6 +109,8 @@ gcloud services enable monitoring.googleapis.com
      - **Cloud Run Admin** (`roles/run.admin`)
      - **Service Account User** (`roles/iam.serviceAccountUser`)
      - **Cloud Scheduler Admin** (`roles/cloudscheduler.admin`)
+     - **Compute Instance Admin** (`roles/compute.instanceAdmin`)
+     - **Compute Network Admin** (`roles/compute.networkAdmin`)
    - Click "Continue" and then "Done"
 
 ### Using Google Cloud CLI
@@ -118,6 +145,16 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
 gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/cloudscheduler.admin"
+
+# Assign Compute Instance Admin role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/compute.instanceAdmin"
+
+# Assign Compute Network Admin role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/compute.networkAdmin"
 ```
 
 ## Step 4: Generate JSON Key
@@ -165,9 +202,6 @@ gcloud projects get-iam-policy py-labor-law-rag \
 # Test authentication with the service account
 gcloud auth activate-service-account \
     --key-file=.gcpcredentials/lus-laboris-py-service-account.json
-
-# Verify Storage access
-gsutil ls
 ```
 
 ## Assigned Roles
@@ -192,6 +226,16 @@ gsutil ls
 ### Cloud Scheduler Admin (`roles/cloudscheduler.admin`)
 - Allows managing Cloud Scheduler jobs
 - Includes permissions to create, update, and delete scheduler jobs
+
+### Compute Instance Admin (`roles/compute.instanceAdmin`)
+- Allows managing Compute Engine instances
+- Includes permissions to create, update, delete, and configure VM instances
+- Allows managing instance metadata, tags, and startup scripts
+
+### Compute Network Admin (`roles/compute.networkAdmin`)
+- Allows managing Compute Engine networking resources
+- Includes permissions to create, update, and delete firewall rules
+- Allows configuring network interfaces and access controls
 
 ## Security
 
@@ -288,6 +332,30 @@ gcloud config set project py-labor-law-rag
    - Busca "Cloud Resource Manager API"
    - Haz clic en "Habilitar"
 
+3. **Habilitar Compute Engine API**
+   - Busca "Compute Engine API"
+   - Haz clic en "Habilitar"
+
+4. **Habilitar Cloud Run API**
+   - Busca "Cloud Run API"
+   - Haz clic en "Habilitar"
+
+5. **Habilitar Cloud Scheduler API**
+   - Busca "Cloud Scheduler API"
+   - Haz clic en "Habilitar"
+
+6. **Habilitar IAM Service Account Credentials API**
+   - Busca "IAM Service Account Credentials API"
+   - Haz clic en "Habilitar"
+
+7. **Habilitar Cloud Logging API**
+   - Busca "Cloud Logging API"
+   - Haz clic en "Habilitar"
+
+8. **Habilitar Cloud Monitoring API**
+   - Busca "Cloud Monitoring API"
+   - Haz clic en "Habilitar"
+
 ### Usando Google Cloud CLI
 
 ```bash
@@ -299,6 +367,7 @@ gcloud services enable cloudscheduler.googleapis.com
 gcloud services enable iam.googleapis.com
 gcloud services enable logging.googleapis.com
 gcloud services enable monitoring.googleapis.com
+gcloud services enable compute.googleapis.com
 ```
 
 ## Paso 3: Crear una Cuenta de Servicio
@@ -323,6 +392,8 @@ gcloud services enable monitoring.googleapis.com
      - **Administrador de Cloud Run** (`roles/run.admin`)
      - **Usuario de cuentas de servicio** (`roles/iam.serviceAccountUser`)
      - **Administrador de Cloud Scheduler** (`roles/cloudscheduler.admin`)
+     - **Administrador de instancias de Compute** (`roles/compute.instanceAdmin`)
+     - **Administrador de red de Compute** (`roles/compute.networkAdmin`)
    - Haz clic en "Continuar" y luego en "Listo"
 
 ### Usando Google Cloud CLI
@@ -357,6 +428,16 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
 gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/cloudscheduler.admin"
+
+# Asignar rol de Administrador de instancias de Compute
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/compute.instanceAdmin"
+
+# Asignar rol de Administrador de red de Compute
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/compute.networkAdmin"
 ```
 
 ## Paso 4: Generar Clave JSON
@@ -404,9 +485,6 @@ gcloud projects get-iam-policy py-labor-law-rag \
 # Probar autenticación con la cuenta de servicio
 gcloud auth activate-service-account \
     --key-file=.gcpcredentials/lus-laboris-py-service-account.json
-
-# Verificar acceso a Storage
-gsutil ls
 ```
 
 ## Roles Asignados
@@ -431,6 +509,16 @@ gsutil ls
 ### Administrador de Cloud Scheduler (`roles/cloudscheduler.admin`)
 - Permite gestionar jobs de Cloud Scheduler
 - Incluye permisos para crear, actualizar y eliminar jobs de scheduler
+
+### Administrador de instancias de Compute (`roles/compute.instanceAdmin`)
+- Permite gestionar instancias de Compute Engine
+- Incluye permisos para crear, actualizar, eliminar y configurar instancias de VM
+- Permite gestionar metadatos de instancias, tags y scripts de inicio
+
+### Administrador de red de Compute (`roles/compute.networkAdmin`)
+- Permite gestionar recursos de red de Compute Engine
+- Incluye permisos para crear, actualizar y eliminar reglas de firewall
+- Permite configurar interfaces de red y controles de acceso
 
 ## Seguridad
 
