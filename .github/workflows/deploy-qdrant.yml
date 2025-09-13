@@ -1,0 +1,115 @@
+name: Deploy Qdrant to VM
+
+on:
+  push:
+    paths:
+      - 'src/vectorstore/**'
+      - 'terraform/modules/compute_engine/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup GCP
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GSA_KEY }}
+
+      - name: Get VM Details
+        id: get_vm_details
+        run: |
+          VM_NAME="qdrant-vm"
+          VM_ZONE="southamerica-east1-a"
+          
+          VM_IP=$(gcloud compute instances describe $VM_NAME \
+            --zone=$VM_ZONE \
+            --format='get(networkInterfaces[0].accessConfig[0].natIP)')
+          
+          echo "vm_name=$VM_NAME" >> $GITHUB_OUTPUT
+          echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
+          echo "vm_zone=$VM_ZONE" >> $GITHUB_OUTPUT
+
+      - name: Wait for VM to be ready
+        run: |
+          echo "Waiting for VM to be ready..."
+          for i in {1..30}; do
+            if gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+              --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
+              --command="echo 'VM is ready'" 2>/dev/null; then
+              echo "VM is ready!"
+              break
+            fi
+            echo "Attempt $i/30 - VM not ready yet..."
+            sleep 10
+          done
+
+      - name: Install Docker and Docker Compose
+        run: |
+          gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+            --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
+            --command="
+              sudo apt-get update && 
+              sudo apt-get install -y docker.io docker-compose && 
+              sudo usermod -aG docker \$(whoami) && 
+              sudo systemctl enable docker && 
+              sudo systemctl start docker
+            "
+
+      - name: Copy Docker Compose files
+        run: |
+          gcloud compute scp src/vectorstore/docker-compose.yml \
+            ${{ steps.get_vm_details.outputs.vm_ip }}:/home/\$(whoami)/qdrant/ \
+            --zone=${{ steps.get_vm_details.outputs.vm_zone }}
+
+      - name: Create .env file on VM
+        run: |
+          gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+            --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
+            --command="
+              mkdir -p /home/\$(whoami)/qdrant && 
+              echo 'QDRANT_API_KEY=${{ env.QDRANT_API_KEY }}' > /home/\$(whoami)/qdrant/.env &&
+              echo 'QDRANT_HOST=0.0.0.0' >> /home/\$(whoami)/qdrant/.env &&
+              echo 'QDRANT_PORT=6333' >> /home/\$(whoami)/qdrant/.env
+            "
+
+      - name: Start Qdrant
+        run: |
+          gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+            --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
+            --command="
+              cd /home/\$(whoami)/qdrant && 
+              docker-compose down && 
+              docker-compose up -d
+            "
+
+      - name: Verify Deployment
+        run: |
+          echo "Waiting for Qdrant to start..."
+          sleep 30
+          
+          # Check if Qdrant is responding
+          for i in {1..10}; do
+            if curl -f http://${{ steps.get_vm_details.outputs.vm_ip }}:6333/health; then
+              echo "✅ Qdrant is running successfully!"
+              break
+            fi
+            echo "Attempt $i/10 - Qdrant not ready yet..."
+            sleep 15
+          done
+
+      - name: Display Connection Info
+        run: |
+          echo "🚀 Qdrant deployed successfully!"
+          echo "📍 VM Name: ${{ steps.get_vm_details.outputs.vm_name }}"
+          echo "🌐 External IP: ${{ steps.get_vm_details.outputs.vm_ip }}"
+          echo "🔗 Qdrant API: http://${{ steps.get_vm_details.outputs.vm_ip }}:6333"
+          echo "📊 Qdrant Dashboard: http://${{ steps.get_vm_details.outputs.vm_ip }}:6333/dashboard"

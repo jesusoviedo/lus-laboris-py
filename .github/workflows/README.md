@@ -20,9 +20,10 @@ Interactive script to run GitHub Actions workflows locally using `act`.
   - Must be executed from `.github/workflows/` directory.
   - Reads environment variables from the project root `.env` file.
   - Automatically handles Docker Hub login and GCP credentials.
-  - Supports both workflows with proper variable mapping.
+  - Supports all workflows with proper variable mapping and validation.
   - Provides a user-friendly menu interface in Spanish.
   - Hides sensitive values in command preview for security.
+  - Includes configurable list of secret variables for better security management.
 
 ## Existing Workflows
 
@@ -40,6 +41,16 @@ Runs Terraform automatically when any `.tf` file changes in the `terraform/` fol
   - Generates the required `.env` file and runs the menu script to create `terraform.tfvars`.
   - Executes `terraform init`, `plan`, and `apply` to update the infrastructure.
   - All required variables are passed as GitHub secrets or environment variables.
+
+- **deploy-qdrant.yml**:
+Deploys Qdrant vector database to a Compute Engine VM instance.
+  - Triggers when files in `src/vectorstore/` or `terraform/modules/compute_engine/` change.
+  - Can also be triggered manually via `workflow_dispatch`.
+  - Gets VM details using the VM name from Terraform outputs.
+  - Installs Docker and Docker Compose on the VM.
+  - Copies Docker Compose files and creates environment configuration.
+  - Starts Qdrant containers and verifies deployment.
+  - Uses repository secrets for GCP project configuration and Qdrant API key.
 
 ## Local Testing with act
 
@@ -70,9 +81,10 @@ Script interactivo para ejecutar workflows de GitHub Actions localmente usando `
   - Debe ejecutarse desde el directorio `.github/workflows/`.
   - Lee las variables de entorno desde el archivo `.env` en la raíz del proyecto.
   - Maneja automáticamente el login a Docker Hub y las credenciales de GCP.
-  - Soporta ambos workflows con mapeo correcto de variables.
+  - Soporta todos los workflows con mapeo correcto de variables y validación.
   - Proporciona una interfaz de menú amigable en español.
   - Oculta valores sensibles en la vista previa del comando por seguridad.
+  - Incluye lista configurable de variables secretas para mejor gestión de seguridad.
 
 ## Workflows existentes
 
@@ -90,6 +102,16 @@ Ejecuta Terraform automáticamente cuando se modifica cualquier archivo `.tf` de
   - Genera el archivo `.env` necesario y ejecuta el script de menú para crear `terraform.tfvars`.
   - Ejecuta `terraform init`, `plan` y `apply` para actualizar la infraestructura.
   - Todas las variables requeridas se pasan como secrets de GitHub o variables de entorno.
+
+- **deploy-qdrant.yml**:
+Despliega la base de datos vectorial Qdrant en una instancia de Compute Engine VM.
+  - Se activa cuando se modifican archivos en `src/vectorstore/` o `terraform/modules/compute_engine/`.
+  - También se puede activar manualmente mediante `workflow_dispatch`.
+  - Obtiene detalles de la VM usando el nombre de la VM desde las salidas de Terraform.
+  - Instala Docker y Docker Compose en la VM.
+  - Copia archivos de Docker Compose y crea configuración de entorno.
+  - Inicia contenedores de Qdrant y verifica el despliegue.
+  - Usa secrets del repositorio para configuración del proyecto GCP y clave API de Qdrant.
 
 ## Pruebas locales con act
 
