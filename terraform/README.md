@@ -26,20 +26,22 @@ project-root/
 │   ├── tf_menu.sh            # Interactive menu script for Terraform
 │   └── modules/              # Reusable modules
 │       ├── gcs/              # Google Cloud Storage module
-│       └── cloud_run_job/    # Cloud Run Job (batch) module
+│       ├── cloud_run_job/    # Cloud Run Job (batch) module
+│       └── compute_engine/   # Compute Engine (VM) module
 └── ...
 ```
 
 ### Purpose of each file:
 
-- **`.env`**: Stores required environment variables (`GCP_PROJECT_ID`, `GCP_REGION`, `GCP_BUCKET_NAME`) for Terraform and the interactive script.
+- **`.env`**: Stores required environment variables for Terraform and the interactive script
 - **`main.tf`**: Defines main modules and their configurations
 - **`variables.tf`**: Declares customizable variables
 - **`providers.tf`**: Configures Google Cloud Platform provider with JSON credentials
 - **`terraform.tfvars`**: Contains specific values for variables
 - **`tf_menu.sh`**: Interactive menu script for common Terraform operations
 - **`modules/gcs/`**: Reusable module for creating Google Cloud Storage buckets
-- **`modules/cloud_run_job/`**: Module to deploy a scheduled Cloud Run Job (batch) using a Docker image from Docker Hub.
+- **`modules/cloud_run_job/`**: Module to deploy a scheduled Cloud Run Job (batch) using a Docker image from Docker Hub
+- **`modules/compute_engine/`**: Module to create Compute Engine instances (VMs) for hosting services like Qdrant
 
 ## Steps to Implement Infrastructure
 
@@ -55,17 +57,29 @@ project-root/
 At the root of the project, create a file named `.env` with the following variables:
 
 ```env
+# Basic GCP Configuration
 GCP_PROJECT_ID=your-gcp-project-id
-GCP_REGION=your-region
+GCP_REGION=name-region
 GCP_BUCKET_NAME=your-bucket-name
+
+# Cloud Run Job Configuration
 GCP_CLOUD_RUN_BATCH_JOB_NAME=my-cloud-run-batch-job
 GCP_CLOUD_RUN_BATCH_SCHEDULE="0 22 * * *"
 GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
 GCP_CLOUD_RUN_BATCH_ARGS="--param1 valor1"
 GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=micorreo@ejemplo.com
+
+# Compute Engine VM Configuration (for Qdrant)
+GCP_COMPUTE_ENGINE_VM_NAME=name-vm
+GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=type-machine
+GCP_COMPUTE_ENGINE_VM_ZONE=name-zone
+GCP_COMPUTE_ENGINE_VM_DISK_SIZE=50
 ```
 
-These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically. The Cloud Run variables are used to configure the scheduled batch job.
+These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically:
+- **Basic GCP Configuration**: Core project settings
+- **Cloud Run Job Configuration**: Variables for the scheduled batch job
+- **Compute Engine VM Configuration**: Variables for creating the Qdrant VM
 
 ### Step 1: Create Terraform State Bucket
 
@@ -141,13 +155,20 @@ Before running `terraform apply`, make sure to configure variables in `terraform
 
 ```hcl
 project_id   = "your-gcp-project"
-region       = "southamerica-east1"
+region       = "name-region"
 bucket_name  = "your-bucket-name"
+
 job_name     = "my-cloud-run-batch-job"
 image        = "docker.io/usuario/mi-imagen:20240911"
 args         = ["--param1", "valor1"]
 schedule     = "0 23 * * *"
 notify_email = "mail@domain.com"
+
+# Qdrant VM Configuration
+qdrant_vm_name         = "name-vm"
+qdrant_vm_machine_type = "type-machine"
+qdrant_vm_zone        = "name-zone"
+qdrant_vm_disk_size   = 50
 ```
 
 **Note**: The Terraform state bucket (`py-labor-law-rag-terraform-state`) is hardcoded in `providers.tf` and should match the bucket created in Step 1 using the `gcp_utils.py` script.
@@ -168,7 +189,9 @@ This Terraform project creates:
 
 - **Google Cloud Storage Bucket**: A bucket for storing files with uniform bucket-level access
 - **Cloud Run Job (batch)**: A scheduled job that runs a Docker image from Docker Hub every day at 23:00
-- **Regional configuration**: The bucket and job are created in the region specified in `terraform.tfvars`
+- **Compute Engine Instance**: A VM instance for hosting services like Qdrant vector database
+- **Firewall Rules**: Network rules to allow access to the VM on required ports (22, 6333, 6334)
+- **Regional configuration**: All resources are created in the region specified in `terraform.tfvars`
 
 ## Important Notes
 
@@ -185,24 +208,34 @@ bash ./tf_menu.sh
 ```
 
 This script will:
-- Automatically search for a `.json` credentials file in the `.gcpcredentials` folder at the project root (two levels up).
-- Export the `GOOGLE_APPLICATION_CREDENTIALS` variable if not already set.
-- Read the `.env` file at the project root, extract the variables `GCP_PROJECT_ID`, `GCP_REGION`, and `GCP_BUCKET_NAME`, and generate the `terraform.tfvars` file automatically.
-- Provide a menu for common Terraform operations: `init`, `plan`, `apply`, `destroy`.
+- Automatically search for a `.json` credentials file in the `.gcpcredentials` folder at the project root (two levels up)
+- Export the `GOOGLE_APPLICATION_CREDENTIALS` variable if not already set
+- Read the `.env` file at the project root, extract all required variables, and generate the `terraform.tfvars` file automatically
+- Validate all variables before generating the configuration file
+- Provide a menu for common Terraform operations: `init`, `plan`, `apply`, `destroy`
 
 **Note:** You must run this script from the `terraform` directory. The `.env` file must exist at the project root.
 > ⚠️ **Warning:** The script `tf_menu.sh` requires that all the following variables are defined in your `.env` file:
 > 
+> **Basic GCP Configuration:**
 > - GCP_PROJECT_ID
 > - GCP_REGION
 > - GCP_BUCKET_NAME
+> 
+> **Cloud Run Job Configuration:**
 > - GCP_CLOUD_RUN_BATCH_JOB_NAME
 > - GCP_CLOUD_RUN_BATCH_SCHEDULE
 > - GCP_CLOUD_RUN_BATCH_IMAGE
 > - GCP_CLOUD_RUN_BATCH_ARGS
 > - GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL
+> 
+> **Compute Engine VM Configuration:**
+> - GCP_COMPUTE_ENGINE_VM_NAME
+> - GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE
+> - GCP_COMPUTE_ENGINE_VM_ZONE
+> - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 >
-> If any of these variables are missing, the script will show a clear error and will not generate the `terraform.tfvars` file. You will not be able to run Terraform commands until all are set.
+> If any of these variables are missing, the script will show a clear error with validation details and will not generate the `terraform.tfvars` file. You will not be able to run Terraform commands until all are set.
 
 ---
 
@@ -223,20 +256,22 @@ raiz-del-proyecto/
 │   ├── tf_menu.sh            # Script de menú interactivo para Terraform
 │   └── modules/              # Módulos reutilizables
 │       ├── gcs/              # Módulo para Google Cloud Storage
-│       └── cloud_run_job/    # Módulo para Cloud Run Job (batch)
+│       ├── cloud_run_job/    # Módulo para Cloud Run Job (batch)
+│       └── compute_engine/   # Módulo para Compute Engine (VM)
 └── ...
 ```
 
 ### Propósito de cada archivo:
 
-- **`.env`**: Almacena las variables de entorno requeridas (`GCP_PROJECT_ID`, `GCP_REGION`, `GCP_BUCKET_NAME`) para Terraform y el script interactivo.
+- **`.env`**: Almacena las variables de entorno requeridas para Terraform y el script interactivo
 - **`main.tf`**: Define los módulos principales y sus configuraciones
 - **`variables.tf`**: Declara las variables que se pueden personalizar
 - **`providers.tf`**: Configura el proveedor de Google Cloud Platform con credenciales JSON
 - **`terraform.tfvars`**: Contiene los valores específicos para las variables 
 - **`tf_menu.sh`**: Script de menú interactivo para operaciones comunes de Terraform
 - **`modules/gcs/`**: Módulo reutilizable para crear buckets de Google Cloud Storage
-- **`modules/cloud_run_job/`**: Módulo para desplegar un Cloud Run Job (batch) programado usando una imagen de Docker Hub.
+- **`modules/cloud_run_job/`**: Módulo para desplegar un Cloud Run Job (batch) programado usando una imagen de Docker Hub
+- **`modules/compute_engine/`**: Módulo para crear instancias de Compute Engine (VMs) para hospedar servicios como Qdrant
 
 ## Pasos para Implementar la Infraestructura
 
@@ -252,17 +287,29 @@ raiz-del-proyecto/
 En la raíz del proyecto, crea un archivo llamado `.env` con las siguientes variables:
 
 ```env
+# Configuración básica de GCP
 GCP_PROJECT_ID=tu-proyecto-gcp
-GCP_REGION=tu-region
+GCP_REGION=nombre-region
 GCP_BUCKET_NAME=nombre-de-tu-bucket
+
+# Configuración de Cloud Run Job
 GCP_CLOUD_RUN_BATCH_JOB_NAME=mi-cloud-run-batch-job
 GCP_CLOUD_RUN_BATCH_SCHEDULE="0 22 * * *"
 GCP_CLOUD_RUN_BATCH_IMAGE=docker.io/usuario/mi-imagen:20240911
 GCP_CLOUD_RUN_BATCH_ARGS="--param1 valor1"
 GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=micorreo@ejemplo.com
+
+# Configuración de Compute Engine VM (para Qdrant)
+GCP_COMPUTE_ENGINE_VM_NAME=nombre-vm
+GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=tipo-maquina
+GCP_COMPUTE_ENGINE_VM_ZONE=nombre-zona
+GCP_COMPUTE_ENGINE_VM_DISK_SIZE=50
 ```
 
-Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`. Las variables de Cloud Run se usan para configurar el job batch programado.
+Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`:
+- **Configuración básica de GCP**: Configuraciones principales del proyecto
+- **Configuración de Cloud Run Job**: Variables para el job batch programado
+- **Configuración de Compute Engine VM**: Variables para crear la VM de Qdrant
 
 ### Paso 1: Crear Bucket para Estado de Terraform
 
@@ -338,13 +385,20 @@ Antes de ejecutar `terraform apply`, asegúrate de configurar las variables en `
 
 ```hcl
 project_id   = "tu-proyecto-gcp"
-region       = "southamerica-east1"
+region       = "nombre-region
 bucket_name  = "nombre-de-tu-bucket"
+
 job_name     = "mi-cloud-run-batch-job"
 image        = "docker.io/usuario/mi-imagen:20240911"
 args         = ["--param1", "valor1"]
 schedule     = "0 23 * * *"
 notify_email = "correo@dominio.com"
+
+# Configuración de VM de Qdrant
+qdrant_vm_name         = "nombre-vm"
+qdrant_vm_machine_type = "tipo-maquina"
+qdrant_vm_zone        = "nombre-zona"
+qdrant_vm_disk_size   = 50
 ```
 
 **Nota**: El bucket de estado de Terraform (`py-labor-law-rag-terraform-state`) está hardcodeado en `providers.tf` y debe coincidir con el bucket creado en el Paso 1 usando el script `gcp_utils.py`.
@@ -365,7 +419,9 @@ Este proyecto de Terraform crea:
 
 - **Google Cloud Storage Bucket**: Un bucket para almacenar archivos con acceso uniforme a nivel de bucket
 - **Cloud Run Job (batch)**: Un job programado que ejecuta una imagen de Docker Hub todos los días a las 23:00
-- **Configuración regional**: El bucket y el job se crean en la región especificada en `terraform.tfvars`
+- **Instancia de Compute Engine**: Una instancia VM para hospedar servicios como la base de datos vectorial Qdrant
+- **Reglas de Firewall**: Reglas de red para permitir acceso a la VM en los puertos requeridos (22, 6333, 6334)
+- **Configuración regional**: Todos los recursos se crean en la región especificada en `terraform.tfvars`
 
 ## Notas Importantes
 
@@ -382,23 +438,33 @@ bash ./tf_menu.sh
 ```
 
 Este script:
-- Busca automáticamente un archivo `.json` de credenciales en la carpeta `.gcpcredentials` en la raíz del proyecto (dos niveles arriba).
-- Exporta la variable `GOOGLE_APPLICATION_CREDENTIALS` si no está seteada.
-- Lee el archivo `.env` en la raíz del proyecto, extrae las variables `GCP_PROJECT_ID`, `GCP_REGION` y `GCP_BUCKET_NAME`, y genera automáticamente el archivo `terraform.tfvars`.
-- Ofrece un menú para las operaciones comunes de Terraform: `init`, `plan`, `apply`, `destroy`.
+- Busca automáticamente un archivo `.json` de credenciales en la carpeta `.gcpcredentials` en la raíz del proyecto (dos niveles arriba)
+- Exporta la variable `GOOGLE_APPLICATION_CREDENTIALS` si no está seteada
+- Lee el archivo `.env` en la raíz del proyecto, extrae todas las variables requeridas, y genera automáticamente el archivo `terraform.tfvars`
+- Valida todas las variables antes de generar el archivo de configuración
+- Ofrece un menú para las operaciones comunes de Terraform: `init`, `plan`, `apply`, `destroy`
 
 **Nota:** Debes ejecutar este script desde el directorio `terraform`. El archivo `.env` debe existir en la raíz del proyecto.
 > ⚠️ **Advertencia:** El script `tf_menu.sh` requiere que todas las siguientes variables estén definidas en tu archivo `.env`:
 >
+> **Configuración básica de GCP:**
 > - GCP_PROJECT_ID
 > - GCP_REGION
 > - GCP_BUCKET_NAME
+>
+> **Configuración de Cloud Run Job:**
 > - GCP_CLOUD_RUN_BATCH_JOB_NAME
 > - GCP_CLOUD_RUN_BATCH_SCHEDULE
 > - GCP_CLOUD_RUN_BATCH_IMAGE
 > - GCP_CLOUD_RUN_BATCH_ARGS
 > - GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL
 >
-> Si falta alguna de estas variables, el script mostrará un error claro y no generará el archivo `terraform.tfvars`. No podrás ejecutar comandos de Terraform hasta que todas estén definidas.
+> **Configuración de Compute Engine VM:**
+> - GCP_COMPUTE_ENGINE_VM_NAME
+> - GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE
+> - GCP_COMPUTE_ENGINE_VM_ZONE
+> - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
+>
+> Si falta alguna de estas variables, el script mostrará un error claro con detalles de validación y no generará el archivo `terraform.tfvars`. No podrás ejecutar comandos de Terraform hasta que todas estén definidas.
 
 ---

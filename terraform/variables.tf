@@ -37,3 +37,23 @@ variable "notify_email" {
   description = "Correo para notificaciones de estado del Cloud Run Batch (éxito o error)"
   type        = string
 }
+
+variable "qdrant_vm_name" {
+  description = "Name of the Qdrant VM"
+  type        = string
+}
+
+variable "qdrant_vm_machine_type" {
+  description = "Machine type for Qdrant VM"
+  type        = string
+}
+
+variable "qdrant_vm_zone" {
+  description = "Zone for Qdrant VM"
+  type        = string
+}
+
+variable "qdrant_vm_disk_size" {
+  description = "Disk size for Qdrant VM in GB"
+  type        = number
+}
