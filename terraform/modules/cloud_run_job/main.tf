@@ -9,8 +9,8 @@ resource "google_cloud_run_v2_job" "job" {
         image = var.image
         args  = var.args
       }
-      retries=2
-      max_retries_duration="10m"
+      max_retries  = 2
+      max_retry_duration  = "10m"
     }
   }
 }
