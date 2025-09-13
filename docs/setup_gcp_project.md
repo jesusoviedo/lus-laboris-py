@@ -34,6 +34,46 @@ Before proceeding with the project setup, you need to authenticate with Google C
    gcloud config list project
    ```
 
+## Automated Setup
+
+After completing the authentication setup above, you can use our automated script to set up the entire GCP project configuration:
+
+### Using the Setup Script
+
+1. **Navigate to the utils directory**:
+   ```bash
+   cd utils/
+   ```
+
+2. **Run the automated setup script**:
+   ```bash
+   ./setup_gcp_project.sh
+   ```
+
+3. **Select option 7 for full automated setup**:
+   - The script will create the project
+   - Enable all required APIs
+   - Create the service account
+   - Assign all necessary roles
+   - Generate the JSON key
+   - Verify the complete setup
+
+### Benefits of Using the Script
+
+- **Automated**: Reduces manual errors and saves time
+- **Interactive**: Step-by-step guidance with validation
+- **Comprehensive**: Handles all setup steps automatically
+- **Verification**: Built-in verification of each step
+- **Flexible**: Can run individual steps or complete setup
+
+For detailed information about the script, see: [utils/README.md](../utils/README.md)
+
+---
+
+## Manual Setup Steps
+
+If you prefer to set up the project manually or need to understand each step in detail, continue with the manual steps below:
+
 ## Step 1: Create a Project in GCP
 
 ### Using Google Cloud Console
@@ -342,6 +382,46 @@ Antes de proceder con la configuración del proyecto, necesitas autenticarte con
    # Verificar proyecto actual
    gcloud config list project
    ```
+
+## Configuración Automatizada
+
+Después de completar la configuración de autenticación anterior, puedes usar nuestro script automatizado para configurar toda la configuración del proyecto GCP:
+
+### Usando el Script de Configuración
+
+1. **Navegar al directorio utils**:
+   ```bash
+   cd utils/
+   ```
+
+2. **Ejecutar el script de configuración automatizada**:
+   ```bash
+   ./setup_gcp_project.sh
+   ```
+
+3. **Seleccionar opción 7 para configuración automatizada completa**:
+   - El script creará el proyecto
+   - Habilitará todas las APIs requeridas
+   - Creará la cuenta de servicio
+   - Asignará todos los roles necesarios
+   - Generará la clave JSON
+   - Verificará la configuración completa
+
+### Beneficios de Usar el Script
+
+- **Automatizado**: Reduce errores manuales y ahorra tiempo
+- **Interactivo**: Guía paso a paso con validación
+- **Integral**: Maneja todos los pasos de configuración automáticamente
+- **Verificación**: Verificación integrada de cada paso
+- **Flexible**: Puede ejecutar pasos individuales o configuración completa
+
+Para información detallada sobre el script, consulta: [utils/README.md](../utils/README.md)
+
+---
+
+## Pasos de Configuración Manual
+
+Si prefieres configurar el proyecto manualmente o necesitas entender cada paso en detalle, continúa con los pasos manuales a continuación:
 
 ## Paso 1: Crear un Proyecto en GCP
 
