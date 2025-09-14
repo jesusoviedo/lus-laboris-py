@@ -22,14 +22,16 @@ This directory contains comprehensive guides and documentation for setting up an
 | [docker_guide.md](docker_guide.md) | Docker, Compose & Hub | Containerization, multi-container management, and image registry |
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | CI/CD automation, including workflow creation, testing, and deployment |
 | [act_guide.md](act_guide.md) | Local GitHub Actions Testing | Local workflow testing with act for debugging and validation |
+| [fastapi_guide.md](fastapi_guide.md) | FastAPI Framework | Web API development with FastAPI, including concepts, patterns, and best practices |
 
 ### Quick Start
 
 1. **For GCP Setup**: Start with [setup_gcp_project.md](setup_gcp_project.md)
 2. **For Python Development**: Follow [uv_guide.md](uv_guide.md)
 3. **For Containerization**: Use [docker_guide.md](docker_guide.md)
-4. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
-5. **For Local Testing**: Use [act_guide.md](act_guide.md)
+4. **For API Development**: Learn [fastapi_guide.md](fastapi_guide.md)
+5. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
+6. **For Local Testing**: Use [act_guide.md](act_guide.md)
 
 ### Prerequisites
 
@@ -52,14 +54,16 @@ Este directorio contiene guías completas y documentación para configurar y usa
 | [docker_guide.md](docker_guide.md) | Docker, Compose & Hub | Containerización, multi-contenedor y registro de imágenes |
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | Automatización CI/CD, incluyendo creación de workflows, pruebas y despliegue |
 | [act_guide.md](act_guide.md) | Pruebas Locales de GitHub Actions | Pruebas locales de workflows con act para depuración y validación |
+| [fastapi_guide.md](fastapi_guide.md) | Framework FastAPI | Desarrollo de APIs web con FastAPI, incluyendo conceptos, patrones y mejores prácticas |
 
 ### Inicio Rápido
 
 1. **Para Configuración GCP**: Comienza con [setup_gcp_project.md](setup_gcp_project.md)
 2. **Para Desarrollo Python**: Sigue [uv_guide.md](uv_guide.md)
 3. **Para Containerización**: Usa [docker_guide.md](docker_guide.md)
-4. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
-5. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
+4. **Para Desarrollo de API**: Aprende [fastapi_guide.md](fastapi_guide.md)
+5. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
+6. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
 
 ### Prerrequisitos
 
