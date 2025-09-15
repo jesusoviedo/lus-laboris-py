@@ -1,5 +1,3 @@
-# FastAPI Guide
-
 <div align="center">
 
 **Language / Idioma:**

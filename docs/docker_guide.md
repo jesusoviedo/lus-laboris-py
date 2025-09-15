@@ -1,5 +1,3 @@
-# Docker, Docker Compose & Docker Hub Guide
-
 <div align="center">
 
 **Language / Idioma:**
@@ -8,6 +6,8 @@
 </div>
 
 ---
+
+# Docker, Docker Compose & Docker Hub Guide
 
 ## Table of Contents
 
@@ -193,12 +193,6 @@ Example:
 ---
 
 # Guía de Docker, Docker Compose y Docker Hub
-
-<div align="center">
-
-</div>
-
-
 
 ## Tabla de Contenidos
 

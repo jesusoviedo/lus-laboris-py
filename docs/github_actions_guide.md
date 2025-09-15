@@ -1,5 +1,3 @@
-# GitHub Actions Guide
-
 <div align="center">
 
 **Language / Idioma:**

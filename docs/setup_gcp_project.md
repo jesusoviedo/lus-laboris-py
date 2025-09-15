@@ -1,3 +1,12 @@
+<div align="center">
+
+**Language / Idioma:**
+[🇺🇸 English](#google-cloud-platform-project-setup) | [🇪🇸 Español](#configuración-del-proyecto-de-google-cloud-platform)
+
+</div>
+
+---
+
 # Google Cloud Platform Project Setup
 
 This guide will help you set up a Google Cloud Platform project with a service account that has the necessary permissions to manage Google Cloud Storage resources.
@@ -347,7 +356,7 @@ gcloud auth activate-service-account \
 
 ---
 
-# CONFIGURACIÓN DEL PROYECTO GOOGLE CLOUD PLATFORM
+# Configuración del Proyecto de Google Cloud Platform
 
 Esta guía te ayudará a configurar un proyecto de Google Cloud Platform con una cuenta de servicio que tenga los permisos necesarios para gestionar recursos de Google Cloud Storage.
 

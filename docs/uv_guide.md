@@ -1,5 +1,3 @@
-# UV Guide - Python Package Manager
-
 <div align="center">
 
 **Language / Idioma:**
