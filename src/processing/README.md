@@ -107,7 +107,7 @@ The script generates a JSON file with the following structure:
       "capitulo": "capítulo i",
       "capitulo_numero": 1,
       "capitulo_descripcion": "chapter description",
-      "texto": "article content..."
+      "articulo": "article content..."
     }
   ]
 }
@@ -347,7 +347,7 @@ El script genera un archivo JSON con la siguiente estructura:
       "capitulo": "capítulo i",
       "capitulo_numero": 1,
       "capitulo_descripcion": "descripción del capítulo",
-      "texto": "contenido del artículo..."
+      "articulo": "contenido del artículo..."
     }
   ]
 }

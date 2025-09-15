@@ -137,7 +137,7 @@ def extract_articles(lines: List[str]) -> List[Dict[str, Any]]:
             'capitulo': current_capitulo.lower() if current_capitulo else None,
             'capitulo_numero': current_capitulo_num,
             'capitulo_descripcion': current_capitulo_desc.lower() if current_capitulo_desc else None,
-            'texto': body.lower().replace('\n', ''),
+            'articulo': body.lower().replace('\n', ''),
         })
 
     i = 0
