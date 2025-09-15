@@ -1,0 +1,335 @@
+{
+  "timestamp": "2025-09-15T00:48:11.035707",
+  "models_evaluated": [
+    "all-MiniLM-L6-v2",
+    "all-mpnet-base-v2",
+    "paraphrase-multilingual-MiniLM-L12-v2",
+    "all-MiniLM-L12-v2",
+    "sentence_similarity_spanish_es",
+    "jina-embeddings-v2-base-es",
+    "distiluse-base-multilingual-cased-v2",
+    "multilingual-e5-base",
+    "paraphrase-multilingual-mpnet-base-v2",
+    "multilingual-e5-small",
+    "bge-m3-korean",
+    "bge-m3-spa-law-qa",
+    "LaBSE"
+  ],
+  "best_model_overall": "multilingual-e5-small",
+  "best_model_quality": "multilingual-e5-small",
+  "best_model_speed": "all-MiniLM-L6-v2",
+  "performance_summary": [
+    {
+      "Modelo": "all-MiniLM-L6-v2",
+      "Nombre Completo": "sentence-transformers/all-MiniLM-L6-v2",
+      "Descripción": "Modelo ligero y rápido",
+      "Dimensiones": 384,
+      "Tiempo Carga (s)": 2.3983893394470215,
+      "Tiempo Embedding (s)": 0.944225549697876,
+      "Tiempo Total (s)": 3.3426148891448975,
+      "Velocidad (textos/s)": 30.713000733012503,
+      "Etiqueta": "A"
+    },
+    {
+      "Modelo": "all-mpnet-base-v2",
+      "Nombre Completo": "sentence-transformers/all-mpnet-base-v2",
+      "Descripción": "Modelo balanceado",
+      "Dimensiones": 768,
+      "Tiempo Carga (s)": 2.3785171508789062,
+      "Tiempo Embedding (s)": 10.962663412094116,
+      "Tiempo Total (s)": 13.341180562973022,
+      "Velocidad (textos/s)": 2.645342551337198,
+      "Etiqueta": "B"
+    },
+    {
+      "Modelo": "paraphrase-multilingual-MiniLM-L12-v2",
+      "Nombre Completo": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "Descripción": "Modelo multilingüe",
+      "Dimensiones": 384,
+      "Tiempo Carga (s)": 3.3486387729644775,
+      "Tiempo Embedding (s)": 1.0001425743103027,
+      "Tiempo Total (s)": 4.34878134727478,
+      "Velocidad (textos/s)": 28.99586593441277,
+      "Etiqueta": "C"
+    },
+    {
+      "Modelo": "all-MiniLM-L12-v2",
+      "Nombre Completo": "sentence-transformers/all-MiniLM-L12-v2",
+      "Descripción": "Alternativo ligero",
+      "Dimensiones": 384,
+      "Tiempo Carga (s)": 2.3547568321228027,
+      "Tiempo Embedding (s)": 0.9436993598937988,
+      "Tiempo Total (s)": 3.2984561920166016,
+      "Velocidad (textos/s)": 30.730125750285108,
+      "Etiqueta": "D"
+    },
+    {
+      "Modelo": "sentence_similarity_spanish_es",
+      "Nombre Completo": "hiiamsid/sentence_similarity_spanish_es",
+      "Descripción": "Modelo en español",
+      "Dimensiones": 768,
+      "Tiempo Carga (s)": 3.800447702407837,
+      "Tiempo Embedding (s)": 5.3595194816589355,
+      "Tiempo Total (s)": 9.159967184066772,
+      "Velocidad (textos/s)": 5.41093284561093,
+      "Etiqueta": "E"
+    },
+    {
+      "Modelo": "jina-embeddings-v2-base-es",
+      "Nombre Completo": "jinaai/jina-embeddings-v2-base-es",
+      "Descripción": "Modelo en español",
+      "Dimensiones": 768,
+      "Tiempo Carga (s)": 3.142244815826416,
+      "Tiempo Embedding (s)": 6.30678129196167,
+      "Tiempo Total (s)": 9.449026107788086,
+      "Velocidad (textos/s)": 4.598225094147795,
+      "Etiqueta": "F"
+    },
+    {
+      "Modelo": "distiluse-base-multilingual-cased-v2",
+      "Nombre Completo": "sentence-transformers/distiluse-base-multilingual-cased-v2",
+      "Descripción": "Modelo multilingüe",
+      "Dimensiones": 512,
+      "Tiempo Carga (s)": 2.839127540588379,
+      "Tiempo Embedding (s)": 1.4832148551940918,
+      "Tiempo Total (s)": 4.322342395782471,
+      "Velocidad (textos/s)": 19.552123482612433,
+      "Etiqueta": "G"
+    },
+    {
+      "Modelo": "multilingual-e5-base",
+      "Nombre Completo": "intfloat/multilingual-e5-base",
+      "Descripción": "Modelo multilingüe",
+      "Dimensiones": 768,
+      "Tiempo Carga (s)": 3.882761001586914,
+      "Tiempo Embedding (s)": 5.670979976654053,
+      "Tiempo Total (s)": 9.553740978240967,
+      "Velocidad (textos/s)": 5.113754610205898,
+      "Etiqueta": "H"
+    },
+    {
+      "Modelo": "paraphrase-multilingual-mpnet-base-v2",
+      "Nombre Completo": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+      "Descripción": "Modelo multilingüe",
+      "Dimensiones": 768,
+      "Tiempo Carga (s)": 4.400272846221924,
+      "Tiempo Embedding (s)": 3.5803298950195312,
+      "Tiempo Total (s)": 7.980602741241455,
+      "Velocidad (textos/s)": 8.09981226599841,
+      "Etiqueta": "I"
+    },
+    {
+      "Modelo": "multilingual-e5-small",
+      "Nombre Completo": "intfloat/multilingual-e5-small",
+      "Descripción": "Modelo multilingüe",
+      "Dimensiones": 384,
+      "Tiempo Carga (s)": 3.6802000999450684,
+      "Tiempo Embedding (s)": 1.667233943939209,
+      "Tiempo Total (s)": 5.347434043884277,
+      "Velocidad (textos/s)": 17.394079640365938,
+      "Etiqueta": "J"
+    },
+    {
+      "Modelo": "bge-m3-korean",
+      "Nombre Completo": "upskyy/bge-m3-korean",
+      "Descripción": "Modelo multilingüe",
+      "Dimensiones": 1024,
+      "Tiempo Carga (s)": 2.986994504928589,
+      "Tiempo Embedding (s)": 24.42657160758972,
+      "Tiempo Total (s)": 27.41356611251831,
+      "Velocidad (textos/s)": 1.187231694479353,
+      "Etiqueta": "K"
+    },
+    {
+      "Modelo": "LaBSE",
+      "Nombre Completo": "sentence-transformers/LaBSE",
+      "Descripción": "Modelo multilingüe",
+      "Dimensiones": 768,
+      "Tiempo Carga (s)": 4.026573657989502,
+      "Tiempo Embedding (s)": 6.091101169586182,
+      "Tiempo Total (s)": 10.117674827575684,
+      "Velocidad (textos/s)": 4.761043888878668,
+      "Etiqueta": "L"
+    }
+  ],
+  "quality_summary": [
+    {
+      "Modelo": "all-MiniLM-L6-v2",
+      "Similitud Promedio": 0.7351962327957153,
+      "Tiempo Búsqueda (s)": 0.012985184788703918,
+      "Consultas/segundo": 77.01084091386367,
+      "Etiqueta": "A"
+    },
+    {
+      "Modelo": "all-mpnet-base-v2",
+      "Similitud Promedio": 0.7164944410324097,
+      "Tiempo Búsqueda (s)": 0.05168808996677399,
+      "Consultas/segundo": 19.346816658205356,
+      "Etiqueta": "B"
+    },
+    {
+      "Modelo": "paraphrase-multilingual-MiniLM-L12-v2",
+      "Similitud Promedio": 0.7744117975234985,
+      "Tiempo Búsqueda (s)": 0.01668250560760498,
+      "Consultas/segundo": 59.9430339495366,
+      "Etiqueta": "C"
+    },
+    {
+      "Modelo": "all-MiniLM-L12-v2",
+      "Similitud Promedio": 0.7223060131072998,
+      "Tiempo Búsqueda (s)": 0.020938098430633545,
+      "Consultas/segundo": 47.75982896980497,
+      "Etiqueta": "D"
+    },
+    {
+      "Modelo": "sentence_similarity_spanish_es",
+      "Similitud Promedio": 0.6610686779022217,
+      "Tiempo Búsqueda (s)": 0.045258864760398865,
+      "Consultas/segundo": 22.09511894065429,
+      "Etiqueta": "E"
+    },
+    {
+      "Modelo": "jina-embeddings-v2-base-es",
+      "Similitud Promedio": 0.7786102294921875,
+      "Tiempo Búsqueda (s)": 0.12934157252311707,
+      "Consultas/segundo": 7.731466229245599,
+      "Etiqueta": "F"
+    },
+    {
+      "Modelo": "distiluse-base-multilingual-cased-v2",
+      "Similitud Promedio": 0.4863691031932831,
+      "Tiempo Búsqueda (s)": 0.023179352283477783,
+      "Consultas/segundo": 43.14184398986847,
+      "Etiqueta": "G"
+    },
+    {
+      "Modelo": "multilingual-e5-base",
+      "Similitud Promedio": 0.875889003276825,
+      "Tiempo Búsqueda (s)": 0.05271834135055542,
+      "Consultas/segundo": 18.96873032006847,
+      "Etiqueta": "H"
+    },
+    {
+      "Modelo": "paraphrase-multilingual-mpnet-base-v2",
+      "Similitud Promedio": 0.7761572003364563,
+      "Tiempo Búsqueda (s)": 0.05098778009414673,
+      "Consultas/segundo": 19.61254242003757,
+      "Etiqueta": "I"
+    },
+    {
+      "Modelo": "multilingual-e5-small",
+      "Similitud Promedio": 0.9000054597854614,
+      "Tiempo Búsqueda (s)": 0.020086780190467834,
+      "Consultas/segundo": 49.78398680713145,
+      "Etiqueta": "J"
+    },
+    {
+      "Modelo": "bge-m3-korean",
+      "Similitud Promedio": 0.6955000162124634,
+      "Tiempo Búsqueda (s)": 0.16352005302906036,
+      "Consultas/segundo": 6.115457899357962,
+      "Etiqueta": "K"
+    },
+    {
+      "Modelo": "LaBSE",
+      "Similitud Promedio": 0.5800430774688721,
+      "Tiempo Búsqueda (s)": 0.04389142990112305,
+      "Consultas/segundo": 22.78349104261953,
+      "Etiqueta": "L"
+    }
+  ],
+  "comparison_summary": [
+    {
+      "Modelo": "multilingual-e5-small",
+      "Score_Final": 0.9148875469553318,
+      "Similitud Promedio": 0.9000054597854614,
+      "Tiempo Búsqueda (s)": 0.020086780190467834,
+      "Dimensiones": 384
+    },
+    {
+      "Modelo": "all-MiniLM-L6-v2",
+      "Score_Final": 0.83848649308841,
+      "Similitud Promedio": 0.7351962327957153,
+      "Tiempo Búsqueda (s)": 0.012985184788703918,
+      "Dimensiones": 384
+    },
+    {
+      "Modelo": "paraphrase-multilingual-MiniLM-L12-v2",
+      "Score_Final": 0.8221093709692558,
+      "Similitud Promedio": 0.7744117975234985,
+      "Tiempo Búsqueda (s)": 0.01668250560760498,
+      "Dimensiones": 384
+    },
+    {
+      "Modelo": "all-MiniLM-L12-v2",
+      "Score_Final": 0.8123094748998089,
+      "Similitud Promedio": 0.7223060131072998,
+      "Tiempo Búsqueda (s)": 0.020938098430633545,
+      "Dimensiones": 384
+    },
+    {
+      "Modelo": "multilingual-e5-base",
+      "Score_Final": 0.7825329252065046,
+      "Similitud Promedio": 0.875889003276825,
+      "Tiempo Búsqueda (s)": 0.05271834135055542,
+      "Dimensiones": 768
+    },
+    {
+      "Modelo": "paraphrase-multilingual-mpnet-base-v2",
+      "Score_Final": 0.6820437540354306,
+      "Similitud Promedio": 0.7761572003364563,
+      "Tiempo Búsqueda (s)": 0.05098778009414673,
+      "Dimensiones": 768
+    },
+    {
+      "Modelo": "all-mpnet-base-v2",
+      "Score_Final": 0.6589164540296649,
+      "Similitud Promedio": 0.7164944410324097,
+      "Tiempo Búsqueda (s)": 0.05168808996677399,
+      "Dimensiones": 768
+    },
+    {
+      "Modelo": "sentence_similarity_spanish_es",
+      "Score_Final": 0.5963372754681172,
+      "Similitud Promedio": 0.6610686779022217,
+      "Tiempo Búsqueda (s)": 0.045258864760398865,
+      "Dimensiones": 768
+    },
+    {
+      "Modelo": "jina-embeddings-v2-base-es",
+      "Score_Final": 0.5665460939410041,
+      "Similitud Promedio": 0.7786102294921875,
+      "Tiempo Búsqueda (s)": 0.12934157252311707,
+      "Dimensiones": 768
+    },
+    {
+      "Modelo": "distiluse-base-multilingual-cased-v2",
+      "Score_Final": 0.5514095028030915,
+      "Similitud Promedio": 0.4863691031932831,
+      "Tiempo Búsqueda (s)": 0.023179352283477783,
+      "Dimensiones": 512
+    },
+    {
+      "Modelo": "LaBSE",
+      "Score_Final": 0.503422519265735,
+      "Similitud Promedio": 0.5800430774688721,
+      "Tiempo Búsqueda (s)": 0.04389142990112305,
+      "Dimensiones": 768
+    },
+    {
+      "Modelo": "bge-m3-korean",
+      "Score_Final": 0.2713280199651364,
+      "Similitud Promedio": 0.6955000162124634,
+      "Tiempo Búsqueda (s)": 0.16352005302906036,
+      "Dimensiones": 1024
+    }
+  ],
+  "weights_used": {
+    "calidad": 0.4,
+    "velocidad_busqueda": 0.3,
+    "velocidad_embedding": 0.2,
+    "velocidad_carga": 0.1
+  },
+  "sample_texts_count": 29,
+  "sample_queries_count": 16
+}
