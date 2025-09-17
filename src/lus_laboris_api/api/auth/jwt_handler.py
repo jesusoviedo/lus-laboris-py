@@ -1,0 +1,91 @@
+"""
+JWT token validation using public key authentication
+"""
+import os
+import jwt
+from typing import Dict, Any
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
+import logging
+from ..config import settings
+
+logger = logging.getLogger(__name__)
+
+
+class JWTValidator:
+    """JWT validator for token validation using RSA public key"""
+    
+    def __init__(self):
+        self.public_key = None
+        self.algorithm = "RS256"
+        
+        # Load public key for validation
+        self._load_public_key()
+    
+    def _load_public_key(self):
+        """Load public key from file for token validation"""
+        public_key_path = settings.api_jwt_public_key_path
+        
+        # Resolve path relative to project root if needed
+        if not os.path.isabs(public_key_path):
+            # Get project root (assuming this file is in src/lus_laboris_api/api/auth/)
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+            public_key_path = os.path.join(project_root, public_key_path)
+        
+        try:
+            with open(public_key_path, "rb") as f:
+                self.public_key = serialization.load_pem_public_key(
+                    f.read(), backend=default_backend()
+                )
+            logger.info(f"JWT public key loaded successfully from {public_key_path}")
+        except FileNotFoundError:
+            logger.error(f"JWT public key not found at {public_key_path}")
+            raise ValueError(f"JWT public key not found. Please ensure the key file exists at {public_key_path}")
+        except Exception as e:
+            logger.error(f"Failed to load JWT public key: {str(e)}")
+            raise ValueError(f"Failed to load JWT public key: {str(e)}")
+    
+    def validate_token(self, token: str) -> Dict[str, Any]:
+        """Validate a JWT token and return its payload"""
+        if not self.public_key:
+            raise ValueError("Public key not available for token validation")
+        
+        try:
+            payload = jwt.decode(
+                token,
+                self.public_key,
+                algorithms=[self.algorithm],
+                options={"verify_exp": True, "verify_iat": True}
+            )
+            
+            logger.info(f"JWT token validated for subject: {payload.get('sub', 'unknown')}")
+            return payload
+            
+        except jwt.ExpiredSignatureError:
+            logger.warning("JWT token has expired")
+            raise ValueError("Token has expired")
+        except jwt.InvalidTokenError as e:
+            logger.warning(f"Invalid JWT token: {str(e)}")
+            raise ValueError(f"Invalid token: {str(e)}")
+    
+    def get_public_key_pem(self) -> str:
+        """Get the public key in PEM format for external validation"""
+        if not self.public_key:
+            raise ValueError("Public key not available")
+        
+        return self.public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ).decode('utf-8')
+    
+    def is_token_valid(self, token: str) -> bool:
+        """Check if a token is valid without raising exceptions"""
+        try:
+            self.validate_token(token)
+            return True
+        except ValueError:
+            return False
+
+
+# Global instance
+jwt_validator = JWTValidator()
