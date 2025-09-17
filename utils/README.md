@@ -21,6 +21,7 @@ This folder contains utility scripts and tools for the lus-laboris-py project. T
 | `setup_gcp_project.sh` | GCP Project Setup Script | Automated setup of GCP project with APIs, service accounts, and permissions |
 | `generate_jwt_keys.sh` | JWT Keys Generator | Generate RSA public/private key pairs for JWT authentication |
 | `generate_jwt_token.py` | JWT Token Generator | Generate and validate JWT tokens for API authentication |
+| `setup_jwt_token.sh` | JWT Token Setup Script | Automated generation of RSA keys and JWT tokens in a single command |
 
 ## GCP Utilities
 
@@ -58,6 +59,8 @@ uv run gcp_utils.py [command] [options]
 - Ensures the correct Python environment with all required dependencies
 - Uses the project's `pyproject.toml` configuration
 - Avoids conflicts with system Python packages
+
+For detailed information about UV, see the [UV Guide](../docs/uv_guide.md).
 
 ### Usage
 
@@ -484,7 +487,6 @@ The `generate_jwt_token.py` script generates and validates JWT tokens using the 
 - **Programmatic API**: Can be imported and used in other Python scripts
 - **Environment Configuration**: Uses environment variables for key paths and settings
 - **Project Root Detection**: Automatically resolves relative paths relative to project root
-- **Modern Python Support**: Uses timezone-aware datetime objects (no deprecation warnings)
 - **Token Validation**: Built-in token validation using public key
 - **Custom Claims**: Support for additional claims in tokens
 - **Flexible Expiry**: Configurable token expiration times in minutes
@@ -532,9 +534,11 @@ The script requires `uv` to be installed and uses it for running Python scripts,
 - Shows clear error message with installation instructions if `uv` is not available
 - Consistent execution environment for all Python operations
 
+For detailed UV usage and configuration, see the [UV Guide](../docs/uv_guide.md).
+
 ### Prerequisites
 
-- **uv**: Required for running Python scripts (install with: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- **uv**: Required for running Python scripts (see [UV Guide](../docs/uv_guide.md) for installation)
 - **Python 3.13+**: Required for running the script
 - **Dependencies**: PyJWT and cryptography packages (automatically managed by `uv`)
 - **Bash**: Required for running the setup script
@@ -898,6 +902,7 @@ Esta carpeta contiene scripts de utilidad y herramientas para el proyecto lus-la
 | `setup_gcp_project.sh` | Script de Configuración de Proyecto GCP | Configuración automatizada de proyecto GCP con APIs, cuentas de servicio y permisos |
 | `generate_jwt_keys.sh` | Generador de Claves JWT | Generar pares de claves RSA pública/privada para autenticación JWT |
 | `generate_jwt_token.py` | Generador de Tokens JWT | Generar y validar tokens JWT para autenticación de API |
+| `setup_jwt_token.sh` | Script de Configuración JWT | Generación automatizada de claves RSA y tokens JWT en un solo comando |
 
 ## Utilidades GCP
 
@@ -935,6 +940,8 @@ uv run gcp_utils.py [comando] [opciones]
 - Asegura el entorno Python correcto con todas las dependencias requeridas
 - Usa la configuración del `pyproject.toml` del proyecto
 - Evita conflictos con paquetes Python del sistema
+
+Para información detallada sobre UV, consulta la [Guía de UV](../docs/uv_guide.md).
 
 ### Uso
 
@@ -1525,9 +1532,11 @@ El script requiere que `uv` esté instalado y lo usa para ejecutar scripts de Py
 - Muestra mensaje de error claro con instrucciones de instalación si `uv` no está disponible
 - Entorno de ejecución consistente para todas las operaciones de Python
 
+Para uso detallado y configuración de UV, consulta la [Guía de UV](../docs/uv_guide.md).
+
 ### Prerrequisitos
 
-- **uv**: Requerido para ejecutar scripts de Python (instalar con: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- **uv**: Requerido para ejecutar scripts de Python (ver [Guía de UV](../docs/uv_guide.md) para instalación)
 - **Python 3.13+**: Requerido para ejecutar el script
 - **Dependencias**: Paquetes PyJWT y cryptography (gestionados automáticamente por `uv`)
 - **Claves JWT**: Claves RSA generadas por `generate_jwt_keys.sh`
