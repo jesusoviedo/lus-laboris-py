@@ -11,7 +11,7 @@
 
 REST API built with FastAPI for semantic search and information retrieval from Paraguay's Labor Code using Qdrant as vector database.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Development
 
@@ -70,7 +70,7 @@ docker logs legal-rag-api
 open http://localhost:8000/docs
 ```
 
-## 🌐 Available URLs
+## Available URLs
 
 Once the API is started:
 - **API**: http://localhost:8000
@@ -114,25 +114,16 @@ API_EMBEDDING_BATCH_SIZE=100
 API_ENV_FILE_PATH=/app/.env
 ```
 
-### Default Values
-
-If no `.env` file is provided, the API will use these values:
-
-- **Host**: `0.0.0.0`
-- **Port**: `8000`
-- **Qdrant**: `http://localhost:6333`
-- **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2`
-
-## 📚 API Documentation
+## API Documentation
 
 ### Main Endpoints
 
-#### 🔐 Authentication
+#### Authentication
 - **Type**: JWT with RSA public/private keys
 - **Header**: `Authorization: Bearer <token>`
 - **Generation**: Use scripts in `utils/`
 
-#### 📊 Vectorstore (Qdrant)
+#### Vectorstore (Qdrant)
 
 **POST** `/api/data/load-to-vectorstore-local`
 - Load JSON data from local files to Qdrant
@@ -154,7 +145,7 @@ If no `.env` file is provided, the API will use these values:
 - Delete a collection
 - Requires JWT authentication
 
-#### 🏥 Health Checks
+#### Health Checks
 
 **GET** `/api/health/`
 - Complete system health check
@@ -259,7 +250,7 @@ The text used to generate embeddings combines:
 - **Format**: `{capitulo_descripcion}: {articulo}`
 - **Example**: `"del objeto y aplicación del código: este código tiene por objeto establecer normas..."`
 
-## 🔒 Security
+## Security
 
 ### JWT Authentication
 
@@ -280,7 +271,7 @@ The text used to generate embeddings combines:
 - **Utils**: Generates keys and tokens with private key
 - **Security**: Valid token = authorized access
 
-## 🛠️ Services
+## Services
 
 ### QdrantService
 - Connection and operations with Qdrant
@@ -302,7 +293,7 @@ The text used to generate embeddings combines:
 - **Automatic device detection**: CPU/GPU based on availability
 - **Centralized configuration**: Model and batch size from config
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Error: "uv is not installed"
 ```bash
@@ -328,7 +319,7 @@ pwd
 - Verify path in `JWT_PUBLIC_KEY_PATH`
 - Ensure file exists
 
-## 📖 Additional Documentation
+## Additional Documentation
 
 - **Utils**: `utils/README.md` - Utility scripts
 - **Docker Guide**: `docs/docker_guide.md` - Complete Docker guide
@@ -343,7 +334,7 @@ pwd
 
 API REST construida con FastAPI para búsqueda semántica y recuperación de información del Código Laboral de Paraguay usando Qdrant como base de datos vectorial.
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Desarrollo
 
@@ -402,7 +393,7 @@ docker logs legal-rag-api
 open http://localhost:8000/docs
 ```
 
-## 🌐 URLs Disponibles
+## URLs Disponibles
 
 Una vez iniciada la API:
 - **API**: http://localhost:8000
@@ -410,7 +401,7 @@ Una vez iniciada la API:
 - **ReDoc**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/api/health
 
-## 🔧 Configuración
+## Configuración
 
 ### Variables de Entorno
 
@@ -446,25 +437,16 @@ API_EMBEDDING_BATCH_SIZE=100
 API_ENV_FILE_PATH=/app/.env
 ```
 
-### Valores por Defecto
-
-Si no se proporciona un archivo `.env`, la API usará estos valores:
-
-- **Host**: `0.0.0.0`
-- **Puerto**: `8000`
-- **Qdrant**: `http://localhost:6333`
-- **Modelo de Embedding**: `sentence-transformers/all-MiniLM-L6-v2`
-
-## 📚 Documentación de la API
+## Documentación de la API
 
 ### Endpoints Principales
 
-#### 🔐 Autenticación
+#### Autenticación
 - **Tipo**: JWT con claves RSA pública/privada
 - **Header**: `Authorization: Bearer <token>`
 - **Generación**: Usar scripts en `utils/`
 
-#### 📊 Vectorstore (Qdrant)
+#### Vectorstore (Qdrant)
 
 **POST** `/api/data/load-to-vectorstore-local`
 - Cargar datos JSON desde archivos locales a Qdrant
@@ -486,7 +468,7 @@ Si no se proporciona un archivo `.env`, la API usará estos valores:
 - Eliminar una colección
 - Requiere autenticación JWT
 
-#### 🏥 Health Checks
+#### Health Checks
 
 **GET** `/api/health/`
 - Health check completo del sistema
@@ -591,7 +573,7 @@ El texto que se usa para generar embeddings combina:
 - **Formato**: `{capitulo_descripcion}: {articulo}`
 - **Ejemplo**: `"del objeto y aplicación del código: este código tiene por objeto establecer normas..."`
 
-## 🔒 Seguridad
+## Seguridad
 
 ### Autenticación JWT
 
@@ -612,7 +594,7 @@ El texto que se usa para generar embeddings combina:
 - **Utils**: Genera claves y tokens con clave privada
 - **Seguridad**: Token válido = acceso autorizado
 
-## 🛠️ Servicios
+## Servicios
 
 ### QdrantService
 - Conexión y operaciones con Qdrant
@@ -631,10 +613,10 @@ El texto que se usa para generar embeddings combina:
 - Múltiples modelos soportados
 - Procesamiento por lotes
 - Caché de modelos cargados
-- **Detección automática de dispositivo**: CPU/GPU según disponibilidad
-- **Configuración centralizada**: Modelo y batch size desde config
 
-## 🐛 Solución de Problemas
+
+
+## Solución de Problemas
 
 ### Error: "uv no está instalado"
 ```bash
