@@ -1,26 +1,26 @@
-# Ignorar archivos de Python
+# Ignore Python files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Ignorar entornos virtuales
+# Ignore virtual environments
 .venv/
 env/
 venv/
 
-# Ignorar archivos de datos y outputs locales
+# Ignore data and output files
 data/
 *.db
 *.json
 *.csv
 
-# Ignorar logs
+# Ignore logs
 *.log
 
-# Ignorar archivos de Git
+# Ignore Git files
 .git/
 .gitignore
 
-# Ignorar Dockerfile temporal o otros
+# Ignore temporary or other Dockerfiles
 Dockerfile.*

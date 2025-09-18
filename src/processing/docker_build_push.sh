@@ -2,13 +2,18 @@
 set -e
 
 # Load variables from .env (two levels up)
-set -o allexport
-source ../../.env
-set +o allexport
+if [[ -f "../../.env" ]]; then
+    set -o allexport
+    source ../../.env
+    set +o allexport
+else
+    echo "⚠️  WARNING: No se encontró .env, usando variables de entorno del sistema"
+fi
 
 # Validate that the required variables exist
 if [[ -z "$DOCKER_HUB_USERNAME" || -z "$DOCKER_HUB_PASSWORD" || -z "$DOCKER_IMAGE_NAME_PROCESSING" ]]; then
   echo "❌ ERROR: Asegurate de definir DOCKER_HUB_USERNAME, DOCKER_HUB_PASSWORD e DOCKER_IMAGE_NAME_PROCESSING en .env"
+  echo "   Puedes definirlas como variables de entorno o en el archivo .env"
   exit 1
 fi
 
