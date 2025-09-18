@@ -1,0 +1,26 @@
+# Ignore Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+.venv/
+env/
+venv/
+
+# Ignore data and output files
+data/
+*.db
+*.json
+*.csv
+
+# Ignore logs
+*.log
+
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore temporary or other Dockerfiles
+Dockerfile.*
