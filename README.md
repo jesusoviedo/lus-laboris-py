@@ -1,8 +1,6 @@
-# lus-laboris-py
-
 <div align="center">
 
-# 🚀 Proyecto IA Legal RAG
+# 🚀 Proyecto Py Labor Law RAG (lus-laboris-py)
 
 [![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://www.python.org/)
 [![uv](https://img.shields.io/badge/uv-0A9EDC?logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
