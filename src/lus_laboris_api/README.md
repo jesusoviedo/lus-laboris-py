@@ -319,6 +319,75 @@ pwd
 - Verify path in `JWT_PUBLIC_KEY_PATH`
 - Ensure file exists
 
+### Docker Common Issues
+
+#### Error: "Qdrant connection failed" in Docker
+```bash
+# Configuration depends on how Qdrant is running:
+
+# 1. If Qdrant is running in Docker Compose (same network)
+# Use the service name as hostname
+API_QDRANT_URL=http://qdrant:6333
+
+# 2. If Qdrant is running on host machine:
+# Windows (Docker Desktop): use host.docker.internal
+API_QDRANT_URL=http://host.docker.internal:6333
+
+# Linux: use host IP or host.docker.internal
+API_QDRANT_URL=http://host.docker.internal:6333
+# OR
+API_QDRANT_URL=http://172.17.0.1:6333
+
+# 3. If Qdrant is running in another container:
+# Use container name or IP
+API_QDRANT_URL=http://qdrant-container:6333
+```
+
+#### Error: "JWT public key not found" in Docker
+```bash
+# Verify the key file is mounted correctly
+docker exec -it legal-rag-api ls -la /app/api/keys/
+
+# Check the environment variable
+docker exec -it legal-rag-api env | grep JWT
+
+# Ensure correct path in .env file
+API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+```
+
+#### Error: "IsADirectoryError: [Errno 21] Is a directory: '/app/keys'"
+```bash
+# Problem: Mounting directory instead of file
+# Wrong:
+-v /path/to/keys:/app/keys
+
+# Correct:
+-v /path/to/keys/public_key.pem:/app/api/keys/public_key.pem
+```
+
+#### Error: "ModuleNotFoundError: No module named 'api'"
+```bash
+# Problem: Incorrect ENTRYPOINT in Dockerfile
+# Check Dockerfile has correct WORKDIR and ENTRYPOINT
+WORKDIR /app
+ENTRYPOINT ["uv", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+#### Error: "Container exits immediately"
+```bash
+# Check container logs
+docker logs legal-rag-api
+
+# Run interactively to debug
+docker run -it --rm \
+  --name legal-rag-api-debug \
+  -p 8000:8000 \
+  -v /path/to/keys/public_key.pem:/app/api/keys/public_key.pem \
+  -v /path/to/.env:/app/.env \
+  -e API_ENV_FILE_PATH=/app/.env \
+  your_username/legal-rag-api:latest /bin/bash
+```
+
 ## Additional Documentation
 
 - **Utils**: `utils/README.md` - Utility scripts
@@ -642,7 +711,76 @@ pwd
 - Verificar ruta en `JWT_PUBLIC_KEY_PATH`
 - Asegurar que el archivo existe
 
-## 📖 Documentación Adicional
+### Problemas Comunes de Docker
+
+#### Error: "Qdrant connection failed" en Docker
+```bash
+# La configuración depende de cómo esté ejecutándose Qdrant:
+
+# 1. Si Qdrant está ejecutándose en Docker Compose (misma red)
+# Usa el nombre del servicio como hostname
+API_QDRANT_URL=http://qdrant:6333
+
+# 2. Si Qdrant está ejecutándose en la máquina host:
+# Windows (Docker Desktop): usa host.docker.internal
+API_QDRANT_URL=http://host.docker.internal:6333
+
+# Linux: usa la IP del host o host.docker.internal
+API_QDRANT_URL=http://host.docker.internal:6333
+# O
+API_QDRANT_URL=http://172.17.0.1:6333
+
+# 3. Si Qdrant está ejecutándose en otro contenedor:
+# Usa el nombre del contenedor o IP
+API_QDRANT_URL=http://qdrant-container:6333
+```
+
+#### Error: "JWT public key not found" en Docker
+```bash
+# Verificar que el archivo de clave esté montado correctamente
+docker exec -it legal-rag-api ls -la /app/api/keys/
+
+# Verificar la variable de entorno
+docker exec -it legal-rag-api env | grep JWT
+
+# Asegurar ruta correcta en archivo .env
+API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+```
+
+#### Error: "IsADirectoryError: [Errno 21] Is a directory: '/app/keys'"
+```bash
+# Problema: Montando directorio en lugar de archivo
+# Incorrecto:
+-v /ruta/a/keys:/app/keys
+
+# Correcto:
+-v /ruta/a/keys/public_key.pem:/app/api/keys/public_key.pem
+```
+
+#### Error: "ModuleNotFoundError: No module named 'api'"
+```bash
+# Problema: ENTRYPOINT incorrecto en Dockerfile
+# Verificar que Dockerfile tenga WORKDIR y ENTRYPOINT correctos
+WORKDIR /app
+ENTRYPOINT ["uv", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+#### Error: "Container exits immediately"
+```bash
+# Verificar logs del contenedor
+docker logs legal-rag-api
+
+# Ejecutar interactivamente para debuggear
+docker run -it --rm \
+  --name legal-rag-api-debug \
+  -p 8000:8000 \
+  -v /ruta/a/keys/public_key.pem:/app/api/keys/public_key.pem \
+  -v /ruta/a/.env:/app/.env \
+  -e API_ENV_FILE_PATH=/app/.env \
+  tu_usuario/legal-rag-api:latest /bin/bash
+```
+
+## Documentación Adicional
 
 - **Utils**: `utils/README.md` - Scripts de utilidades
 - **Docker Guide**: `docs/docker_guide.md` - Guía completa de Docker
