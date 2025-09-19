@@ -25,9 +25,7 @@ startup_time = time.time()
     summary="Health check",
     description="Check the health status of the API and its dependencies"
 )
-async def health_check(
-    token_payload: Dict[str, Any] = Depends(optional_auth)
-):
+async def health_check():
     """Comprehensive health check endpoint"""
     try:
         # Calculate uptime
@@ -180,9 +178,7 @@ async def embedding_health_check(
     summary="Readiness check",
     description="Check if the service is ready to accept requests"
 )
-async def readiness_check(
-    token_payload: Dict[str, Any] = Depends(optional_auth)
-):
+async def readiness_check():
     """Check if service is ready"""
     try:
         # Check critical dependencies

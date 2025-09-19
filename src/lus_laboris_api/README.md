@@ -103,7 +103,7 @@ API_QDRANT_COLLECTION_NAME=lus_laboris_articles
 
 # GCP Configuration
 API_GCP_PROJECT_ID=your_project_id
-API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials
+API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
 API_GCP_USE_CREDENTIALS=true
 
 # Embedding Configuration
@@ -114,6 +114,38 @@ API_EMBEDDING_BATCH_SIZE=100
 API_ENV_FILE_PATH=/app/.env
 ```
 
+### GCP Credentials Path Resolution
+
+The `API_GOOGLE_APPLICATION_CREDENTIALS` variable supports both absolute and relative paths:
+
+- **Absolute path**: `/path/to/credentials.json` - Used as-is
+- **Relative path**: `.gcpcredentials/service-account.json` - Resolved from project root
+
+**Examples:**
+```env
+# Relative path (recommended)
+API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
+
+# Absolute path
+API_GOOGLE_APPLICATION_CREDENTIALS=/home/user/.gcpcredentials/service-account.json
+```
+
+### JWT Public Key Path Resolution
+
+The `API_JWT_PUBLIC_KEY_PATH` variable supports both absolute and relative paths:
+
+- **Absolute path**: `/path/to/public_key.pem` - Used as-is
+- **Relative path**: `keys/public_key.pem` - Resolved from project root
+
+**Examples:**
+```env
+# Relative path (recommended)
+API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+
+# Absolute path
+API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
+```
+
 ## API Documentation
 
 ### Main Endpoints
@@ -122,6 +154,53 @@ API_ENV_FILE_PATH=/app/.env
 - **Type**: JWT with RSA public/private keys
 - **Header**: `Authorization: Bearer <token>`
 - **Generation**: Use scripts in `utils/`
+
+#### Health Check (Public - No Authentication Required)
+
+**GET** `/api/health`
+- Comprehensive health check of API and dependencies
+- **No authentication required** - for monitoring systems
+- Returns service status, dependencies, and uptime
+
+**GET** `/api/health/ready`
+- Readiness check for load balancers and orchestrators
+- **No authentication required** - for deployment verification
+- Returns simple ready/not ready status
+
+**GET** `/api/health/qdrant`
+- Qdrant-specific health check
+- Optional authentication (works with or without token)
+
+**GET** `/api/health/gcp`
+- GCP-specific health check
+- Optional authentication (works with or without token)
+
+**GET** `/api/health/embeddings`
+- Embedding service health check
+- Optional authentication (works with or without token)
+
+#### Health Check Examples
+
+**Public endpoints (no token required):**
+```bash
+# General health check
+curl -X GET "http://localhost:8000/api/health/"
+
+# Readiness check
+curl -X GET "http://localhost:8000/api/health/ready"
+```
+
+**Optional authentication endpoints (with or without token):**
+```bash
+# Without token
+curl -X GET "http://localhost:8000/api/health/qdrant"
+curl -X GET "http://localhost:8000/api/health/gcp"
+curl -X GET "http://localhost:8000/api/health/embeddings"
+
+# With token (optional)
+curl -X GET "http://localhost:8000/api/health/qdrant" \
+  -H "Authorization: Bearer your_jwt_token_here"
+```
 
 #### Vectorstore (Qdrant)
 
@@ -153,15 +232,15 @@ API_ENV_FILE_PATH=/app/.env
 
 **GET** `/api/health/qdrant`
 - Qdrant status
-- No authentication required
+- Optional authentication (works with or without token)
 
 **GET** `/api/health/gcp`
 - Google Cloud status
-- No authentication required
+- Optional authentication (works with or without token)
 
 **GET** `/api/health/embeddings`
 - Embedding service status
-- No authentication required
+- Optional authentication (works with or without token)
 
 ### Data Models
 
@@ -495,7 +574,7 @@ API_QDRANT_COLLECTION_NAME=lus_laboris_articles
 
 # GCP Configuration
 API_GCP_PROJECT_ID=your_project_id
-API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials
+API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
 API_GCP_USE_CREDENTIALS=true
 
 # Embedding Configuration
@@ -504,6 +583,38 @@ API_EMBEDDING_BATCH_SIZE=100
 
 # Docker Configuration (opcional)
 API_ENV_FILE_PATH=/app/.env
+```
+
+### Resolución de Rutas de Credenciales GCP
+
+La variable `API_GOOGLE_APPLICATION_CREDENTIALS` soporta tanto rutas absolutas como relativas:
+
+- **Ruta absoluta**: `/ruta/a/credenciales.json` - Se usa tal como está
+- **Ruta relativa**: `.gcpcredentials/service-account.json` - Se resuelve desde la raíz del proyecto
+
+**Ejemplos:**
+```env
+# Ruta relativa (recomendado)
+API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
+
+# Ruta absoluta
+API_GOOGLE_APPLICATION_CREDENTIALS=/home/usuario/.gcpcredentials/service-account.json
+```
+
+### Resolución de Rutas de Clave Pública JWT
+
+La variable `API_JWT_PUBLIC_KEY_PATH` soporta tanto rutas absolutas como relativas:
+
+- **Ruta absoluta**: `/ruta/a/public_key.pem` - Se usa tal como está
+- **Ruta relativa**: `keys/public_key.pem` - Se resuelve desde la raíz del proyecto
+
+**Ejemplos:**
+```env
+# Ruta relativa (recomendado)
+API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+
+# Ruta absoluta
+API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 ```
 
 ## Documentación de la API
@@ -537,23 +648,52 @@ API_ENV_FILE_PATH=/app/.env
 - Eliminar una colección
 - Requiere autenticación JWT
 
-#### Health Checks
+#### Health Checks (Públicos - Sin Autenticación Requerida)
 
-**GET** `/api/health/`
-- Health check completo del sistema
-- Sin autenticación requerida
+**GET** `/api/health`
+- Health check completo del sistema y dependencias
+- **Sin autenticación requerida** - para sistemas de monitoreo
+- Retorna estado del servicio, dependencias y tiempo de actividad
+
+**GET** `/api/health/ready`
+- Verificación de disponibilidad para balanceadores de carga y orquestadores
+- **Sin autenticación requerida** - para verificación de despliegues
+- Retorna estado simple de listo/no listo
 
 **GET** `/api/health/qdrant`
-- Estado de Qdrant
-- Sin autenticación requerida
+- Health check específico de Qdrant
+- Autenticación opcional (funciona con o sin token)
 
 **GET** `/api/health/gcp`
-- Estado de Google Cloud
-- Sin autenticación requerida
+- Health check específico de GCP
+- Autenticación opcional (funciona con o sin token)
 
 **GET** `/api/health/embeddings`
-- Estado del servicio de embeddings
-- Sin autenticación requerida
+- Health check del servicio de embeddings
+- Autenticación opcional (funciona con o sin token)
+
+#### Ejemplos de Health Check
+
+**Endpoints públicos (sin token requerido):**
+```bash
+# Health check general
+curl -X GET "http://localhost:8000/api/health/"
+
+# Verificación de disponibilidad
+curl -X GET "http://localhost:8000/api/health/ready"
+```
+
+**Endpoints con autenticación opcional (con o sin token):**
+```bash
+# Sin token
+curl -X GET "http://localhost:8000/api/health/qdrant"
+curl -X GET "http://localhost:8000/api/health/gcp"
+curl -X GET "http://localhost:8000/api/health/embeddings"
+
+# Con token (opcional)
+curl -X GET "http://localhost:8000/api/health/qdrant" \
+  -H "Authorization: Bearer tu_jwt_token_aqui"
+```
 
 ### Modelos de Datos
 

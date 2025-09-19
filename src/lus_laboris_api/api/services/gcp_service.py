@@ -5,6 +5,7 @@ import os
 import json
 import logging
 from typing import Optional, Dict, Any, List
+from pathlib import Path
 from google.cloud import storage
 from google.oauth2 import service_account
 import tempfile
@@ -19,8 +20,22 @@ class GCPService:
     def __init__(self):
         self.client = None
         self.project_id = settings.api_gcp_project_id
-        self.credentials_path = settings.api_google_application_credentials
+        self.credentials_path = self._resolve_credentials_path(settings.api_google_application_credentials)
         self._initialized = False
+    
+    def _resolve_credentials_path(self, credentials_path: Optional[str]) -> Optional[str]:
+        """Resolve credentials path - if relative, resolve from project root"""
+        if not credentials_path:
+            return None
+        
+        if os.path.isabs(credentials_path):
+            # Absolute path, use as is
+            return credentials_path
+        else:
+            # Relative path, resolve from project root
+            # From src/lus_laboris_api/api/services/ to project root: ../../../
+            project_root = Path(__file__).parent.parent.parent.parent.parent
+            return str(project_root / credentials_path)
     
     def _initialize_client(self):
         """Initialize GCS client with credentials"""

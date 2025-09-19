@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 # HTTP Bearer token scheme
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 
 class SecurityManager:
@@ -100,7 +101,7 @@ def require_admin(token_payload: dict = Depends(security_manager.verify_token)):
     """Require valid JWT token for admin operations"""
     return token_payload
 
-def optional_auth(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)) -> Optional[dict]:
+def optional_auth(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional)) -> Optional[dict]:
     """Optional authentication - returns token payload if present, None otherwise"""
     if not credentials:
         return None
