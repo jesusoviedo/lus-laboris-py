@@ -53,7 +53,9 @@
 | Directory | Purpose |
 |-----------|---------|
 | `data/` | Raw and processed legal data storage |
-| `src/` | Core application code (API, processing, vector operations) |
+| `src/lus_laboris_api/` | FastAPI REST API for legal document queries |
+| `src/processing/` | Data processing and text extraction pipelines |
+| `src/vectorstore/` | Vector database operations and Qdrant management |
 | `notebooks/` | Analysis and experimentation notebooks |
 | `terraform/` | Infrastructure as Code for Google Cloud Platform |
 | `docs/` | Comprehensive project documentation |
@@ -105,6 +107,10 @@ bash act_menu.sh
 # Run notebooks
 cd notebooks/
 uv run jupyter notebook
+
+# Start the API locally
+cd src/lus_laboris_api/
+bash start_api_dev.sh
 ```
 
 ## 📋 Key Features
@@ -112,14 +118,18 @@ uv run jupyter notebook
 - **🤖 AI-Powered Legal Search**: Advanced RAG system for legal document queries
 - **☁️ Cloud-Native Architecture**: Scalable deployment on Google Cloud Platform
 - **🔧 Infrastructure as Code**: Complete automation with Terraform
-- **📊 Monitoring & Evaluation**: Comprehensive system performance tracking
+- **📊 Monitoring & Evaluation**: Comprehensive system performance tracking with RAG pipeline evaluation
 - **🔄 CI/CD Pipeline**: Automated testing and deployment workflows
 - **📚 Extensive Documentation**: Detailed guides for setup and usage
+- **🔍 RAG Evaluation Framework**: Complete evaluation system for retrieval and generation quality
 
 ## 📚 Documentation
 
 | Component | Documentation |
 |-----------|---------------|
+| **API** | [FastAPI Documentation](src/lus_laboris_api/README.md) |
+| **Data Processing** | [Processing Pipeline](src/processing/README.md) |
+| **Vector Store** | [Qdrant Operations](src/vectorstore/README.md) |
 | **Setup** | [GCP Project Setup](docs/setup_gcp_project.md) |
 | **Infrastructure** | [Terraform Guide](terraform/README.md) |
 | **Automation** | [GitHub Actions](.github/workflows/README.md) |
@@ -157,7 +167,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | Directorio | Propósito |
 |------------|-----------|
 | `data/` | Almacenamiento de datos legales crudos y procesados |
-| `src/` | Código principal de la aplicación (API, procesamiento, operaciones vectoriales) |
+| `src/lus_laboris_api/` | API REST FastAPI para consultas de documentos legales |
+| `src/processing/` | Pipelines de procesamiento de datos y extracción de texto |
+| `src/vectorstore/` | Operaciones de base de datos vectorial y gestión de Qdrant |
 | `notebooks/` | Notebooks de análisis y experimentación |
 | `terraform/` | Infraestructura como Código para Google Cloud Platform |
 | `docs/` | Documentación completa del proyecto |
@@ -209,6 +221,10 @@ bash act_menu.sh
 # Ejecutar notebooks
 cd notebooks/
 uv run jupyter notebook
+
+# Iniciar la API localmente
+cd src/lus_laboris_api/
+bash start_api_dev.sh
 ```
 
 ## 📋 Características Principales
@@ -216,14 +232,18 @@ uv run jupyter notebook
 - **🤖 Búsqueda Legal con IA**: Sistema RAG avanzado para consultas de documentos legales
 - **☁️ Arquitectura Cloud-Native**: Despliegue escalable en Google Cloud Platform
 - **🔧 Infraestructura como Código**: Automatización completa con Terraform
-- **📊 Monitoreo y Evaluación**: Seguimiento integral del rendimiento del sistema
+- **📊 Monitoreo y Evaluación**: Seguimiento integral del rendimiento del sistema con evaluación de pipeline RAG
 - **🔄 Pipeline CI/CD**: Workflows automatizados de testing y despliegue
 - **📚 Documentación Extensa**: Guías detalladas para configuración y uso
+- **🔍 Framework de Evaluación RAG**: Sistema completo de evaluación para calidad de recuperación y generación
 
 ## 📚 Documentación
 
 | Componente | Documentación |
 |------------|---------------|
+| **API** | [Documentación FastAPI](src/lus_laboris_api/README.md) |
+| **Procesamiento de Datos** | [Pipeline de Procesamiento](src/processing/README.md) |
+| **Base de Datos Vectorial** | [Operaciones Qdrant](src/vectorstore/README.md) |
 | **Configuración** | [Configuración de Proyecto GCP](docs/setup_gcp_project.md) |
 | **Infraestructura** | [Guía de Terraform](terraform/README.md) |
 | **Automatización** | [GitHub Actions](.github/workflows/README.md) |
