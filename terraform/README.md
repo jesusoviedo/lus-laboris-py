@@ -95,8 +95,14 @@ GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=/app/.gcpcredentials/service-account.json
 GCP_CLOUD_RUN_API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=100
 GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=/app/keys/public_key.pem
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS='["*"]'
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
+GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
+GCP_CLOUD_RUN_API_CPU=1
+GCP_CLOUD_RUN_API_MEMORY=1Gi
+GCP_CLOUD_RUN_API_MIN_INSTANCES=0
+GCP_CLOUD_RUN_API_MAX_INSTANCES=3
+GCP_CLOUD_RUN_API_TIMEOUT=300s
 ```
 
 These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically:
@@ -104,6 +110,38 @@ These variables are required for the interactive script and for generating the `
 - **Cloud Run Job Configuration**: Variables for the scheduled batch job
 - **Compute Engine VM Configuration**: Variables for creating the Qdrant VM
 - **Cloud Run API Service Configuration**: Variables for the FastAPI service
+
+### Important Format Notes for List Variables
+
+The following variables must be formatted as Terraform lists (without outer quotes):
+- `GCP_CLOUD_RUN_API_ALLOWED_ORIGINS`: List of allowed CORS origins
+- `GCP_CLOUD_RUN_API_ALLOWED_HOSTS`: List of allowed hosts
+
+**Correct format examples:**
+```env
+# Single wildcard (most common)
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
+
+# Multiple specific values
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://example.com", "https://app.example.com"]
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["example.com", "api.example.com"]
+
+# Mixed values
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://example.com", "*"]
+```
+
+**Incorrect formats (will cause Terraform errors):**
+```env
+# ❌ Wrong: Single quotes around the entire list
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
+
+# ❌ Wrong: Double quotes around the entire list  
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="["*"]"
+
+# ❌ Wrong: Missing brackets
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="*"
+```
 
 ### Step 1: Create Terraform State Bucket
 
@@ -358,8 +396,14 @@ GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=/app/.gcpcredentials/service-account.json
 GCP_CLOUD_RUN_API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=100
 GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=/app/keys/public_key.pem
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS='["*"]'
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
+GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
+GCP_CLOUD_RUN_API_CPU=1
+GCP_CLOUD_RUN_API_MEMORY=1Gi
+GCP_CLOUD_RUN_API_MIN_INSTANCES=0
+GCP_CLOUD_RUN_API_MAX_INSTANCES=3
+GCP_CLOUD_RUN_API_TIMEOUT=300s
 ```
 
 Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`:
@@ -367,6 +411,38 @@ Estas variables son requeridas por el script interactivo y para la generación a
 - **Configuración de Cloud Run Job**: Variables para el job batch programado
 - **Configuración de Compute Engine VM**: Variables para crear la VM de Qdrant
 - **Configuración de Cloud Run API Service**: Variables para el servicio de API FastAPI
+
+### Notas Importantes sobre el Formato de Variables de Lista
+
+Las siguientes variables deben tener formato de lista de Terraform (sin comillas externas):
+- `GCP_CLOUD_RUN_API_ALLOWED_ORIGINS`: Lista de orígenes CORS permitidos
+- `GCP_CLOUD_RUN_API_ALLOWED_HOSTS`: Lista de hosts permitidos
+
+**Ejemplos de formato correcto:**
+```env
+# Comodín único (más común)
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
+
+# Múltiples valores específicos
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://ejemplo.com", "https://app.ejemplo.com"]
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["ejemplo.com", "api.ejemplo.com"]
+
+# Valores mixtos
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://ejemplo.com", "*"]
+```
+
+**Formatos incorrectos (causarán errores de Terraform):**
+```env
+# ❌ Incorrecto: Comillas simples alrededor de toda la lista
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
+
+# ❌ Incorrecto: Comillas dobles alrededor de toda la lista
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="["*"]"
+
+# ❌ Incorrecto: Faltan corchetes
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="*"
+```
 
 ### Paso 1: Crear Bucket para Estado de Terraform
 

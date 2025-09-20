@@ -44,6 +44,11 @@ module "cloud_run_service" {
   jwt_public_key_path     = var.api_jwt_public_key_path
   allowed_origins         = var.api_allowed_origins
   allowed_hosts           = var.api_allowed_hosts
+  cpu                     = var.api_cpu
+  memory                  = var.api_memory
+  min_instance_count      = var.api_min_instance_count
+  max_instance_count      = var.api_max_instance_count
+  timeout                 = var.api_timeout
 }
 
 # Outputs

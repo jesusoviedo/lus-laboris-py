@@ -94,18 +94,18 @@ resource "google_cloud_run_v2_service" "api_service" {
 
       resources {
         limits = {
-          cpu    = "1"
-          memory = "1Gi"
+          cpu    = var.cpu
+          memory = var.memory
         }
       }
     }
 
     scaling {
-      min_instance_count = 0
-      max_instance_count = 3
+      min_instance_count = var.min_instance_count
+      max_instance_count = var.max_instance_count
     }
 
-    timeout = "300s"
+    timeout = var.timeout
   }
 
   traffic {

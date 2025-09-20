@@ -60,8 +60,13 @@ create_tfvars() {
     GCP_CLOUD_RUN_API_EMBEDDING_MODEL=$(read_env_var "GCP_CLOUD_RUN_API_EMBEDDING_MODEL" "$ENV_FILE")
     GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=$(read_env_var "GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE" "$ENV_FILE")
     GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=$(read_env_var "GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
-    GCP_CLOUD_RUN_API_ALLOWED_HOSTS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_HOSTS" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_ALLOWED_HOSTS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_HOSTS" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_CPU=$(read_env_var "GCP_CLOUD_RUN_API_CPU" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_MEMORY=$(read_env_var "GCP_CLOUD_RUN_API_MEMORY" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_MIN_INSTANCES=$(read_env_var "GCP_CLOUD_RUN_API_MIN_INSTANCES" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_MAX_INSTANCES=$(read_env_var "GCP_CLOUD_RUN_API_MAX_INSTANCES" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_TIMEOUT=$(read_env_var "GCP_CLOUD_RUN_API_TIMEOUT" "$ENV_FILE")
     # Validate that all required variables exist
     MISSING_VARS=()
     
@@ -82,10 +87,16 @@ create_tfvars() {
     # Check Cloud Run API variables
     [[ -z "$GCP_CLOUD_RUN_API_SERVICE_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_SERVICE_NAME")
     [[ -z "$GCP_CLOUD_RUN_API_IMAGE" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_IMAGE")
+    [[ -z "$GCP_CLOUD_RUN_API_CONTAINER_PORT" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_CONTAINER_PORT")
     [[ -z "$GCP_CLOUD_RUN_API_QDRANT_URL" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_URL")
     [[ -z "$GCP_CLOUD_RUN_API_QDRANT_API_KEY" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_API_KEY")
     [[ -z "$GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME")
+    [[ -z "$GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH")
     [[ -z "$GCP_CLOUD_RUN_API_EMBEDDING_MODEL" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_EMBEDDING_MODEL")
+    [[ -z "$GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE")
+    [[ -z "$GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH")
+    [[ -z "$GCP_CLOUD_RUN_API_CPU" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_CPU")
+    [[ -z "$GCP_CLOUD_RUN_API_MEMORY" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_MEMORY")
 
     if [ ${#MISSING_VARS[@]} -gt 0 ]; then
       echo "❌ ERROR: Faltan variables en $ENV_FILE:"
@@ -114,15 +125,20 @@ qdrant_vm_disk_size   = $GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 # Cloud Run Service for API
 api_service_name = "$GCP_CLOUD_RUN_API_SERVICE_NAME"
 api_image       = "$GCP_CLOUD_RUN_API_IMAGE"
-api_container_port = ${GCP_CLOUD_RUN_API_CONTAINER_PORT:-8000}
+api_container_port = $GCP_CLOUD_RUN_API_CONTAINER_PORT
 api_log_level   = "${GCP_CLOUD_RUN_API_LOG_LEVEL:-info}"
 qdrant_url      = "$GCP_CLOUD_RUN_API_QDRANT_URL"
 qdrant_api_key  = "$GCP_CLOUD_RUN_API_QDRANT_API_KEY"
 qdrant_collection_name = "$GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME"
-api_gcp_credentials_path = "${GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH:-/app/.gcpcredentials/service-account.json}"
+api_gcp_credentials_path = "$GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH"
 api_embedding_model = "$GCP_CLOUD_RUN_API_EMBEDDING_MODEL"
-api_embedding_batch_size = ${GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE:-100}
-api_jwt_public_key_path = "${GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH:-/app/keys/public_key.pem}"
+api_embedding_batch_size = $GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE
+api_jwt_public_key_path = "$GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH"
+api_cpu = "$GCP_CLOUD_RUN_API_CPU"
+api_memory = "$GCP_CLOUD_RUN_API_MEMORY"
+api_min_instance_count = ${GCP_CLOUD_RUN_API_MIN_INSTANCES:-0}
+api_max_instance_count = ${GCP_CLOUD_RUN_API_MAX_INSTANCES:-3}
+api_timeout = "${GCP_CLOUD_RUN_API_TIMEOUT:-300s}"
 EOF
     # Parse args properly to avoid double quotes
     ARGS_ARRAY=()
@@ -135,13 +151,17 @@ EOF
     
     # Handle allowed_origins and allowed_hosts as lists
     if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" ]; then
-        echo "api_allowed_origins = $GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" >> "$TFVARS_FILE"
+        # Remove outer quotes if they exist and convert single quotes to double quotes
+        ORIGINS_CLEAN=$(echo "$GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" | sed 's/^"//' | sed 's/"$//' | sed "s/'/\"/g")
+        echo "api_allowed_origins = $ORIGINS_CLEAN" >> "$TFVARS_FILE"
     else
         echo "api_allowed_origins = [\"*\"]" >> "$TFVARS_FILE"
     fi
     
     if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_HOSTS" ]; then
-        echo "api_allowed_hosts = $GCP_CLOUD_RUN_API_ALLOWED_HOSTS" >> "$TFVARS_FILE"
+        # Remove outer quotes if they exist and convert single quotes to double quotes
+        HOSTS_CLEAN=$(echo "$GCP_CLOUD_RUN_API_ALLOWED_HOSTS" | sed 's/^"//' | sed 's/"$//' | sed "s/'/\"/g")
+        echo "api_allowed_hosts = $HOSTS_CLEAN" >> "$TFVARS_FILE"
     else
         echo "api_allowed_hosts = [\"*\"]" >> "$TFVARS_FILE"
     fi

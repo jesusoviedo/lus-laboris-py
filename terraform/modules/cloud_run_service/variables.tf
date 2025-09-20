@@ -21,7 +21,6 @@ variable "image" {
 variable "container_port" {
   description = "Port that the container listens on"
   type        = number
-  default     = 8000
 }
 
 variable "log_level" {
@@ -51,27 +50,23 @@ variable "qdrant_collection_name" {
 variable "gcp_credentials_path" {
   description = "Path to GCP credentials file"
   type        = string
-  default     = "/app/.gcpcredentials/service-account.json"
 }
 
 # Embedding Configuration
 variable "embedding_model" {
   description = "Default embedding model"
   type        = string
-  default     = "sentence-transformers/all-MiniLM-L6-v2"
 }
 
 variable "embedding_batch_size" {
   description = "Batch size for embedding generation"
   type        = number
-  default     = 100
 }
 
 # JWT Configuration
 variable "jwt_public_key_path" {
   description = "Path to JWT public key"
   type        = string
-  default     = "/app/keys/public_key.pem"
 }
 
 # Security Configuration
@@ -85,5 +80,34 @@ variable "allowed_hosts" {
   description = "Allowed hosts"
   type        = list(string)
   default     = ["*"]
+}
+
+# Resource Configuration
+variable "cpu" {
+  description = "CPU allocation for the Cloud Run service"
+  type        = string
+}
+
+variable "memory" {
+  description = "Memory allocation for the Cloud Run service"
+  type        = string
+}
+
+variable "min_instance_count" {
+  description = "Minimum number of instances for the Cloud Run service"
+  type        = number
+  default     = 0
+}
+
+variable "max_instance_count" {
+  description = "Maximum number of instances for the Cloud Run service"
+  type        = number
+  default     = 3
+}
+
+variable "timeout" {
+  description = "Request timeout for the Cloud Run service"
+  type        = string
+  default     = "300s"
 }
 

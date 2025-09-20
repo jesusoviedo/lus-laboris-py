@@ -72,7 +72,6 @@ variable "api_image" {
 variable "api_container_port" {
   description = "Port that the API container listens on"
   type        = number
-  default     = 8000
 }
 
 variable "api_log_level" {
@@ -102,25 +101,21 @@ variable "qdrant_collection_name" {
 variable "api_gcp_credentials_path" {
   description = "Path to GCP credentials file in the container"
   type        = string
-  default     = "/app/.gcpcredentials/service-account.json"
 }
 
 variable "api_embedding_model" {
   description = "Default embedding model for the API"
   type        = string
-  default     = "sentence-transformers/all-MiniLM-L6-v2"
 }
 
 variable "api_embedding_batch_size" {
   description = "Batch size for embedding generation"
   type        = number
-  default     = 100
 }
 
 variable "api_jwt_public_key_path" {
   description = "Path to JWT public key in the container"
   type        = string
-  default     = "/app/keys/public_key.pem"
 }
 
 variable "api_allowed_origins" {
@@ -136,3 +131,30 @@ variable "api_allowed_hosts" {
 }
 
 # Resource Configuration
+variable "api_cpu" {
+  description = "CPU allocation for the Cloud Run API service"
+  type        = string
+}
+
+variable "api_memory" {
+  description = "Memory allocation for the Cloud Run API service"
+  type        = string
+}
+
+variable "api_min_instance_count" {
+  description = "Minimum number of instances for the Cloud Run API service"
+  type        = number
+  default     = 0
+}
+
+variable "api_max_instance_count" {
+  description = "Maximum number of instances for the Cloud Run API service"
+  type        = number
+  default     = 3
+}
+
+variable "api_timeout" {
+  description = "Request timeout for the Cloud Run API service"
+  type        = string
+  default     = "300s"
+}
