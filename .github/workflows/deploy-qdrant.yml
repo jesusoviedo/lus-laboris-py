@@ -99,7 +99,7 @@ jobs:
           # Check if Qdrant is responding
           for i in {1..10}; do
             if curl -f http://${{ steps.get_vm_details.outputs.vm_ip }}:6333/health; then
-              echo "✅ Qdrant is running successfully!"
+              echo "Qdrant is running successfully!"
               break
             fi
             echo "Attempt $i/10 - Qdrant not ready yet..."
@@ -108,8 +108,8 @@ jobs:
 
       - name: Display Connection Info
         run: |
-          echo "🚀 Qdrant deployed successfully!"
-          echo "📍 VM Name: ${{ steps.get_vm_details.outputs.vm_name }}"
-          echo "🌐 External IP: ${{ steps.get_vm_details.outputs.vm_ip }}"
-          echo "🔗 Qdrant API: http://${{ steps.get_vm_details.outputs.vm_ip }}:6333"
-          echo "📊 Qdrant Dashboard: http://${{ steps.get_vm_details.outputs.vm_ip }}:6333/dashboard"
+          echo "Qdrant deployed successfully!"
+          echo "VM Name: ${{ steps.get_vm_details.outputs.vm_name }}"
+          echo "External IP: ${{ steps.get_vm_details.outputs.vm_ip }}"
+          echo "Qdrant API: http://${{ steps.get_vm_details.outputs.vm_ip }}:6333"
+          echo "Qdrant Dashboard: http://${{ steps.get_vm_details.outputs.vm_ip }}:6333/dashboard"
