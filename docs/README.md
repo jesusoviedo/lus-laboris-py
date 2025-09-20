@@ -26,12 +26,13 @@ This directory contains comprehensive guides and documentation for setting up an
 
 ### Quick Start
 
-1. **For GCP Setup**: Start with [setup_gcp_project.md](setup_gcp_project.md)
-2. **For Python Development**: Follow [uv_guide.md](uv_guide.md)
-3. **For Containerization**: Use [docker_guide.md](docker_guide.md)
-4. **For API Development**: Learn [fastapi_guide.md](fastapi_guide.md)
-5. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
-6. **For Local Testing**: Use [act_guide.md](act_guide.md)
+1. **Environment Setup**: Copy `.env_example` to `.env` and configure your variables
+2. **For GCP Setup**: Start with [setup_gcp_project.md](setup_gcp_project.md)
+3. **For Python Development**: Follow [uv_guide.md](uv_guide.md)
+4. **For Containerization**: Use [docker_guide.md](docker_guide.md)
+5. **For API Development**: Learn [fastapi_guide.md](fastapi_guide.md)
+6. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
+7. **For Local Testing**: Use [act_guide.md](act_guide.md)
 
 ### Prerequisites
 
@@ -58,12 +59,13 @@ Este directorio contiene guías completas y documentación para configurar y usa
 
 ### Inicio Rápido
 
-1. **Para Configuración GCP**: Comienza con [setup_gcp_project.md](setup_gcp_project.md)
-2. **Para Desarrollo Python**: Sigue [uv_guide.md](uv_guide.md)
-3. **Para Containerización**: Usa [docker_guide.md](docker_guide.md)
-4. **Para Desarrollo de API**: Aprende [fastapi_guide.md](fastapi_guide.md)
-5. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
-6. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
+1. **Configuración del Entorno**: Copia `.env_example` a `.env` y configura tus variables
+2. **Para Configuración GCP**: Comienza con [setup_gcp_project.md](setup_gcp_project.md)
+3. **Para Desarrollo Python**: Sigue [uv_guide.md](uv_guide.md)
+4. **Para Containerización**: Usa [docker_guide.md](docker_guide.md)
+5. **Para Desarrollo de API**: Aprende [fastapi_guide.md](fastapi_guide.md)
+6. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
+7. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
 
 ### Prerrequisitos
 

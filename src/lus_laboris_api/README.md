@@ -82,7 +82,15 @@ Once the API is started:
 
 ### Environment Variables
 
-The script reads variables from the `.env` file in the project root:
+The script reads variables from the `.env` file in the project root. You can use the provided example file:
+
+```bash
+# Copy the example file and customize it
+cp .env_example .env
+# Edit the .env file with your values
+```
+
+The `.env_example` file contains all required variables organized by category. Here are the key variables for the API:
 
 ```env
 # API Configuration
@@ -553,7 +561,15 @@ Una vez iniciada la API:
 
 ### Variables de Entorno
 
-El script lee las variables del archivo `.env` en la raíz del proyecto:
+El script lee las variables del archivo `.env` en la raíz del proyecto. Puedes usar el archivo de ejemplo proporcionado:
+
+```bash
+# Copiar el archivo de ejemplo y personalizarlo
+cp .env_example .env
+# Editar el archivo .env con tus valores
+```
+
+El archivo `.env_example` contiene todas las variables requeridas organizadas por categoría. Aquí están las variables clave para la API:
 
 ```env
 # API Configuration

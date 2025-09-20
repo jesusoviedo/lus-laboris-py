@@ -38,13 +38,29 @@ The `gcp_utils.py` script provides utilities for managing Google Cloud Storage b
 
 ### Installation
 
-1. Install dependencies:
+1. **Set up environment variables**:
+```bash
+# Copy the example file and customize it
+cp .env_example .env
+# Edit the .env file with your values
+# The file contains variables organized by category:
+# - Docker Configuration
+# - GCP Configuration  
+# - Cloud Run Services
+# - Compute Engine
+# - Qdrant Configuration
+# - LLM/Embeddings
+# - JWT Authentication
+# - Local API
+```
+
+2. Install dependencies:
 ```bash
 cd utils
 uv sync
 ```
 
-2. Set up GCP credentials (see [GCP Setup Guide](../docs/setup_gcp_project.md))
+3. Set up GCP credentials (see [GCP Setup Guide](../docs/setup_gcp_project.md))
 
 ### Running the Script
 
@@ -308,7 +324,7 @@ After running this script, you can:
 
 After completing the setup:
 
-1. **Update your .env file** with the project ID
+1. **Update your .env file** with the project ID (copy from `.env_example` if needed)
 2. **Configure Terraform** to use the new project
 3. **Set up GitHub Actions secrets** with the JSON key
 4. **Run Terraform** to create your infrastructure
@@ -919,13 +935,29 @@ El script `gcp_utils.py` proporciona utilidades para gestionar buckets de Google
 
 ### Instalación
 
-1. Instalar dependencias:
+1. **Configurar variables de entorno**:
+```bash
+# Copiar el archivo de ejemplo y personalizarlo
+cp .env_example .env
+# Editar el archivo .env con tus valores
+# El archivo contiene variables organizadas por categoría:
+# - Configuración Docker
+# - Configuración GCP
+# - Servicios Cloud Run
+# - Compute Engine
+# - Configuración Qdrant
+# - LLM/Embeddings
+# - Autenticación JWT
+# - API Local
+```
+
+2. Instalar dependencias:
 ```bash
 cd utils
 uv sync
 ```
 
-2. Configurar credenciales GCP (ver [Guía de Configuración GCP](../docs/setup_gcp_project.md))
+3. Configurar credenciales GCP (ver [Guía de Configuración GCP](../docs/setup_gcp_project.md))
 
 ### Ejecutar el Script
 
@@ -1189,7 +1221,7 @@ Después de ejecutar este script, puedes:
 
 Después de completar la configuración:
 
-1. **Actualiza tu archivo .env** con el ID del proyecto
+1. **Actualiza tu archivo .env** con el ID del proyecto (copia desde `.env_example` si es necesario)
 2. **Configura Terraform** para usar el nuevo proyecto
 3. **Configura secrets de GitHub Actions** con la clave JSON
 4. **Ejecuta Terraform** para crear tu infraestructura

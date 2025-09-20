@@ -81,12 +81,24 @@ cd lus-laboris-py
 
 ### 2. Environment Configuration
 Create a `.env` file at the project root with required variables:
-```env
-GCP_PROJECT_ID=your-project-id
-GCP_REGION=your-region
-GCP_BUCKET_NAME=your-bucket-name
-# ... (see docs/setup_gcp_project.md for complete list)
+
+```bash
+# Copy the example file and customize it
+cp .env_example .env
+# Edit the .env file with your values
 ```
+
+The `.env_example` file contains all required variables organized by category:
+- **Docker Configuration**: DockerHub credentials and image names
+- **GCP Configuration**: Project, region, and bucket settings
+- **Cloud Run Services**: Batch jobs and API service configuration
+- **Compute Engine**: VM settings for Qdrant hosting
+- **Qdrant Configuration**: Vector database connection settings
+- **LLM/Embeddings**: OpenAI and other provider credentials
+- **JWT Authentication**: Key paths and token settings
+- **Local API**: FastAPI settings for development
+
+See [docs/setup_gcp_project.md](docs/setup_gcp_project.md) for detailed configuration instructions.
 
 ### 3. Infrastructure Setup
 ```bash
@@ -195,12 +207,24 @@ cd lus-laboris-py
 
 ### 2. Configuración del Entorno
 Crear un archivo `.env` en la raíz del proyecto con las variables requeridas:
-```env
-GCP_PROJECT_ID=tu-proyecto-id
-GCP_REGION=tu-region
-GCP_BUCKET_NAME=tu-bucket-name
-# ... (ver docs/setup_gcp_project.md para lista completa)
+
+```bash
+# Copiar el archivo de ejemplo y personalizarlo
+cp .env_example .env
+# Editar el archivo .env con tus valores
 ```
+
+El archivo `.env_example` contiene todas las variables requeridas organizadas por categoría:
+- **Configuración Docker**: Credenciales de DockerHub y nombres de imágenes
+- **Configuración GCP**: Configuraciones de proyecto, región y bucket
+- **Servicios Cloud Run**: Configuración de trabajos batch y servicio API
+- **Compute Engine**: Configuraciones de VM para hospedar Qdrant
+- **Configuración Qdrant**: Configuraciones de conexión a la base de datos vectorial
+- **LLM/Embeddings**: Credenciales de OpenAI y otros proveedores
+- **Autenticación JWT**: Rutas de claves y configuraciones de tokens
+- **API Local**: Configuraciones de FastAPI para desarrollo
+
+Ver [docs/setup_gcp_project.md](docs/setup_gcp_project.md) para instrucciones detalladas de configuración.
 
 ### 3. Configuración de Infraestructura
 ```bash

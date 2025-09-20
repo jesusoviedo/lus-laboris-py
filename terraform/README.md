@@ -56,6 +56,14 @@ project-root/
 
 At the root of the project, create a file named `.env` with the following variables:
 
+```bash
+# Copy the example file and customize it
+cp .env_example .env
+# Edit the .env file with your values
+```
+
+The `.env_example` file contains all required variables organized by category. Here are the key variables you need to configure for Terraform:
+
 ```env
 # Basic GCP Configuration
 GCP_PROJECT_ID=your-gcp-project-id
@@ -310,6 +318,14 @@ raiz-del-proyecto/
 ### Paso 0: Crear y Configurar el archivo .env
 
 En la raíz del proyecto, crea un archivo llamado `.env` con las siguientes variables:
+
+```bash
+# Copiar el archivo de ejemplo y personalizarlo
+cp .env_example .env
+# Editar el archivo .env con tus valores
+```
+
+El archivo `.env_example` contiene todas las variables requeridas organizadas por categoría. Aquí están las variables clave que necesitas configurar para Terraform:
 
 ```env
 # Configuración básica de GCP
