@@ -21,38 +21,47 @@ set_gac() {
   fi
 }
 
+# Helper function to read environment variables safely
+read_env_var() {
+  local var_name="$1"
+  local file_path="$2"
+  # Use grep with regex to handle whitespace and ignore comments
+  # Extract only the value after the = sign, trimming whitespace
+  grep -E "^[[:space:]]*${var_name}[[:space:]]*=" "$file_path" | head -1 | sed "s/^[[:space:]]*${var_name}[[:space:]]*=[[:space:]]*//"
+}
+
 create_tfvars() {
   if [ -f "$ENV_FILE" ]; then
-    # Read existing variables
-    GCP_PROJECT_ID=$(grep '^GCP_PROJECT_ID=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_REGION=$(grep '^GCP_REGION=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_BUCKET_NAME=$(grep '^GCP_BUCKET_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_BATCH_JOB_NAME=$(grep '^GCP_CLOUD_RUN_BATCH_JOB_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_BATCH_IMAGE=$(grep '^GCP_CLOUD_RUN_BATCH_IMAGE=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_BATCH_ARGS=$(grep '^GCP_CLOUD_RUN_BATCH_ARGS=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
-    GCP_CLOUD_RUN_BATCH_SCHEDULE=$(grep '^GCP_CLOUD_RUN_BATCH_SCHEDULE=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
-    GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=$(grep '^GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=' "$ENV_FILE" | cut -d '=' -f2-)
+    # Read existing variables (ignore comments and handle whitespace)
+    GCP_PROJECT_ID=$(read_env_var "GCP_PROJECT_ID" "$ENV_FILE")
+    GCP_REGION=$(read_env_var "GCP_REGION" "$ENV_FILE")
+    GCP_BUCKET_NAME=$(read_env_var "GCP_BUCKET_NAME" "$ENV_FILE")
+    GCP_CLOUD_RUN_BATCH_JOB_NAME=$(read_env_var "GCP_CLOUD_RUN_BATCH_JOB_NAME" "$ENV_FILE")
+    GCP_CLOUD_RUN_BATCH_IMAGE=$(read_env_var "GCP_CLOUD_RUN_BATCH_IMAGE" "$ENV_FILE")
+    GCP_CLOUD_RUN_BATCH_ARGS=$(read_env_var "GCP_CLOUD_RUN_BATCH_ARGS" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_BATCH_SCHEDULE=$(read_env_var "GCP_CLOUD_RUN_BATCH_SCHEDULE" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=$(read_env_var "GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL" "$ENV_FILE")
     
     # Read new Qdrant VM variables
-    GCP_COMPUTE_ENGINE_VM_NAME=$(grep '^GCP_COMPUTE_ENGINE_VM_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=$(grep '^GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_COMPUTE_ENGINE_VM_ZONE=$(grep '^GCP_COMPUTE_ENGINE_VM_ZONE=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_COMPUTE_ENGINE_VM_DISK_SIZE=$(grep '^GCP_COMPUTE_ENGINE_VM_DISK_SIZE=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_COMPUTE_ENGINE_VM_NAME=$(read_env_var "GCP_COMPUTE_ENGINE_VM_NAME" "$ENV_FILE")
+    GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=$(read_env_var "GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE" "$ENV_FILE")
+    GCP_COMPUTE_ENGINE_VM_ZONE=$(read_env_var "GCP_COMPUTE_ENGINE_VM_ZONE" "$ENV_FILE")
+    GCP_COMPUTE_ENGINE_VM_DISK_SIZE=$(read_env_var "GCP_COMPUTE_ENGINE_VM_DISK_SIZE" "$ENV_FILE")
 
     # Read Cloud Run API variables
-    GCP_CLOUD_RUN_API_SERVICE_NAME=$(grep '^GCP_CLOUD_RUN_API_SERVICE_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_IMAGE=$(grep '^GCP_CLOUD_RUN_API_IMAGE=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_CONTAINER_PORT=$(grep '^GCP_CLOUD_RUN_API_CONTAINER_PORT=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_LOG_LEVEL=$(grep '^GCP_CLOUD_RUN_API_LOG_LEVEL=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_QDRANT_URL=$(grep '^GCP_CLOUD_RUN_API_QDRANT_URL=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_QDRANT_API_KEY=$(grep '^GCP_CLOUD_RUN_API_QDRANT_API_KEY=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=$(grep '^GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=$(grep '^GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_EMBEDDING_MODEL=$(grep '^GCP_CLOUD_RUN_API_EMBEDDING_MODEL=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=$(grep '^GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=$(grep '^GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=' "$ENV_FILE" | cut -d '=' -f2-)
-    GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=$(grep '^GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
-    GCP_CLOUD_RUN_API_ALLOWED_HOSTS=$(grep '^GCP_CLOUD_RUN_API_ALLOWED_HOSTS=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_API_SERVICE_NAME=$(read_env_var "GCP_CLOUD_RUN_API_SERVICE_NAME" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_IMAGE=$(read_env_var "GCP_CLOUD_RUN_API_IMAGE" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_CONTAINER_PORT=$(read_env_var "GCP_CLOUD_RUN_API_CONTAINER_PORT" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_LOG_LEVEL=$(read_env_var "GCP_CLOUD_RUN_API_LOG_LEVEL" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_QDRANT_URL=$(read_env_var "GCP_CLOUD_RUN_API_QDRANT_URL" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_QDRANT_API_KEY=$(read_env_var "GCP_CLOUD_RUN_API_QDRANT_API_KEY" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=$(read_env_var "GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=$(read_env_var "GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_EMBEDDING_MODEL=$(read_env_var "GCP_CLOUD_RUN_API_EMBEDDING_MODEL" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=$(read_env_var "GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=$(read_env_var "GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_API_ALLOWED_HOSTS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_HOSTS" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     # Validate that all required variables exist
     MISSING_VARS=()
     
