@@ -74,12 +74,28 @@ GCP_COMPUTE_ENGINE_VM_NAME=name-vm
 GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=type-machine
 GCP_COMPUTE_ENGINE_VM_ZONE=name-zone
 GCP_COMPUTE_ENGINE_VM_DISK_SIZE=50
+
+# Cloud Run API Service Configuration
+GCP_CLOUD_RUN_API_SERVICE_NAME=lus-laboris-api
+GCP_CLOUD_RUN_API_IMAGE=docker.io/rj24/lus-laboris-api:latest
+GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
+GCP_CLOUD_RUN_API_LOG_LEVEL=info
+GCP_CLOUD_RUN_API_QDRANT_URL=http://10.0.0.2:6333
+GCP_CLOUD_RUN_API_QDRANT_API_KEY=your-qdrant-api-key
+GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=lus_laboris_articles
+GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=/app/.gcpcredentials/service-account.json
+GCP_CLOUD_RUN_API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=100
+GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=/app/keys/public_key.pem
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS='["*"]'
 ```
 
 These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically:
 - **Basic GCP Configuration**: Core project settings
 - **Cloud Run Job Configuration**: Variables for the scheduled batch job
 - **Compute Engine VM Configuration**: Variables for creating the Qdrant VM
+- **Cloud Run API Service Configuration**: Variables for the FastAPI service
 
 ### Step 1: Create Terraform State Bucket
 
@@ -189,6 +205,7 @@ This Terraform project creates:
 
 - **Google Cloud Storage Bucket**: A bucket for storing files with uniform bucket-level access
 - **Cloud Run Job (batch)**: A scheduled job that runs a Docker image from Docker Hub every day at 23:00
+- **Cloud Run Service (API)**: A FastAPI service that runs on-demand for legal document queries
 - **Compute Engine Instance**: A VM instance for hosting services like Qdrant vector database
 - **Firewall Rules**: Network rules to allow access to the VM on required ports (22, 6333, 6334)
 - **Regional configuration**: All resources are created in the region specified in `terraform.tfvars`
@@ -234,6 +251,14 @@ This script will:
 > - GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE
 > - GCP_COMPUTE_ENGINE_VM_ZONE
 > - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
+>
+> **Cloud Run API Service Configuration:**
+> - GCP_CLOUD_RUN_API_SERVICE_NAME
+> - GCP_CLOUD_RUN_API_IMAGE
+> - GCP_CLOUD_RUN_API_QDRANT_URL
+> - GCP_CLOUD_RUN_API_QDRANT_API_KEY
+> - GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME
+> - GCP_CLOUD_RUN_API_EMBEDDING_MODEL
 >
 > If any of these variables are missing, the script will show a clear error with validation details and will not generate the `terraform.tfvars` file. You will not be able to run Terraform commands until all are set.
 
@@ -304,12 +329,28 @@ GCP_COMPUTE_ENGINE_VM_NAME=nombre-vm
 GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=tipo-maquina
 GCP_COMPUTE_ENGINE_VM_ZONE=nombre-zona
 GCP_COMPUTE_ENGINE_VM_DISK_SIZE=50
+
+# Configuración de Cloud Run API Service
+GCP_CLOUD_RUN_API_SERVICE_NAME=lus-laboris-api
+GCP_CLOUD_RUN_API_IMAGE=docker.io/rj24/lus-laboris-api:latest
+GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
+GCP_CLOUD_RUN_API_LOG_LEVEL=info
+GCP_CLOUD_RUN_API_QDRANT_URL=http://10.0.0.2:6333
+GCP_CLOUD_RUN_API_QDRANT_API_KEY=tu-qdrant-api-key
+GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=lus_laboris_articles
+GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=/app/.gcpcredentials/service-account.json
+GCP_CLOUD_RUN_API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=100
+GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=/app/keys/public_key.pem
+GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
+GCP_CLOUD_RUN_API_ALLOWED_HOSTS='["*"]'
 ```
 
 Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`:
 - **Configuración básica de GCP**: Configuraciones principales del proyecto
 - **Configuración de Cloud Run Job**: Variables para el job batch programado
 - **Configuración de Compute Engine VM**: Variables para crear la VM de Qdrant
+- **Configuración de Cloud Run API Service**: Variables para el servicio de API FastAPI
 
 ### Paso 1: Crear Bucket para Estado de Terraform
 
@@ -419,6 +460,7 @@ Este proyecto de Terraform crea:
 
 - **Google Cloud Storage Bucket**: Un bucket para almacenar archivos con acceso uniforme a nivel de bucket
 - **Cloud Run Job (batch)**: Un job programado que ejecuta una imagen de Docker Hub todos los días a las 23:00
+- **Cloud Run Service (API)**: Un servicio de API FastAPI que se ejecuta bajo demanda para consultas de documentos legales
 - **Instancia de Compute Engine**: Una instancia VM para hospedar servicios como la base de datos vectorial Qdrant
 - **Reglas de Firewall**: Reglas de red para permitir acceso a la VM en los puertos requeridos (22, 6333, 6334)
 - **Configuración regional**: Todos los recursos se crean en la región especificada en `terraform.tfvars`
@@ -464,6 +506,14 @@ Este script:
 > - GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE
 > - GCP_COMPUTE_ENGINE_VM_ZONE
 > - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
+>
+> **Configuración de Cloud Run API Service:**
+> - GCP_CLOUD_RUN_API_SERVICE_NAME
+> - GCP_CLOUD_RUN_API_IMAGE
+> - GCP_CLOUD_RUN_API_QDRANT_URL
+> - GCP_CLOUD_RUN_API_QDRANT_API_KEY
+> - GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME
+> - GCP_CLOUD_RUN_API_EMBEDDING_MODEL
 >
 > Si falta alguna de estas variables, el script mostrará un error claro con detalles de validación y no generará el archivo `terraform.tfvars`. No podrás ejecutar comandos de Terraform hasta que todas estén definidas.
 

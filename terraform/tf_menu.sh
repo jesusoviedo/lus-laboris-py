@@ -39,6 +39,20 @@ create_tfvars() {
     GCP_COMPUTE_ENGINE_VM_ZONE=$(grep '^GCP_COMPUTE_ENGINE_VM_ZONE=' "$ENV_FILE" | cut -d '=' -f2-)
     GCP_COMPUTE_ENGINE_VM_DISK_SIZE=$(grep '^GCP_COMPUTE_ENGINE_VM_DISK_SIZE=' "$ENV_FILE" | cut -d '=' -f2-)
 
+    # Read Cloud Run API variables
+    GCP_CLOUD_RUN_API_SERVICE_NAME=$(grep '^GCP_CLOUD_RUN_API_SERVICE_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_IMAGE=$(grep '^GCP_CLOUD_RUN_API_IMAGE=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_CONTAINER_PORT=$(grep '^GCP_CLOUD_RUN_API_CONTAINER_PORT=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_LOG_LEVEL=$(grep '^GCP_CLOUD_RUN_API_LOG_LEVEL=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_QDRANT_URL=$(grep '^GCP_CLOUD_RUN_API_QDRANT_URL=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_QDRANT_API_KEY=$(grep '^GCP_CLOUD_RUN_API_QDRANT_API_KEY=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=$(grep '^GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=$(grep '^GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_EMBEDDING_MODEL=$(grep '^GCP_CLOUD_RUN_API_EMBEDDING_MODEL=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=$(grep '^GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=$(grep '^GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=' "$ENV_FILE" | cut -d '=' -f2-)
+    GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=$(grep '^GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_API_ALLOWED_HOSTS=$(grep '^GCP_CLOUD_RUN_API_ALLOWED_HOSTS=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
     # Validate that all required variables exist
     MISSING_VARS=()
     
@@ -55,6 +69,14 @@ create_tfvars() {
     [[ -z "$GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE")
     [[ -z "$GCP_COMPUTE_ENGINE_VM_ZONE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_ZONE")
     [[ -z "$GCP_COMPUTE_ENGINE_VM_DISK_SIZE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_DISK_SIZE")
+    
+    # Check Cloud Run API variables
+    [[ -z "$GCP_CLOUD_RUN_API_SERVICE_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_SERVICE_NAME")
+    [[ -z "$GCP_CLOUD_RUN_API_IMAGE" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_IMAGE")
+    [[ -z "$GCP_CLOUD_RUN_API_QDRANT_URL" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_URL")
+    [[ -z "$GCP_CLOUD_RUN_API_QDRANT_API_KEY" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_API_KEY")
+    [[ -z "$GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME")
+    [[ -z "$GCP_CLOUD_RUN_API_EMBEDDING_MODEL" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_EMBEDDING_MODEL")
 
     if [ ${#MISSING_VARS[@]} -gt 0 ]; then
       echo "❌ ERROR: Faltan variables en $ENV_FILE:"
@@ -79,6 +101,19 @@ qdrant_vm_name         = "$GCP_COMPUTE_ENGINE_VM_NAME"
 qdrant_vm_machine_type = "$GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE"
 qdrant_vm_zone        = "$GCP_COMPUTE_ENGINE_VM_ZONE"
 qdrant_vm_disk_size   = $GCP_COMPUTE_ENGINE_VM_DISK_SIZE
+
+# Cloud Run Service for API
+api_service_name = "$GCP_CLOUD_RUN_API_SERVICE_NAME"
+api_image       = "$GCP_CLOUD_RUN_API_IMAGE"
+api_container_port = ${GCP_CLOUD_RUN_API_CONTAINER_PORT:-8000}
+api_log_level   = "${GCP_CLOUD_RUN_API_LOG_LEVEL:-info}"
+qdrant_url      = "$GCP_CLOUD_RUN_API_QDRANT_URL"
+qdrant_api_key  = "$GCP_CLOUD_RUN_API_QDRANT_API_KEY"
+qdrant_collection_name = "$GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME"
+api_gcp_credentials_path = "${GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH:-/app/.gcpcredentials/service-account.json}"
+api_embedding_model = "$GCP_CLOUD_RUN_API_EMBEDDING_MODEL"
+api_embedding_batch_size = ${GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE:-100}
+api_jwt_public_key_path = "${GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH:-/app/keys/public_key.pem}"
 EOF
     # Parse args properly to avoid double quotes
     ARGS_ARRAY=()
@@ -88,6 +123,20 @@ EOF
     done
     ARGS_LIST=$(IFS=', '; echo "${ARGS_ARRAY[*]}")
     echo "args         = [$ARGS_LIST]" >> "$TFVARS_FILE"
+    
+    # Handle allowed_origins and allowed_hosts as lists
+    if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" ]; then
+        echo "api_allowed_origins = $GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" >> "$TFVARS_FILE"
+    else
+        echo "api_allowed_origins = [\"*\"]" >> "$TFVARS_FILE"
+    fi
+    
+    if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_HOSTS" ]; then
+        echo "api_allowed_hosts = $GCP_CLOUD_RUN_API_ALLOWED_HOSTS" >> "$TFVARS_FILE"
+    else
+        echo "api_allowed_hosts = [\"*\"]" >> "$TFVARS_FILE"
+    fi
+    
     echo "✅ Archivo terraform.tfvars generado correctamente"
   else
     echo "⚠️  No se encontró el archivo .env en $PROJECT_ROOT. No se generó terraform.tfvars."

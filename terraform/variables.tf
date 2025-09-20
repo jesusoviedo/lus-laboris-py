@@ -57,3 +57,82 @@ variable "qdrant_vm_disk_size" {
   description = "Disk size for Qdrant VM in GB"
   type        = number
 }
+
+# Cloud Run Service variables
+variable "api_service_name" {
+  description = "Name of the Cloud Run API service"
+  type        = string
+}
+
+variable "api_image" {
+  description = "Docker image URL for the API service"
+  type        = string
+}
+
+variable "api_container_port" {
+  description = "Port that the API container listens on"
+  type        = number
+  default     = 8000
+}
+
+variable "api_log_level" {
+  description = "Log level for the API"
+  type        = string
+  default     = "info"
+}
+
+# Qdrant Configuration for API
+variable "qdrant_url" {
+  description = "Qdrant vector database URL"
+  type        = string
+}
+
+variable "qdrant_api_key" {
+  description = "Qdrant API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "qdrant_collection_name" {
+  description = "Qdrant collection name"
+  type        = string
+}
+
+# API Configuration
+variable "api_gcp_credentials_path" {
+  description = "Path to GCP credentials file in the container"
+  type        = string
+  default     = "/app/.gcpcredentials/service-account.json"
+}
+
+variable "api_embedding_model" {
+  description = "Default embedding model for the API"
+  type        = string
+  default     = "sentence-transformers/all-MiniLM-L6-v2"
+}
+
+variable "api_embedding_batch_size" {
+  description = "Batch size for embedding generation"
+  type        = number
+  default     = 100
+}
+
+variable "api_jwt_public_key_path" {
+  description = "Path to JWT public key in the container"
+  type        = string
+  default     = "/app/keys/public_key.pem"
+}
+
+variable "api_allowed_origins" {
+  description = "Allowed CORS origins for the API"
+  type        = list(string)
+  default     = ["*"]
+}
+
+variable "api_allowed_hosts" {
+  description = "Allowed hosts for the API"
+  type        = list(string)
+  default     = ["*"]
+}
+
+# Resource Configuration

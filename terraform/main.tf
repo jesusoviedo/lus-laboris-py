@@ -26,6 +26,26 @@ module "compute_engine" {
   disk_size   = var.qdrant_vm_disk_size
 }
 
+module "cloud_run_service" {
+  source = "./modules/cloud_run_service"
+  
+  project_id                = var.project_id
+  region                   = var.region
+  service_name             = var.api_service_name
+  image                   = var.api_image
+  container_port          = var.api_container_port
+  log_level               = var.api_log_level
+  qdrant_url              = var.qdrant_url
+  qdrant_api_key          = var.qdrant_api_key
+  qdrant_collection_name  = var.qdrant_collection_name
+  gcp_credentials_path    = var.api_gcp_credentials_path
+  embedding_model         = var.api_embedding_model
+  embedding_batch_size    = var.api_embedding_batch_size
+  jwt_public_key_path     = var.api_jwt_public_key_path
+  allowed_origins         = var.api_allowed_origins
+  allowed_hosts           = var.api_allowed_hosts
+}
+
 # Outputs
 output "bucket_name" {
   value = module.gcs.bucket_name
@@ -53,4 +73,21 @@ output "qdrant_vm_internal_ip" {
 
 output "qdrant_vm_zone" {
   value = module.compute_engine.vm_zone
+}
+
+# Cloud Run Service outputs
+output "api_service_name" {
+  value = module.cloud_run_service.service_name
+}
+
+output "api_service_url" {
+  value = module.cloud_run_service.service_url
+}
+
+output "api_service_location" {
+  value = module.cloud_run_service.service_location
+}
+
+output "api_service_id" {
+  value = module.cloud_run_service.service_id
 }
