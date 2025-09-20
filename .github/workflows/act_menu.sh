@@ -9,7 +9,9 @@ set -e
 
 # Required variables per workflow
 WORKFLOW1="docker-processing-build-publish.yml"
-WORKFLOW2="terraform-apply-on-tf-change.yml"
+WORKFLOW2="docker-api-build-publish.yml"
+WORKFLOW3="terraform-apply-on-tf-change.yml"
+WORKFLOW4="deploy-qdrant.yml"
 
 REQUIRED_VARS_WORKFLOW1=(
   "DOCKER_HUB_USERNAME"
@@ -17,14 +19,43 @@ REQUIRED_VARS_WORKFLOW1=(
   "DOCKER_IMAGE_NAME_PROCESSING"
 )
 REQUIRED_VARS_WORKFLOW2=(
+  "DOCKER_HUB_USERNAME"
+  "DOCKER_HUB_PASSWORD"
+  "DOCKER_IMAGE_NAME_RAG_API"
+)
+REQUIRED_VARS_WORKFLOW3=(
   "GCP_PROJECT_ID"
   "GCP_REGION"
   "GSA_KEY"
-  "GCP_CLOUD_RUN_BATCH_JOB_NAME"
-  "GCP_CLOUD_RUN_BATCH_ARGS"
   "GCP_BUCKET_NAME"
+  "GCP_CLOUD_RUN_BATCH_JOB_NAME"
+  "GCP_CLOUD_RUN_BATCH_SCHEDULE"
   "GCP_CLOUD_RUN_BATCH_IMAGE"
+  "GCP_CLOUD_RUN_BATCH_ARGS"
   "GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL"
+  "QDRANT_VM_NAME"
+  "QDRANT_VM_MACHINE_TYPE"
+  "QDRANT_VM_ZONE"
+  "QDRANT_VM_DISK_SIZE"
+  "GCP_CLOUD_RUN_API_SERVICE_NAME"
+  "GCP_CLOUD_RUN_API_IMAGE"
+  "GCP_CLOUD_RUN_API_CONTAINER_PORT"
+  "GCP_CLOUD_RUN_API_LOG_LEVEL"
+  "GCP_CLOUD_RUN_API_QDRANT_URL"
+  "GCP_CLOUD_RUN_API_QDRANT_API_KEY"
+  "GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME"
+  "GCP_CLOUD_RUN_API_EMBEDDING_MODEL"
+  "GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH"
+  "GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE"
+  "GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH"
+  "GCP_CLOUD_RUN_API_ALLOWED_ORIGINS"
+  "GCP_CLOUD_RUN_API_ALLOWED_HOSTS"
+)
+REQUIRED_VARS_WORKFLOW4=(
+  "GCP_PROJECT_ID"
+  "GCP_REGION"
+  "GSA_KEY"
+  "QDRANT_API_KEY"
 )
 
 # List of variables that should be treated as secrets (use -s instead of --var)
@@ -34,6 +65,8 @@ SECRET_VARS=(
   "GSA_KEY"
   "GCP_PROJECT_ID"
   "GCP_REGION"
+  "QDRANT_API_KEY"
+  "GCP_CLOUD_RUN_API_QDRANT_API_KEY"
   # Add more secret variables here as needed
 )
 
@@ -98,7 +131,9 @@ validar_vars() {
 # Menu
 echo "\nSeleccione el workflow a ejecutar:\n"
 echo "1) Build & Publish Docker Image (processing)"
-echo "2) Terraform Apply on .tf Change"
+echo "2) Build & Publish Docker Image (API)"
+echo "3) Terraform Apply on .tf Change"
+echo "4) Deploy Qdrant to VM"
 echo "0) Salir"
 read -p $'\nOpción: ' opcion
 
@@ -110,6 +145,14 @@ case $opcion in
   2)
     WORKFLOW="$WORKFLOW2"
     VARS=("${REQUIRED_VARS_WORKFLOW2[@]}")
+    ;;
+  3)
+    WORKFLOW="$WORKFLOW3"
+    VARS=("${REQUIRED_VARS_WORKFLOW3[@]}")
+    ;;
+  4)
+    WORKFLOW="$WORKFLOW4"
+    VARS=("${REQUIRED_VARS_WORKFLOW4[@]}")
     ;;
   0)
     echo "Saliendo."

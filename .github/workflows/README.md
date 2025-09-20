@@ -34,6 +34,14 @@ Automates the build and publishing of the Docker image for the legal text proces
   - Tags the image with both `latest` and the current date (`YYYYMMDD`).
   - Pushes both tags to Docker Hub.
 
+- **docker-api-build-publish.yml**: 
+Automates the build and publishing of the Docker image for the FastAPI service (`src/lus_laboris_api` folder).
+  - Triggers manually or when key files change (`Dockerfile`, `pyproject.toml`, `uv.lock`, `api/**`).
+  - Uses repository secrets for Docker Hub credentials and the image name.
+  - Tags the image with both `latest` and the current date (`YYYYMMDD`).
+  - Pushes both tags to Docker Hub.
+  - Outputs detailed information about the created images for easy usage.
+
 - **terraform-apply-on-tf-change.yml**:
 Runs Terraform automatically when any `.tf` file changes in the `terraform/` folder (or its subfolders).
   - Triggers on push events affecting any Terraform file inside `terraform/`.
@@ -94,6 +102,14 @@ Automatiza la construcción y publicación de la imagen Docker para el procesami
   - Usa secrets del repositorio para las credenciales de Docker Hub y el nombre de la imagen.
   - Etiqueta la imagen con `latest` y con la fecha (`YYYYMMDD`).
   - Sube ambas etiquetas a Docker Hub.
+
+- **docker-api-build-publish.yml**: 
+Automatiza la construcción y publicación de la imagen Docker para el servicio FastAPI (carpeta `src/lus_laboris_api`).
+  - Se ejecuta manualmente o cuando se modifican archivos clave (`Dockerfile`, `pyproject.toml`, `uv.lock`, `api/**`).
+  - Usa secrets del repositorio para las credenciales de Docker Hub y el nombre de la imagen.
+  - Etiqueta la imagen con `latest` y con la fecha (`YYYYMMDD`).
+  - Sube ambas etiquetas a Docker Hub.
+  - Muestra información detallada sobre las imágenes creadas para facilitar su uso.
 
 - **terraform-apply-on-tf-change.yml**:
 Ejecuta Terraform automáticamente cuando se modifica cualquier archivo `.tf` dentro de la carpeta `terraform/` (o sus subcarpetas).

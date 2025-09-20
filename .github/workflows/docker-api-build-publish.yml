@@ -1,21 +1,21 @@
-name: Build & Publish Docker Image (processing)
+name: Build & Publish Docker Image (API)
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'src/processing/Dockerfile'
-      - 'src/processing/extract_law_text.py'
-      - 'src/processing/pyproject.toml'
-      - 'src/processing/.python-version'
+      - 'src/lus_laboris_api/Dockerfile'
+      - 'src/lus_laboris_api/pyproject.toml'
+      - 'src/lus_laboris_api/uv.lock'
+      - 'src/lus_laboris_api/api/**'
 
 jobs:
-  build-and-push-processing:
+  build-and-push-api:
     runs-on: ubuntu-latest
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      DOCKER_IMAGE_NAME_PROCESSING: ${{ vars.DOCKER_IMAGE_NAME_PROCESSING }}
+      DOCKER_IMAGE_NAME_RAG_API: ${{ vars.DOCKER_IMAGE_NAME_RAG_API }}
     steps:
       - name: Checkout code
         id: checkout
@@ -40,17 +40,17 @@ jobs:
         id: build_and_push
         uses: docker/build-push-action@v6
         with:
-          context: ./src/processing
+          context: ./src/lus_laboris_api
           push: true
           tags: |
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_PROCESSING }}:latest
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_PROCESSING }}:${{ steps.date_tag.outputs.tag }}
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_RAG_API }}:latest
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_RAG_API }}:${{ steps.date_tag.outputs.tag }}
 
       - name: Output image details
         id: output_details
         run: |
           echo "SUCCESS: Docker image built and pushed successfully!"
-          echo "Image: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_PROCESSING }}:latest"
-          echo "Image: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_PROCESSING }}:${{ steps.date_tag.outputs.tag }}"
+          echo "Image: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_RAG_API }}:latest"
+          echo "Image: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_RAG_API }}:${{ steps.date_tag.outputs.tag }}"
           echo "You can now pull the image with:"
-          echo "  docker pull ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_PROCESSING }}:latest"
+          echo "  docker pull ${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME_RAG_API }}:latest"
