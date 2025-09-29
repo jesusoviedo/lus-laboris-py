@@ -115,8 +115,26 @@ API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
 API_GCP_USE_CREDENTIALS=true
 
 # Embedding Configuration
-API_DEFAULT_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 API_EMBEDDING_BATCH_SIZE=100
+
+# Reranking Configuration
+API_RERANKING_MODEL=ms-marco-MiniLM-L-6-v2
+API_USE_RERANKING=false
+
+# RAG Configuration
+API_RAG_TOP_K=5
+API_LLM_PROVIDER=openai
+API_LLM_MODEL=gpt-3.5-turbo
+API_RATE_LIMIT_REQUESTS=10
+API_RATE_LIMIT_WINDOW=1 minute
+
+# Debug Configuration
+API_DEBUG_CONFIG=false
+
+# LLM API Keys
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
 
 # Docker Configuration (optional)
 API_ENV_FILE_PATH=/app/.env
@@ -187,6 +205,22 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 - Embedding service health check
 - Optional authentication (works with or without token)
 
+#### RAG (Question Answering)
+
+**POST** `/api/rag/ask`
+- Ask questions about Paraguayan labor law using RAG
+- **No authentication required** - public endpoint with rate limiting
+- Rate limit: 10 requests per minute per IP address
+- Uses OpenAI or Gemini LLM with context from Qdrant
+
+**GET** `/api/rag/health`
+- RAG service health check
+- No authentication required
+
+**GET** `/api/rag/config`
+- Get current RAG service configuration
+- No authentication required
+
 #### Health Check Examples
 
 **Public endpoints (no token required):**
@@ -208,6 +242,20 @@ curl -X GET "http://localhost:8000/api/health/embeddings"
 # With token (optional)
 curl -X GET "http://localhost:8000/api/health/qdrant" \
   -H "Authorization: Bearer your_jwt_token_here"
+```
+
+**RAG endpoints (no token required):**
+```bash
+# Ask a question
+curl -X POST "http://localhost:8000/api/rag/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
+
+# RAG health check
+curl -X GET "http://localhost:8000/api/rag/health"
+
+# RAG configuration
+curl -X GET "http://localhost:8000/api/rag/config"
 ```
 
 #### Vectorstore (Qdrant)
@@ -283,6 +331,38 @@ curl -X GET "http://localhost:8000/api/health/qdrant" \
   "embedding_model_used": "sentence-transformers/all-MiniLM-L6-v2",
   "vector_dimensions": 384,
   "batch_size": 100
+}
+```
+
+#### QuestionRequest
+```json
+{
+  "question": "¿Cuáles son los derechos del trabajador en caso de despido?"
+}
+```
+
+#### QuestionResponse
+```json
+{
+  "success": true,
+  "message": "Question answered successfully",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "question": "¿Cuáles son los derechos del trabajador en caso de despido?",
+  "answer": "Según el Código del Trabajo paraguayo, el trabajador tiene derecho a...",
+  "processing_time_seconds": 2.345,
+  "documents_retrieved": 5,
+  "top_k": 5,
+  "documents": [
+    {
+      "id": 123,
+      "score": 0.8542,
+      "payload": {
+        "articulo_numero": 45,
+        "capitulo_descripcion": "Derechos del Trabajador",
+        "articulo": "El trabajador tiene derecho a..."
+      }
+    }
+  ]
 }
 ```
 
@@ -379,6 +459,14 @@ The text used to generate embeddings combines:
 - Model loading cache
 - **Automatic device detection**: CPU/GPU based on availability
 - **Centralized configuration**: Model and batch size from config
+
+### RAGService
+- RAG (Retrieval-Augmented Generation) for question answering
+- Support for OpenAI and Google Gemini LLMs
+- Semantic search using embeddings and Qdrant
+- Context construction from legal documents
+- Rate limiting and error handling
+- Comprehensive response with metadata
 
 ## Troubleshooting
 
@@ -594,8 +682,26 @@ API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
 API_GCP_USE_CREDENTIALS=true
 
 # Embedding Configuration
-API_DEFAULT_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 API_EMBEDDING_BATCH_SIZE=100
+
+# Reranking Configuration
+API_RERANKING_MODEL=ms-marco-MiniLM-L-6-v2
+API_USE_RERANKING=false
+
+# RAG Configuration
+API_RAG_TOP_K=5
+API_LLM_PROVIDER=openai
+API_LLM_MODEL=gpt-3.5-turbo
+API_RATE_LIMIT_REQUESTS=10
+API_RATE_LIMIT_WINDOW=1 minute
+
+# Debug Configuration
+API_DEBUG_CONFIG=false
+
+# LLM API Keys
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
 
 # Docker Configuration (opcional)
 API_ENV_FILE_PATH=/app/.env
@@ -688,6 +794,22 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 - Health check del servicio de embeddings
 - Autenticación opcional (funciona con o sin token)
 
+#### RAG (Preguntas y Respuestas)
+
+**POST** `/api/rag/ask`
+- Hacer preguntas sobre derecho laboral paraguayo usando RAG
+- **Sin autenticación requerida** - endpoint público con control de límites
+- Límite de velocidad: 10 solicitudes por minuto por IP
+- Utiliza OpenAI o Gemini LLM con contexto de Qdrant
+
+**GET** `/api/rag/health`
+- Health check del servicio RAG
+- Sin autenticación requerida
+
+**GET** `/api/rag/config`
+- Obtener configuración actual del servicio RAG
+- Sin autenticación requerida
+
 #### Ejemplos de Health Check
 
 **Endpoints públicos (sin token requerido):**
@@ -709,6 +831,20 @@ curl -X GET "http://localhost:8000/api/health/embeddings"
 # Con token (opcional)
 curl -X GET "http://localhost:8000/api/health/qdrant" \
   -H "Authorization: Bearer tu_jwt_token_aqui"
+```
+
+**Endpoints RAG (sin token requerido):**
+```bash
+# Hacer una pregunta
+curl -X POST "http://localhost:8000/api/rag/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
+
+# Health check RAG
+curl -X GET "http://localhost:8000/api/rag/health"
+
+# Configuración RAG
+curl -X GET "http://localhost:8000/api/rag/config"
 ```
 
 ### Modelos de Datos
@@ -744,6 +880,38 @@ curl -X GET "http://localhost:8000/api/health/qdrant" \
   "embedding_model_used": "sentence-transformers/all-MiniLM-L6-v2",
   "vector_dimensions": 384,
   "batch_size": 100
+}
+```
+
+#### QuestionRequest
+```json
+{
+  "question": "¿Cuáles son los derechos del trabajador en caso de despido?"
+}
+```
+
+#### QuestionResponse
+```json
+{
+  "success": true,
+  "message": "Question answered successfully",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "question": "¿Cuáles son los derechos del trabajador en caso de despido?",
+  "answer": "Según el Código del Trabajo paraguayo, el trabajador tiene derecho a...",
+  "processing_time_seconds": 2.345,
+  "documents_retrieved": 5,
+  "top_k": 5,
+  "documents": [
+    {
+      "id": 123,
+      "score": 0.8542,
+      "payload": {
+        "articulo_numero": 45,
+        "capitulo_descripcion": "Derechos del Trabajador",
+        "articulo": "El trabajador tiene derecho a..."
+      }
+    }
+  ]
 }
 ```
 
@@ -838,6 +1006,14 @@ El texto que se usa para generar embeddings combina:
 - Múltiples modelos soportados
 - Procesamiento por lotes
 - Caché de modelos cargados
+
+### RAGService
+- RAG (Retrieval-Augmented Generation) para preguntas y respuestas
+- Soporte para LLMs de OpenAI y Google Gemini
+- Búsqueda semántica usando embeddings y Qdrant
+- Construcción de contexto desde documentos legales
+- Control de límites y manejo de errores
+- Respuesta comprensiva con metadatos
 
 
 

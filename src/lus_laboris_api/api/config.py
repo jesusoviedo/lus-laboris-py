@@ -33,8 +33,28 @@ class Settings(BaseSettings):
     api_gcp_use_credentials: bool = False
     
     # Embedding Configuration
-    api_default_embedding_model: str = None
+    api_embedding_model: str = None
     api_embedding_batch_size: int = 100
+    
+    # Reranking Configuration
+    api_reranking_model: str = None
+    api_use_reranking: bool = False
+    
+    # RAG Configuration
+    api_rag_top_k: int = None
+    api_llm_provider: str = None
+    api_llm_model: str = None
+    
+    # LLM API Keys
+    openai_api_key: Optional[str] = None
+    gemini_api_key: Optional[str] = None
+    
+    # Rate Limiting
+    api_rate_limit_requests: int = 10
+    api_rate_limit_window: str = "1 minute"
+    
+    # Debug Configuration
+    api_debug_config: bool = False
     
     class Config:
         project_root = Path(__file__).parent.parent.parent.parent
@@ -46,11 +66,11 @@ class Settings(BaseSettings):
         case_sensitive = False
         extra = "ignore"  # Ignore extra variables from the .env
 
-            # Optional: Log which .env file is being used
-        if os.getenv("DEBUG_CONFIG", "false").lower() == "true":
-            print(f"Using .env file: {env_file}")
-            print(f"File exists: {env_file.exists()}")
-        
 
 # Global settings instance
 settings = Settings()
+
+# Optional: Log which .env file is being used
+if settings.api_debug_config:
+    print(f"Using .env file: {settings.Config.env_file}")
+    print(f"File exists: {settings.Config.env_file.exists()}")
