@@ -9,6 +9,8 @@ from ..models.responses import HealthCheckResponse
 from ..services.qdrant_service import qdrant_service
 from ..services.gcp_service import gcp_service
 from ..services.embedding_service import embedding_service
+from ..services.reranking_service import reranking_service
+from ..services.rag_service import rag_service
 from ..auth.security import optional_auth
 
 logger = logging.getLogger(__name__)
@@ -35,17 +37,22 @@ async def health_check():
         qdrant_status = qdrant_service.health_check()
         gcp_status = gcp_service.health_check()
         embedding_status = embedding_service.health_check()
+        reranking_status = reranking_service.health_check()
+        rag_status = rag_service.health_check()
         
         # Determine overall health
         all_healthy = (
             qdrant_status.get("status") == "connected" and
-            embedding_status.get("status") == "healthy"
+            embedding_status.get("status") == "healthy" and
+            rag_status.get("status") == "healthy"
         )
         
         # Prepare dependencies status
         dependencies = {
             "qdrant": qdrant_status.get("status", "unknown"),
             "embedding_service": embedding_status.get("status", "unknown"),
+            "reranking_service": reranking_status.get("status", "unknown"),
+            "rag_service": rag_status.get("status", "unknown"),
             "gcp": gcp_status.get("status", "unknown")
         }
         
@@ -58,6 +65,13 @@ async def health_check():
         
         if embedding_status.get("loaded_models"):
             dependencies["loaded_models"] = ", ".join(embedding_status["loaded_models"])
+        
+        if reranking_status.get("model_name"):
+            dependencies["reranking_model"] = reranking_status["model_name"]
+        
+        if rag_status.get("provider"):
+            dependencies["rag_provider"] = rag_status["provider"]
+            dependencies["rag_model"] = rag_status.get("model", "unknown")
         
         return HealthCheckResponse(
             success=all_healthy,
@@ -173,6 +187,66 @@ async def embedding_health_check(
 
 
 @router.get(
+    "/reranking",
+    response_model=Dict[str, Any],
+    summary="Reranking service health check",
+    description="Check reranking service status and model"
+)
+async def reranking_health_check(
+    token_payload: Dict[str, Any] = Depends(optional_auth)
+):
+    """Check reranking service health"""
+    try:
+        status = reranking_service.health_check()
+        
+        return {
+            "success": status.get("status") == "healthy",
+            "message": "Reranking service is healthy" if status.get("status") == "healthy" else "Reranking service has issues",
+            "status": status,
+            "timestamp": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Reranking service health check failed: {str(e)}")
+        return {
+            "success": False,
+            "message": f"Reranking service health check failed: {str(e)}",
+            "status": {"status": "error", "error": str(e)},
+            "timestamp": time.time()
+        }
+
+
+@router.get(
+    "/rag",
+    response_model=Dict[str, Any],
+    summary="RAG service health check",
+    description="Check RAG service status and configuration"
+)
+async def rag_health_check(
+    token_payload: Dict[str, Any] = Depends(optional_auth)
+):
+    """Check RAG service health"""
+    try:
+        status = rag_service.health_check()
+        
+        return {
+            "success": status.get("status") == "healthy",
+            "message": "RAG service is healthy" if status.get("status") == "healthy" else "RAG service has issues",
+            "status": status,
+            "timestamp": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"RAG service health check failed: {str(e)}")
+        return {
+            "success": False,
+            "message": f"RAG service health check failed: {str(e)}",
+            "status": {"status": "error", "error": str(e)},
+            "timestamp": time.time()
+        }
+
+
+@router.get(
     "/ready",
     response_model=Dict[str, Any],
     summary="Readiness check",
@@ -184,10 +258,12 @@ async def readiness_check():
         # Check critical dependencies
         qdrant_status = qdrant_service.health_check()
         embedding_status = embedding_service.health_check()
+        rag_status = rag_service.health_check()
         
         ready = (
             qdrant_status.get("status") == "connected" and
-            embedding_status.get("status") == "healthy"
+            embedding_status.get("status") == "healthy" and
+            rag_status.get("status") == "healthy"
         )
         
         return {

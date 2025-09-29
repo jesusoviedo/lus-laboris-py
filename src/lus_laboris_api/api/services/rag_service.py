@@ -89,8 +89,6 @@ class RAGService:
                 "status": "healthy",
                 "provider": self.llm_provider,
                 "model": self.llm_model,
-                "collection_name": self.collection_name,
-                "top_k": self.top_k,
                 "embedding_model": self.embedding_model,
                 "reranking": reranking_status
             }
