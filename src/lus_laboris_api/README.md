@@ -205,6 +205,14 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 - Embedding service health check
 - Optional authentication (works with or without token)
 
+**GET** `/api/health/reranking`
+- Reranking service health check
+- Optional authentication (works with or without token)
+
+**GET** `/api/health/rag`
+- RAG service health check
+- Optional authentication (works with or without token)
+
 #### RAG (Question Answering)
 
 **POST** `/api/rag/ask`
@@ -215,10 +223,6 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 
 **GET** `/api/rag/health`
 - RAG service health check
-- No authentication required
-
-**GET** `/api/rag/config`
-- Get current RAG service configuration
 - No authentication required
 
 #### Health Check Examples
@@ -238,6 +242,8 @@ curl -X GET "http://localhost:8000/api/health/ready"
 curl -X GET "http://localhost:8000/api/health/qdrant"
 curl -X GET "http://localhost:8000/api/health/gcp"
 curl -X GET "http://localhost:8000/api/health/embeddings"
+curl -X GET "http://localhost:8000/api/health/reranking"
+curl -X GET "http://localhost:8000/api/health/rag"
 
 # With token (optional)
 curl -X GET "http://localhost:8000/api/health/qdrant" \
@@ -253,9 +259,6 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 
 # RAG health check
 curl -X GET "http://localhost:8000/api/rag/health"
-
-# RAG configuration
-curl -X GET "http://localhost:8000/api/rag/config"
 ```
 
 #### Vectorstore (Qdrant)
@@ -352,6 +355,7 @@ curl -X GET "http://localhost:8000/api/rag/config"
   "processing_time_seconds": 2.345,
   "documents_retrieved": 5,
   "top_k": 5,
+  "reranking_applied": true,
   "documents": [
     {
       "id": 123,
@@ -460,13 +464,22 @@ The text used to generate embeddings combines:
 - **Automatic device detection**: CPU/GPU based on availability
 - **Centralized configuration**: Model and batch size from config
 
+### RerankingService
+- Document reranking using cross-encoder models
+- Improves relevance of retrieved documents
+- Optional service (can be disabled via configuration)
+- **Automatic device detection**: CPU/GPU based on availability
+- **Centralized configuration**: Model and usage from config
+- **Fallback behavior**: Returns original documents if reranking fails
+
 ### RAGService
 - RAG (Retrieval-Augmented Generation) for question answering
 - Support for OpenAI and Google Gemini LLMs
 - Semantic search using embeddings and Qdrant
+- **Optional document reranking** for improved relevance
 - Context construction from legal documents
 - Rate limiting and error handling
-- Comprehensive response with metadata
+- Comprehensive response with metadata and reranking information
 
 ## Troubleshooting
 
@@ -794,6 +807,14 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 - Health check del servicio de embeddings
 - Autenticación opcional (funciona con o sin token)
 
+**GET** `/api/health/reranking`
+- Health check del servicio de reranking
+- Autenticación opcional (funciona con o sin token)
+
+**GET** `/api/health/rag`
+- Health check del servicio RAG
+- Autenticación opcional (funciona con o sin token)
+
 #### RAG (Preguntas y Respuestas)
 
 **POST** `/api/rag/ask`
@@ -827,6 +848,8 @@ curl -X GET "http://localhost:8000/api/health/ready"
 curl -X GET "http://localhost:8000/api/health/qdrant"
 curl -X GET "http://localhost:8000/api/health/gcp"
 curl -X GET "http://localhost:8000/api/health/embeddings"
+curl -X GET "http://localhost:8000/api/health/reranking"
+curl -X GET "http://localhost:8000/api/health/rag"
 
 # Con token (opcional)
 curl -X GET "http://localhost:8000/api/health/qdrant" \
@@ -842,9 +865,6 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 
 # Health check RAG
 curl -X GET "http://localhost:8000/api/rag/health"
-
-# Configuración RAG
-curl -X GET "http://localhost:8000/api/rag/config"
 ```
 
 ### Modelos de Datos
@@ -901,6 +921,7 @@ curl -X GET "http://localhost:8000/api/rag/config"
   "processing_time_seconds": 2.345,
   "documents_retrieved": 5,
   "top_k": 5,
+  "reranking_applied": true,
   "documents": [
     {
       "id": 123,
@@ -1006,14 +1027,25 @@ El texto que se usa para generar embeddings combina:
 - Múltiples modelos soportados
 - Procesamiento por lotes
 - Caché de modelos cargados
+- **Detección automática de dispositivo**: CPU/GPU según disponibilidad
+- **Configuración centralizada**: Modelo y tamaño de lote desde config
+
+### RerankingService
+- Reranking de documentos usando modelos cross-encoder
+- Mejora la relevancia de los documentos recuperados
+- Servicio opcional (puede deshabilitarse vía configuración)
+- **Detección automática de dispositivo**: CPU/GPU según disponibilidad
+- **Configuración centralizada**: Modelo y uso desde config
+- **Comportamiento de respaldo**: Retorna documentos originales si el reranking falla
 
 ### RAGService
 - RAG (Retrieval-Augmented Generation) para preguntas y respuestas
 - Soporte para LLMs de OpenAI y Google Gemini
 - Búsqueda semántica usando embeddings y Qdrant
+- **Reranking opcional de documentos** para mejorar relevancia
 - Construcción de contexto desde documentos legales
 - Control de límites y manejo de errores
-- Respuesta comprensiva con metadatos
+- Respuesta comprensiva con metadatos e información de reranking
 
 
 
