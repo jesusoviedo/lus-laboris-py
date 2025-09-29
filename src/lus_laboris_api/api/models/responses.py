@@ -181,6 +181,7 @@ class QuestionResponse(BaseResponse):
     # Source transparency fields (required when success=True)
     documents_retrieved: Optional[int] = Field(None, description="Number of documents retrieved from the knowledge base (required when success=True)")
     top_k: Optional[int] = Field(None, description="Number of most relevant documents considered (required when success=True)")
+    reranking_applied: Optional[bool] = Field(None, description="Whether reranking was applied to improve document relevance (required when success=True)")
     documents: Optional[List[Dict[str, Any]]] = Field(None, description="Source documents used to generate the answer (required when success=True)")
     
     class Config:
@@ -195,6 +196,7 @@ class QuestionResponse(BaseResponse):
                     "processing_time_seconds": 2.345,
                     "documents_retrieved": 5,
                     "top_k": 5,
+                    "reranking_applied": True,
                     "documents": [
                         {
                             "id": 123,
