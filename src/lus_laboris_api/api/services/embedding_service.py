@@ -18,7 +18,7 @@ class EmbeddingService:
     
     def __init__(self):
         self.models = {}
-        self.default_model = settings.api_default_embedding_model
+        self.default_model = settings.api_embedding_model
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Embedding service initialized on device: {self.device}")
     
