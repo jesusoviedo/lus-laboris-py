@@ -10,11 +10,12 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from .endpoints import vectorstore, health
+from .endpoints import vectorstore, health, rag
 from .auth.jwt_handler import jwt_validator
 from .services.qdrant_service import qdrant_service
 from .services.gcp_service import gcp_service
 from .services.embedding_service import embedding_service
+from .services.rag_service import rag_service
 from .config import settings
 from .models.responses import RootResponse, ServiceStatusResponse
 
@@ -50,6 +51,11 @@ async def lifespan(app: FastAPI):
         embedding_status = embedding_service.health_check()
         if embedding_status.get("status") != "healthy":
             logger.warning(f"Embedding service issue: {embedding_status}")
+        
+        # Initialize RAG service
+        rag_status = rag_service.health_check()
+        if rag_status.get("status") != "healthy":
+            logger.warning(f"RAG service issue: {rag_status}")
         
         logger.info("All services initialized successfully")
         
@@ -120,6 +126,7 @@ async def general_exception_handler(request, exc):
 # Include routers
 app.include_router(health.router)
 app.include_router(vectorstore.router)
+app.include_router(rag.router)
 
 
 # Root endpoint
@@ -157,6 +164,7 @@ async def get_service_status():
         qdrant_status = qdrant_service.health_check()
         gcp_status = gcp_service.health_check()
         embedding_status = embedding_service.health_check()
+        rag_status = rag_service.health_check()
         
         return ServiceStatusResponse(
             success=True,
@@ -164,7 +172,8 @@ async def get_service_status():
             services={
                 "qdrant": qdrant_status,
                 "gcp": gcp_status,
-                "embedding_service": embedding_status
+                "embedding_service": embedding_status,
+                "rag_service": rag_status
             }
         )
     except Exception as e:
