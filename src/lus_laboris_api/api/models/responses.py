@@ -15,14 +15,12 @@ class BaseResponse(BaseModel):
 
 class ErrorResponse(BaseResponse):
     """Error response model"""
-    success: bool = Field(False, description="Always false for error responses")
     error_code: Optional[str] = Field(None, description="Error code for debugging")
     details: Optional[Dict[str, Any]] = Field(None, description="Additional error details")
 
 
 class LoadToVectorstoreResponse(BaseResponse):
     """Response model for loading data to vectorstore"""
-    success: bool = Field(True, description="Whether the loading was successful")
     collection_name: str = Field(..., description="Name of the created/updated collection")
     documents_processed: int = Field(..., description="Number of documents processed")
     documents_inserted: int = Field(..., description="Number of documents successfully inserted")
@@ -50,7 +48,6 @@ class LoadToVectorstoreResponse(BaseResponse):
 
 class HealthCheckResponse(BaseResponse):
     """Response model for health check"""
-    success: bool = Field(True, description="Whether the service is healthy")
     service: str = Field(..., description="Name of the service")
     version: str = Field(..., description="Service version")
     status: str = Field(..., description="Service status")
@@ -80,7 +77,6 @@ class HealthCheckResponse(BaseResponse):
 
 class CollectionInfoResponse(BaseResponse):
     """Response model for collection information"""
-    success: bool = Field(True, description="Whether the operation was successful")
     collection_name: str = Field(..., description="Name of the collection")
     points_count: int = Field(..., description="Number of points in the collection")
     vector_size: int = Field(..., description="Size of vectors in the collection")
@@ -110,7 +106,6 @@ class CollectionInfoResponse(BaseResponse):
 
 class RootResponse(BaseResponse):
     """Response model for root endpoint"""
-    success: bool = Field(True, description="Whether the API is running")
     version: str = Field(..., description="API version")
     docs_url: str = Field(..., description="URL to API documentation")
     health_check: str = Field(..., description="URL to health check endpoint")
@@ -130,7 +125,6 @@ class RootResponse(BaseResponse):
 
 class ServiceStatusResponse(BaseResponse):
     """Response model for service status endpoint"""
-    success: bool = Field(True, description="Whether the status was retrieved successfully")
     services: Dict[str, Any] = Field(..., description="Status of all services")
     
     class Config:
@@ -150,7 +144,6 @@ class ServiceStatusResponse(BaseResponse):
 
 class CollectionsListResponse(BaseResponse):
     """Response model for collections list endpoint"""
-    success: bool = Field(True, description="Whether the operation was successful")
     collections: List[str] = Field(..., description="List of collection names")
     count: int = Field(..., description="Number of collections")
     
@@ -168,7 +161,6 @@ class CollectionsListResponse(BaseResponse):
 
 class CollectionDeleteResponse(BaseResponse):
     """Response model for collection deletion"""
-    success: bool = Field(True, description="Whether the deletion was successful")
     
     class Config:
         json_schema_extra = {
@@ -176,5 +168,52 @@ class CollectionDeleteResponse(BaseResponse):
                 "success": True,
                 "message": "Collection 'labor_law_articles' deleted successfully",
                 "timestamp": "2024-01-15T10:30:00Z"
+            }
+        }
+
+
+class QuestionResponse(BaseResponse):
+    """Response model for RAG question answering"""
+    question: str = Field(..., description="The original question")
+    answer: Optional[str] = Field(None, description="The generated answer (required when success=True)")
+    error: Optional[str] = Field(None, description="Error message (only present when success=False)")
+    processing_time_seconds: float = Field(..., description="Processing time in seconds")
+    # Source transparency fields (required when success=True)
+    documents_retrieved: Optional[int] = Field(None, description="Number of documents retrieved from the knowledge base (required when success=True)")
+    top_k: Optional[int] = Field(None, description="Number of most relevant documents considered (required when success=True)")
+    documents: Optional[List[Dict[str, Any]]] = Field(None, description="Source documents used to generate the answer (required when success=True)")
+    
+    class Config:
+        json_schema_extra = {
+            "examples": {
+                "successful_response": {
+                    "success": True,
+                    "message": "Question answered successfully",
+                    "timestamp": "2024-01-15T10:30:00Z",
+                    "question": "¿Cuáles son los derechos del trabajador en caso de despido?",
+                    "answer": "Según el Código del Trabajo paraguayo, el trabajador tiene derecho a...",
+                    "processing_time_seconds": 2.345,
+                    "documents_retrieved": 5,
+                    "top_k": 5,
+                    "documents": [
+                        {
+                            "id": 123,
+                            "score": 0.8542,
+                            "payload": {
+                                "articulo_numero": 45,
+                                "capitulo_descripcion": "Derechos del Trabajador",
+                                "articulo": "El trabajador tiene derecho a..."
+                            }
+                        }
+                    ]
+                },
+                "error_response": {
+                    "success": False,
+                    "message": "Failed to answer question",
+                    "timestamp": "2024-01-15T10:30:00Z",
+                    "question": "¿Cuáles son los derechos del trabajador en caso de despido?",
+                    "error": "No se pudo conectar con el servicio de embeddings",
+                    "processing_time_seconds": 1.234
+                }
             }
         }

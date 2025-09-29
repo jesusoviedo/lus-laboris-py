@@ -143,3 +143,21 @@ class LoadToVectorstoreRequest(BaseModel):
         }
 
 
+class QuestionRequest(BaseModel):
+    """Request model for asking questions to the RAG system"""
+    
+    question: str = Field(
+        ..., 
+        description="The question to ask about Paraguayan labor law",
+        min_length=5,
+        max_length=1000
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "question": "¿Cuáles son los derechos del trabajador en caso de despido?"
+            }
+        }
+
+
