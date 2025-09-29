@@ -147,7 +147,7 @@ async def load_to_vectorstore_local(
         
         # Process data and generate embeddings
         documents, embeddings, embedding_metadata = await _process_data_for_embedding(
-            data, settings.api_default_embedding_model, settings.api_embedding_batch_size
+            data, settings.api_embedding_model, settings.api_embedding_batch_size
         )
         
         # Use configured collection name
@@ -211,7 +211,7 @@ async def load_to_vectorstore_gcp(
         
         # Process data and generate embeddings
         documents, embeddings, embedding_metadata = await _process_data_for_embedding(
-            data, settings.api_default_embedding_model, settings.api_embedding_batch_size
+            data, settings.api_embedding_model, settings.api_embedding_batch_size
         )
         
         # Use configured collection name
