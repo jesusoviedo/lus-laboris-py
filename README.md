@@ -44,7 +44,7 @@
 ### Key Workflow
 - **Data Processing**: Extract, clean, and structure legal text
 - **Vector Storage**: Index processed data in Qdrant vector database
-- **Intelligent Querying**: Use OpenAI and specialized prompts for accurate responses
+- **Intelligent Querying**: Use OpenAI and Google Gemini with specialized prompts for accurate responses
 - **API Access**: REST API built with FastAPI for seamless integration
 - **Cloud Deployment**: Automated infrastructure management with Terraform and GitHub Actions
 
@@ -127,7 +127,7 @@ bash start_api_dev.sh
 
 ## 📋 Key Features
 
-- **🤖 AI-Powered Legal Search**: Advanced RAG system for legal document queries
+- **🤖 AI-Powered Legal Search**: Advanced RAG system with optional document reranking for legal document queries
 - **☁️ Cloud-Native Architecture**: Scalable deployment on Google Cloud Platform
 - **🔧 Infrastructure as Code**: Complete automation with Terraform
 - **📊 Monitoring & Evaluation**: Comprehensive system performance tracking with RAG pipeline evaluation
@@ -170,7 +170,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Flujo Principal
 - **Procesamiento de Datos**: Extracción, limpieza y estructuración del texto legal
 - **Almacenamiento Vectorial**: Indexación de datos procesados en base de datos vectorial Qdrant
-- **Consultas Inteligentes**: Uso de OpenAI y prompts especializados para respuestas precisas
+- **Consultas Inteligentes**: Uso de OpenAI y Google Gemini con prompts especializados para respuestas precisas
 - **Acceso API**: API REST construida con FastAPI para integración fluida
 - **Despliegue en la Nube**: Gestión automatizada de infraestructura con Terraform y GitHub Actions
 
@@ -253,7 +253,7 @@ bash start_api_dev.sh
 
 ## 📋 Características Principales
 
-- **🤖 Búsqueda Legal con IA**: Sistema RAG avanzado para consultas de documentos legales
+- **🤖 Búsqueda Legal con IA**: Sistema RAG avanzado con reranking opcional de documentos para consultas de documentos legales
 - **☁️ Arquitectura Cloud-Native**: Despliegue escalable en Google Cloud Platform
 - **🔧 Infraestructura como Código**: Automatización completa con Terraform
 - **📊 Monitoreo y Evaluación**: Seguimiento integral del rendimiento del sistema con evaluación de pipeline RAG
