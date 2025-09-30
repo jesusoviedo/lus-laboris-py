@@ -62,7 +62,7 @@ This folder contains Jupyter notebooks used for:
 - Provides objective and subjective metrics for system performance
 
 **Evaluation Levels**: Retrieval, Re-ranking, Generation
-**Technologies**: Qdrant, Sentence Transformers, Cross-encoders, OpenAI/Transformers
+**Technologies**: Qdrant, Sentence Transformers, Cross-encoders, OpenAI, Google Gemini
 
 ### Usage
 
@@ -137,7 +137,7 @@ Esta carpeta contiene notebooks de Jupyter utilizados para:
 - Proporciona métricas objetivas y subjetivas para rendimiento del sistema
 
 **Niveles de Evaluación**: Recuperación, Re-ranking, Generación
-**Tecnologías**: Qdrant, Sentence Transformers, Cross-encoders, OpenAI/Transformers
+**Tecnologías**: Qdrant, Sentence Transformers, Cross-encoders, OpenAI, Google Gemini
 
 ### Uso
 

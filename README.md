@@ -8,6 +8,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-009485.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Phoenix](https://img.shields.io/badge/Phoenix-FF7100?logo=phoenixframework&logoColor=white)](#)
 [![OpenAI](https://img.shields.io/badge/OpenAI-412991?logoColor=white)](https://openai.com/)
+[![Gemini](https://img.shields.io/badge/Gemini-4285F4?logoColor=white)](https://ai.google/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-FF6B35?logo=qdrant&logoColor=white)](https://qdrant.tech/)
 
 [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](https://www.docker.com/)
@@ -56,11 +57,10 @@
 | `src/lus_laboris_api/` | FastAPI REST API for legal document queries |
 | `src/processing/` | Data processing and text extraction pipelines |
 | `src/vectorstore/` | Vector database operations and Qdrant management |
-| `notebooks/` | Analysis and experimentation notebooks |
+| `notebooks/` | Analysis, experimentation and offline RAG system performance evaluation |
 | `terraform/` | Infrastructure as Code for Google Cloud Platform |
 | `docs/` | Comprehensive project documentation |
 | `utils/` | Utility scripts for automation and management |
-| `evaluation/` | RAG system performance evaluation |
 | `monitoring/` | Application observability and tracking |
 | `.github/workflows/` | CI/CD automation workflows |
 
@@ -182,11 +182,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | `src/lus_laboris_api/` | API REST FastAPI para consultas de documentos legales |
 | `src/processing/` | Pipelines de procesamiento de datos y extracción de texto |
 | `src/vectorstore/` | Operaciones de base de datos vectorial y gestión de Qdrant |
-| `notebooks/` | Notebooks de análisis y experimentación |
+| `notebooks/` | Análisis, experimentación y evaluación offline del rendimiento del sistema RAG |
 | `terraform/` | Infraestructura como Código para Google Cloud Platform |
 | `docs/` | Documentación completa del proyecto |
 | `utils/` | Scripts de utilidad para automatización y gestión |
-| `evaluation/` | Evaluación del rendimiento del sistema RAG |
 | `monitoring/` | Observabilidad y seguimiento de la aplicación |
 | `.github/workflows/` | Workflows de automatización CI/CD |
 
