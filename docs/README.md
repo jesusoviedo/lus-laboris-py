@@ -23,6 +23,7 @@ This directory contains comprehensive guides and documentation for setting up an
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | CI/CD automation, including workflow creation, testing, and deployment |
 | [act_guide.md](act_guide.md) | Local GitHub Actions Testing | Local workflow testing with act for debugging and validation |
 | [fastapi_guide.md](fastapi_guide.md) | FastAPI Framework | Web API development with FastAPI, including concepts, patterns, and best practices |
+| [phoenix_guide.md](phoenix_guide.md) | Phoenix Observability | Real-time monitoring and evaluation for RAG systems using Phoenix |
 
 ### Quick Start
 
@@ -33,6 +34,7 @@ This directory contains comprehensive guides and documentation for setting up an
 5. **For API Development**: Learn [fastapi_guide.md](fastapi_guide.md)
 6. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
 7. **For Local Testing**: Use [act_guide.md](act_guide.md)
+8. **For Monitoring**: Set up [phoenix_guide.md](phoenix_guide.md)
 
 ### Prerequisites
 
@@ -56,6 +58,7 @@ Este directorio contiene guías completas y documentación para configurar y usa
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | Automatización CI/CD, incluyendo creación de workflows, pruebas y despliegue |
 | [act_guide.md](act_guide.md) | Pruebas Locales de GitHub Actions | Pruebas locales de workflows con act para depuración y validación |
 | [fastapi_guide.md](fastapi_guide.md) | Framework FastAPI | Desarrollo de APIs web con FastAPI, incluyendo conceptos, patrones y mejores prácticas |
+| [phoenix_guide.md](phoenix_guide.md) | Observabilidad Phoenix | Monitoreo en tiempo real y evaluación para sistemas RAG usando Phoenix |
 
 ### Inicio Rápido
 
@@ -66,6 +69,7 @@ Este directorio contiene guías completas y documentación para configurar y usa
 5. **Para Desarrollo de API**: Aprende [fastapi_guide.md](fastapi_guide.md)
 6. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
 7. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
+8. **Para Monitoreo**: Configura [phoenix_guide.md](phoenix_guide.md)
 
 ### Prerrequisitos
 

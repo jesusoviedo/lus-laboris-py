@@ -19,6 +19,7 @@ This guide provides comprehensive information about using Qdrant vector database
 - [Basic Operations](#basic-operations)
 - [Advanced Features](#advanced-features)
 - [Performance Optimization](#performance-optimization)
+- [Production Deployment](#production-deployment)
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
 
@@ -284,6 +285,260 @@ search_results = client.query_points(
 )
 ```
 
+## Production Deployment
+
+### Option 1: Qdrant Cloud (Recommended)
+
+For production environments, Qdrant Cloud provides a fully managed vector database service with high availability, automatic scaling, and enterprise features.
+
+#### Getting Started with Qdrant Cloud
+
+1. **Sign up** at [Qdrant Cloud](https://cloud.qdrant.io/)
+2. **Create a cluster** in your preferred region
+3. **Get API key** from your cluster dashboard
+4. **Update environment variables**:
+
+```env
+# Qdrant Cloud Configuration
+QDRANT_URL=https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333
+QDRANT_API_KEY=your_api_key_here
+```
+
+#### Cloud Features
+
+- **High Availability**: 99.9% uptime SLA
+- **Automatic Scaling**: Scale up/down based on demand
+- **Global Distribution**: Deploy in multiple regions
+- **Enterprise Security**: VPC, encryption, access controls
+- **Monitoring**: Built-in metrics and alerting
+- **Backup & Recovery**: Automated backups and point-in-time recovery
+
+#### Cloud Configuration
+
+```python
+# Connect to Qdrant Cloud
+client = QdrantClient(
+    url="https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333",
+    api_key="your_api_key_here",
+    timeout=60,  # Increased timeout for cloud
+    prefer_grpc=True  # Use gRPC for better performance
+)
+```
+
+### Option 2: Self-Hosted Deployment
+
+For organizations requiring full control over their infrastructure, Qdrant can be self-hosted on various platforms.
+
+#### Docker Compose for Production
+
+```yaml
+# docker-compose.prod.yml
+version: '3.8'
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-prod
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./qdrant_config:/qdrant/config
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__ENABLE_CORS=true
+    command: ./qdrant --config-path /qdrant/config/production.yaml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+volumes:
+  qdrant_data:
+    driver: local
+```
+
+#### Kubernetes Deployment
+
+```yaml
+# qdrant-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qdrant
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      containers:
+      - name: qdrant
+        image: qdrant/qdrant:latest
+        ports:
+        - containerPort: 6333
+        - containerPort: 6334
+        env:
+        - name: QDRANT__SERVICE__HTTP_PORT
+          value: "6333"
+        - name: QDRANT__SERVICE__GRPC_PORT
+          value: "6334"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: qdrant-storage
+          mountPath: /qdrant/storage
+      volumes:
+      - name: qdrant-storage
+        persistentVolumeClaim:
+          claimName: qdrant-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qdrant-service
+spec:
+  selector:
+    app: qdrant
+  ports:
+  - port: 6333
+    targetPort: 6333
+    name: http
+  - port: 6334
+    targetPort: 6334
+    name: grpc
+  type: LoadBalancer
+```
+
+#### Production Configuration
+
+```yaml
+# production.yaml
+service:
+  host: 0.0.0.0
+  http_port: 6333
+  grpc_port: 6334
+  enable_cors: true
+  max_request_size_mb: 32
+  max_workers: 0  # Auto-detect
+
+storage:
+  # Use disk storage for production
+  storage_path: /qdrant/storage
+  snapshots_path: /qdrant/snapshots
+  on_disk_payload: true
+  on_disk_vectors: true
+
+cluster:
+  enabled: true
+  p2p:
+    port: 6335
+  consensus:
+    tick_period_ms: 100
+    bootstrap_timeout_sec: 5
+
+log_level: INFO
+```
+
+### Option 3: Hybrid Approach
+
+Combine Qdrant Cloud for production with local development:
+
+```python
+import os
+from qdrant_client import QdrantClient
+
+def get_qdrant_client():
+    """Get Qdrant client based on environment"""
+    if os.getenv("ENVIRONMENT") == "production":
+        # Use Qdrant Cloud
+        return QdrantClient(
+            url=os.getenv("QDRANT_CLOUD_URL"),
+            api_key=os.getenv("QDRANT_CLOUD_API_KEY"),
+            timeout=60,
+            prefer_grpc=True
+        )
+    else:
+        # Use local Qdrant
+        return QdrantClient(
+            url=os.getenv("QDRANT_URL", "http://localhost:6333"),
+            api_key=os.getenv("QDRANT_API_KEY"),
+            timeout=30
+        )
+```
+
+### Migration from Local to Cloud
+
+1. **Export data** from local Qdrant:
+   ```bash
+   # Create snapshot
+   docker exec qdrant_container qdrant-cli snapshot create \
+       --collection-name labor_law_articles \
+       --output-dir /qdrant/snapshots
+   ```
+
+2. **Import to Qdrant Cloud**:
+   ```python
+   # Upload to cloud
+   client.upload_collection(
+       collection_name="labor_law_articles",
+       vectors=vectors,
+       payload=payloads,
+       ids=ids
+   )
+   ```
+
+3. **Update configuration**:
+   ```env
+   # Switch to cloud configuration
+   QDRANT_URL=https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333
+   QDRANT_API_KEY=your_cloud_api_key
+   ```
+
+### Cost Considerations
+
+#### Qdrant Cloud Pricing
+- **Free Tier**: 1GB storage, 1M vectors
+- **Pay-as-you-go**: Based on storage and compute usage
+- **Enterprise**: Custom pricing for large deployments
+
+#### Self-Hosted Costs
+- **Infrastructure**: Server costs, storage, networking
+- **Maintenance**: DevOps time, monitoring, backups
+- **Scaling**: Manual scaling vs automatic
+
+### Security Considerations
+
+#### Qdrant Cloud Security
+- **Encryption**: Data encrypted in transit and at rest
+- **Access Control**: API key-based authentication
+- **Network Security**: VPC and private endpoints
+- **Compliance**: SOC 2, GDPR compliant
+
+#### Self-Hosted Security
+- **Network Security**: Firewall rules, VPN access
+- **Authentication**: API keys, RBAC
+- **Encryption**: TLS for data in transit
+- **Access Control**: Network-level restrictions
+
 ## Troubleshooting
 
 ### Common Issues
@@ -379,6 +634,7 @@ Esta guía proporciona información integral sobre el uso de la base de datos ve
 - [Operaciones Básicas](#operaciones-básicas)
 - [Características Avanzadas](#características-avanzadas)
 - [Optimización de Rendimiento](#optimización-de-rendimiento)
+- [Despliegue en Producción](#despliegue-en-producción)
 - [Solución de Problemas](#solución-de-problemas)
 - [Mejores Prácticas](#mejores-prácticas)
 
@@ -643,6 +899,260 @@ search_results = client.query_points(
     score_threshold=0.7  # Puntuación mínima de similitud
 )
 ```
+
+## Despliegue en Producción
+
+### Opción 1: Qdrant Cloud (Recomendado)
+
+Para entornos de producción, Qdrant Cloud proporciona un servicio de base de datos vectorial completamente gestionado con alta disponibilidad, escalado automático y características empresariales.
+
+#### Comenzando con Qdrant Cloud
+
+1. **Regístrate** en [Qdrant Cloud](https://cloud.qdrant.io/)
+2. **Crea un cluster** en tu región preferida
+3. **Obtén la clave API** desde tu dashboard del cluster
+4. **Actualiza las variables de entorno**:
+
+```env
+# Configuración de Qdrant Cloud
+QDRANT_URL=https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333
+QDRANT_API_KEY=tu_clave_api_aqui
+```
+
+#### Características de la Nube
+
+- **Alta Disponibilidad**: SLA de 99.9% de tiempo de actividad
+- **Escalado Automático**: Escalar hacia arriba/abajo según la demanda
+- **Distribución Global**: Desplegar en múltiples regiones
+- **Seguridad Empresarial**: VPC, encriptación, controles de acceso
+- **Monitoreo**: Métricas integradas y alertas
+- **Respaldo y Recuperación**: Respaldos automatizados y recuperación punto en el tiempo
+
+#### Configuración de la Nube
+
+```python
+# Conectar a Qdrant Cloud
+client = QdrantClient(
+    url="https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333",
+    api_key="tu_clave_api_aqui",
+    timeout=60,  # Timeout aumentado para la nube
+    prefer_grpc=True  # Usar gRPC para mejor rendimiento
+)
+```
+
+### Opción 2: Despliegue Auto-hospedado
+
+Para organizaciones que requieren control total sobre su infraestructura, Qdrant puede ser auto-hospedado en varias plataformas.
+
+#### Docker Compose para Producción
+
+```yaml
+# docker-compose.prod.yml
+version: '3.8'
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-prod
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./qdrant_config:/qdrant/config
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__ENABLE_CORS=true
+    command: ./qdrant --config-path /qdrant/config/production.yaml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+volumes:
+  qdrant_data:
+    driver: local
+```
+
+#### Despliegue en Kubernetes
+
+```yaml
+# qdrant-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qdrant
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      containers:
+      - name: qdrant
+        image: qdrant/qdrant:latest
+        ports:
+        - containerPort: 6333
+        - containerPort: 6334
+        env:
+        - name: QDRANT__SERVICE__HTTP_PORT
+          value: "6333"
+        - name: QDRANT__SERVICE__GRPC_PORT
+          value: "6334"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: qdrant-storage
+          mountPath: /qdrant/storage
+      volumes:
+      - name: qdrant-storage
+        persistentVolumeClaim:
+          claimName: qdrant-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qdrant-service
+spec:
+  selector:
+    app: qdrant
+  ports:
+  - port: 6333
+    targetPort: 6333
+    name: http
+  - port: 6334
+    targetPort: 6334
+    name: grpc
+  type: LoadBalancer
+```
+
+#### Configuración de Producción
+
+```yaml
+# production.yaml
+service:
+  host: 0.0.0.0
+  http_port: 6333
+  grpc_port: 6334
+  enable_cors: true
+  max_request_size_mb: 32
+  max_workers: 0  # Auto-detectar
+
+storage:
+  # Usar almacenamiento en disco para producción
+  storage_path: /qdrant/storage
+  snapshots_path: /qdrant/snapshots
+  on_disk_payload: true
+  on_disk_vectors: true
+
+cluster:
+  enabled: true
+  p2p:
+    port: 6335
+  consensus:
+    tick_period_ms: 100
+    bootstrap_timeout_sec: 5
+
+log_level: INFO
+```
+
+### Opción 3: Enfoque Híbrido
+
+Combina Qdrant Cloud para producción con desarrollo local:
+
+```python
+import os
+from qdrant_client import QdrantClient
+
+def get_qdrant_client():
+    """Obtener cliente Qdrant basado en el entorno"""
+    if os.getenv("ENVIRONMENT") == "production":
+        # Usar Qdrant Cloud
+        return QdrantClient(
+            url=os.getenv("QDRANT_CLOUD_URL"),
+            api_key=os.getenv("QDRANT_CLOUD_API_KEY"),
+            timeout=60,
+            prefer_grpc=True
+        )
+    else:
+        # Usar Qdrant local
+        return QdrantClient(
+            url=os.getenv("QDRANT_URL", "http://localhost:6333"),
+            api_key=os.getenv("QDRANT_API_KEY"),
+            timeout=30
+        )
+```
+
+### Migración de Local a Nube
+
+1. **Exportar datos** desde Qdrant local:
+   ```bash
+   # Crear snapshot
+   docker exec qdrant_container qdrant-cli snapshot create \
+       --collection-name labor_law_articles \
+       --output-dir /qdrant/snapshots
+   ```
+
+2. **Importar a Qdrant Cloud**:
+   ```python
+   # Subir a la nube
+   client.upload_collection(
+       collection_name="labor_law_articles",
+       vectors=vectors,
+       payload=payloads,
+       ids=ids
+   )
+   ```
+
+3. **Actualizar configuración**:
+   ```env
+   # Cambiar a configuración de nube
+   QDRANT_URL=https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333
+   QDRANT_API_KEY=tu_clave_api_de_nube
+   ```
+
+### Consideraciones de Costo
+
+#### Precios de Qdrant Cloud
+- **Nivel Gratuito**: 1GB de almacenamiento, 1M vectores
+- **Pago por uso**: Basado en almacenamiento y uso de cómputo
+- **Empresarial**: Precios personalizados para despliegues grandes
+
+#### Costos Auto-hospedados
+- **Infraestructura**: Costos de servidor, almacenamiento, red
+- **Mantenimiento**: Tiempo de DevOps, monitoreo, respaldos
+- **Escalado**: Escalado manual vs automático
+
+### Consideraciones de Seguridad
+
+#### Seguridad de Qdrant Cloud
+- **Encriptación**: Datos encriptados en tránsito y en reposo
+- **Control de Acceso**: Autenticación basada en clave API
+- **Seguridad de Red**: VPC y endpoints privados
+- **Cumplimiento**: Compatible con SOC 2, GDPR
+
+#### Seguridad Auto-hospedada
+- **Seguridad de Red**: Reglas de firewall, acceso VPN
+- **Autenticación**: Claves API, RBAC
+- **Encriptación**: TLS para datos en tránsito
+- **Control de Acceso**: Restricciones a nivel de red
 
 ## Solución de Problemas
 
