@@ -56,12 +56,11 @@
 | `data/` | Raw and processed legal data storage |
 | `src/lus_laboris_api/` | FastAPI REST API for legal document queries |
 | `src/processing/` | Data processing and text extraction pipelines |
-| `src/vectorstore/` | Vector database operations and Qdrant management |
+| `services/` | External services (Qdrant, Phoenix) with management script |
 | `notebooks/` | Analysis, experimentation and offline RAG system performance evaluation |
 | `terraform/` | Infrastructure as Code for Google Cloud Platform |
 | `docs/` | Comprehensive project documentation |
 | `utils/` | Utility scripts for automation and management |
-| `monitoring/` | Application observability and tracking |
 | `.github/workflows/` | CI/CD automation workflows |
 
 ## ⚙️ Prerequisites
@@ -181,12 +180,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | `data/` | Almacenamiento de datos legales crudos y procesados |
 | `src/lus_laboris_api/` | API REST FastAPI para consultas de documentos legales |
 | `src/processing/` | Pipelines de procesamiento de datos y extracción de texto |
-| `src/vectorstore/` | Operaciones de base de datos vectorial y gestión de Qdrant |
+| `services/` | Servicios externos (Qdrant, Phoenix) con script de gestión |
 | `notebooks/` | Análisis, experimentación y evaluación offline del rendimiento del sistema RAG |
 | `terraform/` | Infraestructura como Código para Google Cloud Platform |
 | `docs/` | Documentación completa del proyecto |
 | `utils/` | Scripts de utilidad para automatización y gestión |
-| `monitoring/` | Observabilidad y seguimiento de la aplicación |
 | `.github/workflows/` | Workflows de automatización CI/CD |
 
 ## ⚙️ Requisitos Previos
