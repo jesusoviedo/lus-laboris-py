@@ -224,3 +224,6 @@ terraform.tfvars
 
 # Keys used for JWT authentication
 keys/
+
+# Posts in markdown format
+/posts_md/
