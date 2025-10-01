@@ -104,7 +104,7 @@ chmod +x manage_services.sh
 
 ### Script Features
 
-- **Interactive Menu**: Easy-to-use command-line interface
+- **Interactive Menu**: Easy-to-use command-line interface (Spanish language)
 - **Service Status**: Real-time status display
 - **Error Handling**: Comprehensive error checking and reporting
 - **Docker Validation**: Ensures Docker is running before operations
@@ -296,7 +296,7 @@ chmod +x manage_services.sh
 
 ### Características del Script
 
-- **Menú Interactivo**: Interfaz de línea de comandos fácil de usar
+- **Menú Interactivo**: Interfaz de línea de comandos fácil de usar (idioma español)
 - **Estado de Servicios**: Visualización de estado en tiempo real
 - **Manejo de Errores**: Verificación de errores y reportes completos
 - **Validación de Docker**: Asegura que Docker esté ejecutándose antes de las operaciones

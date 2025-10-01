@@ -18,7 +18,7 @@ print_status() {
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}[ADVERTENCIA]${NC} $1"
 }
 
 print_error() {
@@ -27,7 +27,7 @@ print_error() {
 
 print_header() {
     echo -e "${BLUE}================================${NC}"
-    echo -e "${BLUE}  Services Management Script${NC}"
+    echo -e "${BLUE}  Script de Gestión de Servicios${NC}"
     echo -e "${BLUE}================================${NC}"
     echo
 }
@@ -35,7 +35,7 @@ print_header() {
 # Function to check if Docker is running
 check_docker() {
     if ! docker info > /dev/null 2>&1; then
-        print_error "Docker is not running. Please start Docker first."
+        print_error "Docker no está ejecutándose. Por favor inicia Docker primero."
         exit 1
     fi
 }
@@ -62,29 +62,29 @@ start_service() {
     local service_dir=$1
     local service_name=$2
     
-    print_status "Starting $service_name..."
+    print_status "Iniciando $service_name..."
     
     if [ ! -f "$service_dir/docker-compose.yml" ]; then
-        print_error "docker-compose.yml not found in $service_dir"
+        print_error "docker-compose.yml no encontrado en $service_dir"
         return 1
     fi
     
     cd "$service_dir"
     
     if is_service_running "$service_dir" "$service_name"; then
-        print_warning "$service_name is already running"
+        print_warning "$service_name ya está ejecutándose"
         return 0
     fi
     
     docker-compose up -d
     
     if [ $? -eq 0 ]; then
-        print_status "$service_name started successfully"
+        print_status "$service_name iniciado exitosamente"
         
-        # Show service-specific information
+        # Mostrar información específica del servicio
         case $service_name in
             "Qdrant")
-                echo "  - Vector Database: http://localhost:6333"
+                echo "  - Base de Datos Vectorial: http://localhost:6333"
                 echo "  - Dashboard: http://localhost:6333/dashboard"
                 ;;
             "Phoenix")
@@ -94,7 +94,7 @@ start_service() {
                 ;;
         esac
     else
-        print_error "Failed to start $service_name"
+        print_error "Error al iniciar $service_name"
         return 1
     fi
 }
@@ -104,26 +104,26 @@ stop_service() {
     local service_dir=$1
     local service_name=$2
     
-    print_status "Stopping $service_name..."
+    print_status "Deteniendo $service_name..."
     
     if [ ! -f "$service_dir/docker-compose.yml" ]; then
-        print_error "docker-compose.yml not found in $service_dir"
+        print_error "docker-compose.yml no encontrado en $service_dir"
         return 1
     fi
     
     cd "$service_dir"
     
     if ! is_service_running "$service_dir" "$service_name"; then
-        print_warning "$service_name is not running"
+        print_warning "$service_name no está ejecutándose"
         return 0
     fi
     
     docker-compose down
     
     if [ $? -eq 0 ]; then
-        print_status "$service_name stopped successfully"
+        print_status "$service_name detenido exitosamente"
     else
-        print_error "Failed to stop $service_name"
+        print_error "Error al detener $service_name"
         return 1
     fi
 }
@@ -133,7 +133,7 @@ restart_service() {
     local service_dir=$1
     local service_name=$2
     
-    print_status "Restarting $service_name..."
+    print_status "Reiniciando $service_name..."
     stop_service "$service_dir" "$service_name"
     sleep 2
     start_service "$service_dir" "$service_name"
@@ -145,9 +145,9 @@ show_status() {
     local service_name=$2
     
     if is_service_running "$service_dir" "$service_name"; then
-        echo -e "  ${GREEN}●${NC} $service_name: Running"
+        echo -e "  ${GREEN}●${NC} $service_name: Ejecutándose"
     else
-        echo -e "  ${RED}●${NC} $service_name: Stopped"
+        echo -e "  ${RED}●${NC} $service_name: Detenido"
     fi
 }
 
@@ -156,10 +156,10 @@ show_logs() {
     local service_dir=$1
     local service_name=$2
     
-    print_status "Showing logs for $service_name (Press Ctrl+C to exit)..."
+    print_status "Mostrando logs para $service_name (Presiona Ctrl+C para salir)..."
     
     if [ ! -f "$service_dir/docker-compose.yml" ]; then
-        print_error "docker-compose.yml not found in $service_dir"
+        print_error "docker-compose.yml no encontrado en $service_dir"
         return 1
     fi
     
@@ -171,18 +171,18 @@ show_logs() {
 show_menu() {
     print_header
     
-    echo "Available services:"
-    echo "  1. Qdrant (Vector Database)"
-    echo "  2. Phoenix (Monitoring & Observability)"
-    echo "  3. All Services"
+    echo "Servicios disponibles:"
+    echo "  1. Qdrant (Base de Datos Vectorial)"
+    echo "  2. Phoenix (Monitoreo y Observabilidad)"
+    echo "  3. Todos los Servicios"
     echo
-    echo "Actions:"
-    echo "  s) Start service"
-    echo "  t) Stop service"
-    echo "  r) Restart service"
-    echo "  l) Show logs"
-    echo "  k) Show status"
-    echo "  q) Quit"
+    echo "Acciones:"
+    echo "  s) Iniciar servicio"
+    echo "  t) Detener servicio"
+    echo "  r) Reiniciar servicio"
+    echo "  l) Mostrar logs"
+    echo "  k) Mostrar estado"
+    echo "  q) Salir"
     echo
 }
 
@@ -200,21 +200,21 @@ main() {
         show_menu
         
         # Show current status
-        echo "Current status:"
+        echo "Estado actual:"
         show_status "$QDRANT_DIR" "Qdrant"
         show_status "$PHOENIX_DIR" "Phoenix"
         echo
         
-        read -p "Select action: " action
+        read -p "Selecciona una acción: " action
         
         case $action in
             s)
                 echo
-                echo "Select service to start:"
+                echo "Selecciona el servicio a iniciar:"
                 echo "  1) Qdrant"
                 echo "  2) Phoenix"
-                echo "  3) All Services"
-                read -p "Enter choice (1-3): " service_choice
+                echo "  3) Todos los Servicios"
+                read -p "Ingresa tu opción (1-3): " service_choice
                 
                 case $service_choice in
                     1)
@@ -228,17 +228,17 @@ main() {
                         start_service "$PHOENIX_DIR" "Phoenix"
                         ;;
                     *)
-                        print_error "Invalid choice"
+                        print_error "Opción inválida"
                         ;;
                 esac
                 ;;
             t)
                 echo
-                echo "Select service to stop:"
+                echo "Selecciona el servicio a detener:"
                 echo "  1) Qdrant"
                 echo "  2) Phoenix"
-                echo "  3) All Services"
-                read -p "Enter choice (1-3): " service_choice
+                echo "  3) Todos los Servicios"
+                read -p "Ingresa tu opción (1-3): " service_choice
                 
                 case $service_choice in
                     1)
@@ -252,17 +252,17 @@ main() {
                         stop_service "$PHOENIX_DIR" "Phoenix"
                         ;;
                     *)
-                        print_error "Invalid choice"
+                        print_error "Opción inválida"
                         ;;
                 esac
                 ;;
             r)
                 echo
-                echo "Select service to restart:"
+                echo "Selecciona el servicio a reiniciar:"
                 echo "  1) Qdrant"
                 echo "  2) Phoenix"
-                echo "  3) All Services"
-                read -p "Enter choice (1-3): " service_choice
+                echo "  3) Todos los Servicios"
+                read -p "Ingresa tu opción (1-3): " service_choice
                 
                 case $service_choice in
                     1)
@@ -276,16 +276,16 @@ main() {
                         restart_service "$PHOENIX_DIR" "Phoenix"
                         ;;
                     *)
-                        print_error "Invalid choice"
+                        print_error "Opción inválida"
                         ;;
                 esac
                 ;;
             l)
                 echo
-                echo "Select service to show logs:"
+                echo "Selecciona el servicio para mostrar logs:"
                 echo "  1) Qdrant"
                 echo "  2) Phoenix"
-                read -p "Enter choice (1-2): " service_choice
+                read -p "Ingresa tu opción (1-2): " service_choice
                 
                 case $service_choice in
                     1)
@@ -295,29 +295,29 @@ main() {
                         show_logs "$PHOENIX_DIR" "Phoenix"
                         ;;
                     *)
-                        print_error "Invalid choice"
+                        print_error "Opción inválida"
                         ;;
                 esac
                 ;;
             k)
                 echo
-                echo "Service Status:"
+                echo "Estado de los Servicios:"
                 show_status "$QDRANT_DIR" "Qdrant"
                 show_status "$PHOENIX_DIR" "Phoenix"
                 echo
-                read -p "Press Enter to continue..."
+                read -p "Presiona Enter para continuar..."
                 ;;
             q)
-                print_status "Goodbye!"
+                print_status "¡Hasta luego!"
                 exit 0
                 ;;
             *)
-                print_error "Invalid option. Please try again."
+                print_error "Opción inválida. Por favor intenta de nuevo."
                 ;;
         esac
         
         echo
-        read -p "Press Enter to continue..."
+        read -p "Presiona Enter para continuar..."
         clear
     done
 }
