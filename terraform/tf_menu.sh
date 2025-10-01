@@ -32,6 +32,11 @@ read_env_var() {
 
 create_tfvars() {
   if [ -f "$ENV_FILE" ]; then
+    # Load all environment variables from .env file to make them available for envsubst
+    set -a  # automatically export all variables
+    source "$ENV_FILE"
+    set +a  # stop automatically exporting
+    
     # Read existing variables (ignore comments and handle whitespace)
     GCP_PROJECT_ID=$(read_env_var "GCP_PROJECT_ID" "$ENV_FILE")
     GCP_REGION=$(read_env_var "GCP_REGION" "$ENV_FILE")
@@ -41,6 +46,12 @@ create_tfvars() {
     GCP_CLOUD_RUN_BATCH_ARGS=$(read_env_var "GCP_CLOUD_RUN_BATCH_ARGS" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_BATCH_SCHEDULE=$(read_env_var "GCP_CLOUD_RUN_BATCH_SCHEDULE" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=$(read_env_var "GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL" "$ENV_FILE")
+    
+    # Expand environment variables in GCP_CLOUD_RUN_BATCH_ARGS
+    # This allows using ${VARIABLE_NAME} syntax in the args string
+    if [ -n "$GCP_CLOUD_RUN_BATCH_ARGS" ]; then
+        GCP_CLOUD_RUN_BATCH_ARGS=$(envsubst <<< "$GCP_CLOUD_RUN_BATCH_ARGS")
+    fi
     
     # Read new Qdrant VM variables
     GCP_COMPUTE_ENGINE_VM_NAME=$(read_env_var "GCP_COMPUTE_ENGINE_VM_NAME" "$ENV_FILE")
@@ -62,11 +73,11 @@ create_tfvars() {
     GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=$(read_env_var "GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH" "$ENV_FILE")
     GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" "$ENV_FILE")
     GCP_CLOUD_RUN_API_ALLOWED_HOSTS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_HOSTS" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_CPU=$(read_env_var "GCP_CLOUD_RUN_API_CPU" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_MEMORY=$(read_env_var "GCP_CLOUD_RUN_API_MEMORY" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_CPU=$(read_env_var "GCP_CLOUD_RUN_API_CPU" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
+    GCP_CLOUD_RUN_API_MEMORY=$(read_env_var "GCP_CLOUD_RUN_API_MEMORY" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_API_MIN_INSTANCES=$(read_env_var "GCP_CLOUD_RUN_API_MIN_INSTANCES" "$ENV_FILE")
     GCP_CLOUD_RUN_API_MAX_INSTANCES=$(read_env_var "GCP_CLOUD_RUN_API_MAX_INSTANCES" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_TIMEOUT=$(read_env_var "GCP_CLOUD_RUN_API_TIMEOUT" "$ENV_FILE")
+    GCP_CLOUD_RUN_API_TIMEOUT=$(read_env_var "GCP_CLOUD_RUN_API_TIMEOUT" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     # Validate that all required variables exist
     MISSING_VARS=()
     
@@ -141,6 +152,7 @@ api_max_instance_count = ${GCP_CLOUD_RUN_API_MAX_INSTANCES:-3}
 api_timeout = "${GCP_CLOUD_RUN_API_TIMEOUT:-300s}"
 EOF
     # Parse args properly to avoid double quotes
+    # Note: GCP_CLOUD_RUN_BATCH_ARGS has already been processed to expand environment variables
     ARGS_ARRAY=()
     IFS=' ' read -ra ARGS <<< "$GCP_CLOUD_RUN_BATCH_ARGS"
     for arg in "${ARGS[@]}"; do
