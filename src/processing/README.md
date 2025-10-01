@@ -79,6 +79,35 @@ uv run extract_law_text.py --mode gcs --bucket-name my-bucket --use-local-creden
 | `--use-local-credentials`| Force use of local credentials file (for local dev, not Cloud Run) | No                 | False                           |
 | `--gcp-credentials-dir` | Path to the folder where the GCP .json credentials file is located (optional, useful for Docker) | No | Project root `.gcpcredentials` |
 | `--output-root`        | Root directory for local output (data/raw and data/processed) (optional, useful for Docker) | No | Project root |
+| `--phoenix-endpoint`   | Phoenix endpoint URL for tracing                    | No                 | `http://localhost:6006/v1/traces` |
+| `--phoenix-project-name`| Phoenix project name for tracing                   | No                 | `lus-laboris-processing` |
+
+#### Docker Usage
+
+The script can be run using Docker with custom Phoenix configuration:
+
+```bash
+# Build the Docker image
+docker build -t lus-laboris-processing .
+
+# Run with default Phoenix configuration
+docker run --rm lus-laboris-processing
+
+# Run with custom Phoenix endpoint
+docker run --rm lus-laboris-processing --phoenix-endpoint http://host.docker.internal:6006/v1/traces
+
+# Run with custom Phoenix project name
+docker run --rm lus-laboris-processing --phoenix-project-name my-docker-project
+
+# Run in GCS mode with custom Phoenix settings
+docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json \
+  -v /path/to/credentials.json:/app/credentials.json:ro \
+  lus-laboris-processing --mode gcs --bucket-name my-bucket \
+  --phoenix-endpoint http://host.docker.internal:6006/v1/traces \
+  --phoenix-project-name my-docker-project
+```
+
+**Note:** When using Docker, use `host.docker.internal` instead of `localhost` to connect to Phoenix running on the host machine.
 
 #### Google Cloud Storage Configuration
 
@@ -101,15 +130,28 @@ The script includes built-in support for Phoenix/OpenTelemetry tracing to monito
 
 **Configuration:**
 
-Set the Phoenix endpoint in your environment variables:
+Phoenix tracing is configured via command-line arguments with sensible defaults:
 
 ```bash
-# Local Phoenix
-PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
+# Use default Phoenix configuration (localhost)
+uv run extract_law_text.py
 
-# Phoenix Cloud
-PHOENIX_COLLECTOR_ENDPOINT=https://your-instance.phoenix.arize.com/v1/traces
+# Custom Phoenix endpoint
+uv run extract_law_text.py --phoenix-endpoint http://localhost:6006/v1/traces
+
+# Custom Phoenix project name
+uv run extract_law_text.py --phoenix-project-name my-project
+
+# Both custom Phoenix settings
+uv run extract_law_text.py --phoenix-endpoint https://your-instance.phoenix.arize.com/v1/traces --phoenix-project-name my-project
 ```
+
+**Phoenix Arguments:**
+
+| Argument | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `--phoenix-endpoint` | Phoenix endpoint URL for sending traces | `http://localhost:6006/v1/traces` | No |
+| `--phoenix-project-name` | Phoenix project name for traces | `lus-laboris-processing` | No |
 
 **Usage:**
 
@@ -365,6 +407,33 @@ uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-creden
 | `--gcp-credentials-dir` | Ruta a la carpeta donde buscar el archivo .json de credenciales de GCP (opcional, util para Docker) | No | `.gcpcredentials` en la raíz |
 | `--output-root`        | Raíz donde se crearán las carpetas data/raw y data/processed en modo local (opcional, útil para Docker) | No | Raíz del proyecto |
 
+#### Uso con Docker
+
+El script se puede ejecutar usando Docker con configuración personalizada de Phoenix:
+
+```bash
+# Construir la imagen Docker
+docker build -t lus-laboris-processing .
+
+# Ejecutar con configuración por defecto de Phoenix
+docker run --rm lus-laboris-processing
+
+# Ejecutar con endpoint personalizado de Phoenix
+docker run --rm lus-laboris-processing --phoenix-endpoint http://host.docker.internal:6006/v1/traces
+
+# Ejecutar con nombre de proyecto personalizado de Phoenix
+docker run --rm lus-laboris-processing --phoenix-project-name mi-proyecto-docker
+
+# Ejecutar en modo GCS con configuraciones personalizadas de Phoenix
+docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json \
+  -v /ruta/a/credentials.json:/app/credentials.json:ro \
+  lus-laboris-processing --mode gcs --bucket-name mi-bucket \
+  --phoenix-endpoint http://host.docker.internal:6006/v1/traces \
+  --phoenix-project-name mi-proyecto-docker
+```
+
+**Nota:** Cuando uses Docker, usa `host.docker.internal` en lugar de `localhost` para conectarte a Phoenix ejecutándose en la máquina host.
+
 #### Configuración para Google Cloud Storage
 
 Para usar el modo GCS, necesitas configurar la autenticación:
@@ -386,15 +455,28 @@ El script incluye soporte integrado para trazas Phoenix/OpenTelemetry para monit
 
 **Configuración:**
 
-Configura el endpoint de Phoenix en tus variables de entorno:
+El tracing de Phoenix se configura mediante argumentos de línea de comandos con valores por defecto sensatos:
 
 ```bash
-# Phoenix local
-PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
+# Usar configuración por defecto de Phoenix (localhost)
+uv run extract_law_text.py
 
-# Phoenix Cloud
-PHOENIX_COLLECTOR_ENDPOINT=https://tu-instancia.phoenix.arize.com/v1/traces
+# Endpoint personalizado de Phoenix
+uv run extract_law_text.py --phoenix-endpoint http://localhost:6006/v1/traces
+
+# Nombre de proyecto personalizado de Phoenix
+uv run extract_law_text.py --phoenix-project-name mi-proyecto
+
+# Ambas configuraciones personalizadas de Phoenix
+uv run extract_law_text.py --phoenix-endpoint https://tu-instancia.phoenix.arize.com/v1/traces --phoenix-project-name mi-proyecto
 ```
+
+**Argumentos de Phoenix:**
+
+| Argumento | Descripción | Por Defecto | Requerido |
+|-----------|-------------|-------------|-----------|
+| `--phoenix-endpoint` | URL del endpoint de Phoenix para enviar trazas | `http://localhost:6006/v1/traces` | No |
+| `--phoenix-project-name` | Nombre del proyecto para las trazas de Phoenix | `lus-laboris-processing` | No |
 
 **Uso:**
 
