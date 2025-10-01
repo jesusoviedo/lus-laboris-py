@@ -28,6 +28,7 @@ Main script for extracting and processing text from Paraguay's Labor Code from i
   - Text extraction and cleaning
   - Structured article segmentation
   - JSON format saving
+  - Phoenix/OpenTelemetry tracing for observability (always enabled)
 
 #### Dependencies Installation
 
@@ -86,6 +87,50 @@ To use GCS mode, you need to configure authentication:
 - By default (recommended for Cloud Run), the script will use the environment's credentials (e.g., Cloud Run's default Service Account).
 - If you use the `--use-local-credentials` flag, the script will look for a service account `.json` file in a `.gcpcredentials` folder at the project root and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable automatically. This is useful for local development.
 - You can override the credentials folder location with the `--gcp-credentials-dir` flag (recommended for Docker).
+
+#### Phoenix Tracing
+
+The script includes built-in support for Phoenix/OpenTelemetry tracing to monitor execution and performance. **Tracing is always enabled** when you run the script.
+
+**Features:**
+- Automatic HTTP request instrumentation
+- Custom spans for all major operations (download, parsing, saving)
+- Captures metadata: file sizes, article counts, execution times, errors
+- **Automatic verification**: Checks if Phoenix is reachable before processing
+- **Graceful degradation**: If Phoenix is unavailable, shows a warning but continues processing (traces won't be collected)
+
+**Configuration:**
+
+Set the Phoenix endpoint in your environment variables:
+
+```bash
+# Local Phoenix
+PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
+
+# Phoenix Cloud
+PHOENIX_COLLECTOR_ENDPOINT=https://your-instance.phoenix.arize.com/v1/traces
+```
+
+**Usage:**
+
+1. Start Phoenix (local):
+   ```bash
+   cd ../../services/monitoring
+   docker-compose up -d
+   ```
+
+2. Run the script normally (tracing is automatic):
+   ```bash
+   uv run extract_law_text.py --mode local
+   ```
+
+3. View traces at: http://localhost:6006
+
+**Important Notes:**
+- **Tracing is always active**: The script always attempts to send traces
+- **Phoenix verification**: Before processing, the script checks if Phoenix is reachable
+- **Warning if unavailable**: If Phoenix is not running, you'll see warnings but processing continues
+- **No data loss**: If Phoenix becomes available during execution, traces will be sent
 
 #### Output Structure
 
@@ -268,6 +313,7 @@ Script principal para extraer y procesar el texto del Código Laboral de Paragua
   - Extracción y limpieza del texto
   - Segmentación en artículos estructurados
   - Guardado en formato JSON
+  - Trazas Phoenix/OpenTelemetry para observabilidad (siempre activo)
 
 #### Instalación de Dependencias
 
@@ -326,6 +372,50 @@ Para usar el modo GCS, necesitas configurar la autenticación:
 - Por defecto (recomendado para Cloud Run), el script usará las credenciales del entorno (por ejemplo, la Service Account por defecto de Cloud Run).
 - Si usas el flag `--use-local-credentials`, el script buscará automáticamente un archivo `.json` de cuenta de servicio en la carpeta `.gcpcredentials` en la raíz del proyecto y establecerá la variable de entorno `GOOGLE_APPLICATION_CREDENTIALS`. Esto es útil para desarrollo local.
 - Puedes sobrescribir la ubicación de la carpeta de credenciales con el flag `--gcp-credentials-dir` (recomendado para Docker).
+
+#### Trazas Phoenix
+
+El script incluye soporte integrado para trazas Phoenix/OpenTelemetry para monitorear la ejecución y rendimiento. **El trazado siempre está activo** cuando ejecutas el script.
+
+**Características:**
+- Instrumentación automática de peticiones HTTP
+- Spans personalizados para todas las operaciones principales (descarga, parsing, guardado)
+- Captura de metadatos: tamaños de archivos, conteo de artículos, tiempos de ejecución, errores
+- **Verificación automática**: Verifica si Phoenix es alcanzable antes del procesamiento
+- **Degradación elegante**: Si Phoenix no está disponible, muestra una advertencia pero continúa el procesamiento (las trazas no se recolectarán)
+
+**Configuración:**
+
+Configura el endpoint de Phoenix en tus variables de entorno:
+
+```bash
+# Phoenix local
+PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
+
+# Phoenix Cloud
+PHOENIX_COLLECTOR_ENDPOINT=https://tu-instancia.phoenix.arize.com/v1/traces
+```
+
+**Uso:**
+
+1. Iniciar Phoenix (local):
+   ```bash
+   cd ../../services/monitoring
+   docker-compose up -d
+   ```
+
+2. Ejecutar el script normalmente (el tracing es automático):
+   ```bash
+   uv run extract_law_text.py --mode local
+   ```
+
+3. Ver las trazas en: http://localhost:6006
+
+**Notas Importantes:**
+- **Trazado siempre activo**: El script siempre intenta enviar trazas
+- **Verificación de Phoenix**: Antes del procesamiento, el script verifica si Phoenix es alcanzable
+- **Advertencia si no disponible**: Si Phoenix no está ejecutándose, verás advertencias pero el procesamiento continuará
+- **Sin pérdida de datos**: Si Phoenix se vuelve disponible durante la ejecución, las trazas se enviarán
 
 #### Estructura de Salida
 
