@@ -6,11 +6,18 @@ This script automates the process of:
 1. Downloading the HTML of the law from the official site
 2. Extracting and cleaning the text
 3. Segmenting into structured articles
-4. Saving in JSON format (local or Google Cloud Storage)
+4. Validating data quality and completeness
+5. Saving in JSON format (local or Google Cloud Storage)
 
 Execution modes:
 - Local: Saves files to local filesystem
 - GCS: Creates temporary folders and uploads JSON to Google Cloud Storage
+
+Quality validation features:
+- Validates article structure and required fields
+- Verifies completeness (all 413 articles present)
+- Analyzes content quality metrics
+- Generates comprehensive quality reports
 
 Based on notebook: notebooks/01_extract_law_text.ipynb
 """
@@ -37,6 +44,7 @@ from opentelemetry import trace
 import uuid
 import time
 from datetime import datetime
+from collections import Counter
 
 
 # Patterns to identify headers and articles
@@ -585,6 +593,205 @@ def parse_law_text(raw_text: str) -> Dict[str, Any]:
         }
 
 
+def validate_processed_data(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Valida la integridad y calidad de los datos procesados.
+    
+    Args:
+        articles: Lista de artículos procesados
+        
+    Returns:
+        Diccionario con resultados de validación
+    """
+    with phoenix_span("validate_processed_data", SpanKind.INTERNAL, {"articles_count": len(articles)}):
+        validation_results = {
+            'total_articles': len(articles),
+            'valid_articles': 0,
+            'invalid_articles': [],
+            'missing_fields': [],
+            'quality_score': 0.0
+        }
+        
+        required_fields = ['articulo_numero', 'libro', 'capitulo', 'articulo']
+        
+        for article in articles:
+            article_valid = True
+            article_issues = []
+            
+            # Verificar campos requeridos
+            for field in required_fields:
+                if field not in article or not article[field]:
+                    article_issues.append(f"Campo faltante: {field}")
+                    article_valid = False
+            
+            # Verificar que el número de artículo sea válido
+            if 'articulo_numero' in article:
+                art_num = article['articulo_numero']
+                if not isinstance(art_num, int) or art_num < 1 or art_num > 413:
+                    article_issues.append(f"Número de artículo inválido: {art_num}")
+                    article_valid = False
+            
+            # Verificar que el contenido no esté vacío
+            if 'articulo' in article and len(article['articulo'].strip()) < 10:
+                article_issues.append("Contenido del artículo demasiado corto")
+                article_valid = False
+            
+            if article_valid:
+                validation_results['valid_articles'] += 1
+            else:
+                validation_results['invalid_articles'].append({
+                    'articulo_numero': article.get('articulo_numero', 'desconocido'),
+                    'issues': article_issues
+                })
+        
+        # Calcular score de calidad
+        if validation_results['total_articles'] > 0:
+            validation_results['quality_score'] = validation_results['valid_articles'] / validation_results['total_articles']
+        
+        log_process(f"Validación completada: {validation_results['valid_articles']}/{validation_results['total_articles']} artículos válidos", "result")
+        log_process(f"Score de calidad: {validation_results['quality_score']:.2%}", "result")
+        
+        return validation_results
+
+
+def verify_data_completeness(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Verifica que todos los artículos esperados estén presentes.
+    
+    Args:
+        articles: Lista de artículos procesados
+        
+    Returns:
+        Diccionario con reporte de completitud
+    """
+    with phoenix_span("verify_data_completeness", SpanKind.INTERNAL, {"articles_count": len(articles)}):
+        article_numbers = [art['articulo_numero'] for art in articles if 'articulo_numero' in art]
+        
+        # Verificar rango completo (1-413)
+        expected_range = set(range(1, 414))
+        found_numbers = set(article_numbers)
+        
+        missing_articles = expected_range - found_numbers
+        duplicate_articles = [num for num in article_numbers if article_numbers.count(num) > 1]
+        
+        completeness_report = {
+            'expected_total': 413,
+            'found_total': len(found_numbers),
+            'missing_articles': sorted(list(missing_articles)),
+            'duplicate_articles': duplicate_articles,
+            'completeness_percentage': len(found_numbers) / 413 * 100
+        }
+        
+        log_process(f"Completitud de datos: {completeness_report['completeness_percentage']:.1f}%", "result")
+        
+        if missing_articles:
+            log_process(f"Artículos faltantes: {missing_articles}", "warning")
+        
+        if duplicate_articles:
+            log_process(f"Artículos duplicados: {duplicate_articles}", "warning")
+        
+        return completeness_report
+
+
+def analyze_content_quality(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Analiza la calidad del contenido extraído.
+    
+    Args:
+        articles: Lista de artículos procesados
+        
+    Returns:
+        Diccionario con métricas de calidad de contenido
+    """
+    with phoenix_span("analyze_content_quality", SpanKind.INTERNAL, {"articles_count": len(articles)}):
+        quality_metrics = {
+            'avg_content_length': 0,
+            'short_articles': 0,  # < 50 caracteres
+            'medium_articles': 0,  # 50-200 caracteres
+            'long_articles': 0,   # > 200 caracteres
+            'articles_with_special_chars': 0,
+            'articles_with_numbers': 0
+        }
+        
+        content_lengths = []
+        
+        for article in articles:
+            if 'articulo' not in article:
+                continue
+                
+            content = article['articulo']
+            content_length = len(content.strip())
+            content_lengths.append(content_length)
+            
+            # Clasificar por longitud
+            if content_length < 50:
+                quality_metrics['short_articles'] += 1
+            elif content_length <= 200:
+                quality_metrics['medium_articles'] += 1
+            else:
+                quality_metrics['long_articles'] += 1
+            
+            # Verificar características especiales
+            if any(char in content for char in ['°', 'º', '§', '¶']):
+                quality_metrics['articles_with_special_chars'] += 1
+            
+            if any(char.isdigit() for char in content):
+                quality_metrics['articles_with_numbers'] += 1
+        
+        if content_lengths:
+            quality_metrics['avg_content_length'] = sum(content_lengths) / len(content_lengths)
+        
+        log_process(f"Análisis de calidad completado", "result")
+        log_process(f"Longitud promedio de artículos: {quality_metrics['avg_content_length']:.1f} caracteres", "result")
+        
+        return quality_metrics
+
+
+def generate_quality_report(articles: List[Dict[str, Any]]) -> str:
+    """
+    Genera un reporte completo de calidad de datos.
+    
+    Args:
+        articles: Lista de artículos procesados
+        
+    Returns:
+        String con reporte formateado de calidad
+    """
+    with phoenix_span("generate_quality_report", SpanKind.INTERNAL, {"articles_count": len(articles)}):
+        validation_results = validate_processed_data(articles)
+        completeness_report = verify_data_completeness(articles)
+        quality_metrics = analyze_content_quality(articles)
+        
+        report = f"""
+📊 REPORTE DE CALIDAD DE DATOS PROCESADOS
+{'='*50}
+
+✅ VALIDACIÓN DE ESTRUCTURA:
+   • Artículos válidos: {validation_results['valid_articles']}/{validation_results['total_articles']}
+   • Score de calidad: {validation_results['quality_score']:.2%}
+   • Artículos con problemas: {len(validation_results['invalid_articles'])}
+
+📋 COMPLETITUD DE DATOS:
+   • Artículos encontrados: {completeness_report['found_total']}/413
+   • Completitud: {completeness_report['completeness_percentage']:.1f}%
+   • Artículos faltantes: {len(completeness_report['missing_articles'])}
+   • Artículos duplicados: {len(completeness_report['duplicate_articles'])}
+
+📝 ANÁLISIS DE CONTENIDO:
+   • Longitud promedio: {quality_metrics['avg_content_length']:.1f} caracteres
+   • Artículos cortos (< 50 chars): {quality_metrics['short_articles']}
+   • Artículos medianos (50-200 chars): {quality_metrics['medium_articles']}
+   • Artículos largos (> 200 chars): {quality_metrics['long_articles']}
+   • Con caracteres especiales: {quality_metrics['articles_with_special_chars']}
+   • Con números: {quality_metrics['articles_with_numbers']}
+
+🎯 ESTADO GENERAL: {'✅ EXCELENTE' if validation_results['quality_score'] > 0.95 else '⚠️ REQUIERE ATENCIÓN'}
+"""
+        
+        log_process("Reporte de calidad generado", "result")
+        return report
+
+
 def save_parsed_json_local(parsed: Dict[str, Any], processed_filename: str = "codigo_trabajo_articulos.json", output_root: str = None) -> str:
     """Saves parsed data to a local JSON file in data/processed/ (project root or specified one)"""
     articles_count = len(parsed.get('articulos', []))
@@ -673,7 +880,7 @@ def set_gcp_credentials(gcp_credentials_dir: str = None):
         log_process(f"Usando credenciales de servicio: {json_files[0]}", "step")
 
 
-def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", output_root: str = None) -> str:
+def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", output_root: str = None, skip_quality_validation: bool = False) -> str:
     """Processes the law in local mode, saving files in data/raw and data/processed in the project root or specified one"""
     with phoenix_span("process_law_local", SpanKind.SERVER, {"url": url, "raw_filename": raw_filename, "processed_filename": processed_filename, "output_root": output_root}):
         log_process("=== MODO LOCAL ===", "step")
@@ -690,12 +897,21 @@ def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", pr
             log_process(f"Error: {e}", "error")
             raise
         parsed = parse_law_text(texto_limpio)
+        
+        # Validación de calidad de datos (opcional)
+        if not skip_quality_validation:
+            log_process("=== VALIDACIÓN DE CALIDAD ===", "step")
+            quality_report = generate_quality_report(parsed['articulos'])
+            print(quality_report)  # Mostrar reporte completo
+        else:
+            log_process("Validación de calidad omitida", "step")
+        
         output_path = save_parsed_json_local(parsed, processed_filename, output_root=output_root)
         
         return output_path
 
 
-def process_law_gcs(url: str, bucket_name: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", use_local_credentials: bool = False, gcp_credentials_dir: str = None) -> str:
+def process_law_gcs(url: str, bucket_name: str, raw_filename: str = "codigo_trabajo_py.html", processed_filename: str = "codigo_trabajo_articulos.json", use_local_credentials: bool = False, gcp_credentials_dir: str = None, skip_quality_validation: bool = False) -> str:
     """Processes the law in GCS mode, uploading files to raw/ and processed/ in the bucket"""
     with phoenix_span("process_law_gcs", SpanKind.SERVER, {"url": url, "bucket_name": bucket_name, "raw_filename": raw_filename, "processed_filename": processed_filename, "use_local_credentials": use_local_credentials}):
         log_process("=== MODO GOOGLE CLOUD STORAGE ===", "step")
@@ -717,6 +933,15 @@ def process_law_gcs(url: str, bucket_name: str, raw_filename: str = "codigo_trab
                 log_process(f"Error: {e}", "error")
                 raise
             parsed = parse_law_text(texto_limpio)
+            
+            # Validación de calidad de datos (opcional)
+            if not skip_quality_validation:
+                log_process("=== VALIDACIÓN DE CALIDAD ===", "step")
+                quality_report = generate_quality_report(parsed['articulos'])
+                print(quality_report)  # Mostrar reporte completo
+            else:
+                log_process("Validación de calidad omitida", "step")
+            
             # Always upload processed JSON
             gcs_path = save_parsed_json_gcs(parsed, bucket_name, processed_filename)
             
@@ -763,10 +988,12 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
         Usage examples:
-        # Local mode (default)
+        # Local mode (default) with quality validation
         python extract_law_text.py
-        # GCS mode
+        # GCS mode with quality validation
         python extract_law_text.py --mode gcs --bucket-name mi-bucket
+        # Skip quality validation for faster processing
+        python extract_law_text.py --skip-quality-validation
         # Customizing file names
         python extract_law_text.py --raw-filename ley.html --processed-filename salida.json
         # Force use of local credentials (local development)
@@ -835,6 +1062,11 @@ def parse_arguments():
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
         default='INFO',
         help='Phoenix logging level (default: INFO)')
+    
+    parser.add_argument(
+        '--skip-quality-validation',
+        action='store_true',
+        help='Skip quality validation and reporting (default: False)')
         
     return parser.parse_args()
 
@@ -867,7 +1099,13 @@ def main() -> int:
             "execution.args": str(vars(args))
         }):
             if args.mode == 'local':
-                output_path = process_law_local(args.url, args.raw_filename, args.processed_filename, output_root=args.output_root)
+                output_path = process_law_local(
+                    args.url, 
+                    args.raw_filename, 
+                    args.processed_filename, 
+                    output_root=args.output_root,
+                    skip_quality_validation=args.skip_quality_validation
+                )
                 log_process("Proceso completado exitosamente!", "success")
                 log_process(f"Archivo guardado en: {output_path}", "result")
                 log_process(f"Sesión: {_session_id}", "info")
@@ -882,6 +1120,7 @@ def main() -> int:
                     processed_filename=args.processed_filename,
                     use_local_credentials=args.use_local_credentials,
                     gcp_credentials_dir=args.gcp_credentials_dir,
+                    skip_quality_validation=args.skip_quality_validation,
                 )
                 log_process("Proceso completado exitosamente!", "success")
                 log_process(f"Archivo guardado en GCS: {gcs_path}", "result")

@@ -27,6 +27,7 @@ Main script for extracting and processing text from Paraguay's Labor Code from i
   - Automatic HTML download from official site
   - Text extraction and cleaning
   - Structured article segmentation
+  - Quality validation and reporting
   - JSON format saving
   - Phoenix/OpenTelemetry tracing for observability (always enabled)
 
@@ -49,10 +50,23 @@ uv run extract_law_text.py
 
 # Custom filenames
 uv run extract_law_text.py --raw-filename mylaw.html --processed-filename myoutput.json
+
+# Skip quality validation for faster processing
+uv run extract_law_text.py --skip-quality-validation
 ```
 
 - The raw HTML will be saved to `data/raw/{raw-filename}` (default: `codigo_trabajo_py.html`) in the project root (not the current directory).
 - The processed JSON will be saved to `data/processed/{processed-filename}` (default: `codigo_trabajo_articulos.json`) in the project root.
+
+#### Quality Validation
+
+The script automatically validates processed data quality by:
+- **Structure validation**: Checks required fields and valid article numbers (1-413)
+- **Completeness verification**: Ensures all 413 articles are present without duplicates
+- **Content analysis**: Analyzes article length, special characters, and content quality
+- **Comprehensive reporting**: Generates detailed quality reports with metrics and status
+
+Use `--skip-quality-validation` to disable validation for faster processing.
 
 ##### Google Cloud Storage Mode
 
@@ -70,7 +84,7 @@ uv run extract_law_text.py --mode gcs --bucket-name my-bucket --use-local-creden
 #### Command Line Arguments
 
 | Argument             | Description                                         | Required           | Default                        |
-|----------------------|-----------------------------------------------------|--------------------|---------------------------------|
+|---------------------|-----------------------------------------------------|--------------------|--------------------------------|
 | `--mode`             | Execution mode: `local` or `gcs`                    | No                 | `local`                         |
 | `--url`              | Law page URL                                        | No                 | Official URL                    |
 | `--bucket-name`      | GCS bucket name (gcs mode)                          | Yes (for gcs mode) | -                               |
@@ -82,6 +96,7 @@ uv run extract_law_text.py --mode gcs --bucket-name my-bucket --use-local-creden
 | `--phoenix-endpoint`   | Phoenix endpoint URL for tracing                    | No                 | `http://localhost:6006/v1/traces` |
 | `--phoenix-project-name`| Phoenix project name for tracing                   | No                 | `lus-laboris-processing` |
 | `--phoenix-log-level`  | Phoenix logging level (DEBUG/INFO/WARNING/ERROR)   | No                 | `INFO` |
+| `--skip-quality-validation` | Skip quality validation and reporting | No | False |
 
 #### Docker Usage
 
@@ -403,6 +418,7 @@ Script principal para extraer y procesar el texto del Código Laboral de Paragua
   - Descarga automática del HTML desde el sitio oficial
   - Extracción y limpieza del texto
   - Segmentación en artículos estructurados
+  - Validación de calidad y reportes
   - Guardado en formato JSON
   - Trazas Phoenix/OpenTelemetry para observabilidad (siempre activo)
 
@@ -425,10 +441,23 @@ uv run extract_law_text.py
 
 # Personalizando nombres de archivos
 uv run extract_law_text.py --raw-filename mi_ley.html --processed-filename salida.json
+
+# Omitir validación de calidad para procesamiento más rápido
+uv run extract_law_text.py --skip-quality-validation
 ```
 
 - El HTML crudo se guardará en `data/raw/{raw-filename}` (por defecto: `codigo_trabajo_py.html`) en la raíz del proyecto (no en el directorio actual).
 - El JSON procesado se guardará en `data/processed/{processed-filename}` (por defecto: `codigo_trabajo_articulos.json`) en la raíz del proyecto.
+
+#### Validación de Calidad
+
+El script valida automáticamente la calidad de los datos procesados mediante:
+- **Validación de estructura**: Verifica campos requeridos y números de artículo válidos (1-413)
+- **Verificación de completitud**: Asegura que los 413 artículos estén presentes sin duplicados
+- **Análisis de contenido**: Analiza longitud de artículos, caracteres especiales y calidad del contenido
+- **Reportes comprensivos**: Genera reportes detallados de calidad con métricas y estado
+
+Usa `--skip-quality-validation` para deshabilitar la validación y procesar más rápido.
 
 ##### Modo Google Cloud Storage
 
@@ -455,6 +484,7 @@ uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-creden
 | `--use-local-credentials`| Forzar uso de credenciales locales (para desarrollo local, no Cloud Run) | No                  | False                         |
 | `--gcp-credentials-dir` | Ruta a la carpeta donde buscar el archivo .json de credenciales de GCP (opcional, util para Docker) | No | `.gcpcredentials` en la raíz |
 | `--output-root`        | Raíz donde se crearán las carpetas data/raw y data/processed en modo local (opcional, útil para Docker) | No | Raíz del proyecto |
+| `--skip-quality-validation` | Omitir validación de calidad y reportes | No | False |
 
 #### Uso con Docker
 
