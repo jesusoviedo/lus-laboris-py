@@ -81,6 +81,7 @@ uv run extract_law_text.py --mode gcs --bucket-name my-bucket --use-local-creden
 | `--output-root`        | Root directory for local output (data/raw and data/processed) (optional, useful for Docker) | No | Project root |
 | `--phoenix-endpoint`   | Phoenix endpoint URL for tracing                    | No                 | `http://localhost:6006/v1/traces` |
 | `--phoenix-project-name`| Phoenix project name for tracing                   | No                 | `lus-laboris-processing` |
+| `--phoenix-log-level`  | Phoenix logging level (DEBUG/INFO/WARNING/ERROR)   | No                 | `INFO` |
 
 #### Docker Usage
 
@@ -120,6 +121,8 @@ To use GCS mode, you need to configure authentication:
 #### Phoenix Tracing
 
 The script includes built-in support for Phoenix/OpenTelemetry tracing to monitor execution and performance. **Tracing is always enabled** when you run the script.
+
+> **For detailed Phoenix setup and advanced features, see the [Phoenix Guide](../../docs/phoenix_guide.md)**
 
 **Features:**
 - Automatic HTTP request instrumentation
@@ -173,6 +176,52 @@ uv run extract_law_text.py --phoenix-endpoint https://your-instance.phoenix.ariz
 - **Phoenix verification**: Before processing, the script checks if Phoenix is reachable
 - **Warning if unavailable**: If Phoenix is not running, you'll see warnings but processing continues
 - **No data loss**: If Phoenix becomes available during execution, traces will be sent
+
+#### Separate Logging System
+
+The script implements a separate logging system that distinguishes between main process messages and Phoenix/debug messages:
+
+**Main Process Logs:**
+```
+10:30:15 [PROCESO] 🔄 Starting processing in mode: LOCAL
+10:30:15 [PROCESO] 🔄 Downloading from: https://example.com/ley
+10:30:16 [PROCESO] ✅ Page downloaded and saved to: data/raw/ley.html
+10:30:16 [PROCESO] ✅ Law content extracted successfully
+10:30:17 [PROCESO] ✅ Saved locally: data/processed/articulos.json
+10:30:17 [PROCESO] 📊 Total articles: 150
+10:30:17 [PROCESO] ✅ Process completed successfully!
+```
+
+**Phoenix/Debug Logs:**
+```
+10:30:15 [PHOENIX] Phoenix tracing initialized correctly
+10:30:15 [PHOENIX] Session created: 550e8400-e29b-41d4-a716-446655440000
+10:30:15 [PHOENIX] Starting Phoenix span: download_law_page (kind: CLIENT) [Session: 550e8400]
+10:30:16 [PHOENIX] Ending Phoenix span: download_law_page
+10:30:17 [PHOENIX] Session ended: 550e8400-e29b-41d4-a716-446655440000
+```
+
+**Log Level Control:**
+
+```bash
+# See all Phoenix logs (full debug)
+uv run extract_law_text.py --phoenix-log-level DEBUG
+
+# Only important Phoenix information (default)
+uv run extract_law_text.py --phoenix-log-level INFO
+
+# Only Phoenix warnings and errors
+uv run extract_law_text.py --phoenix-log-level WARNING
+
+# Only critical Phoenix errors
+uv run extract_law_text.py --phoenix-log-level ERROR
+```
+
+**Benefits:**
+- **Clear separation**: Main process vs debugging/tracing
+- **Granular control**: Adjust Phoenix verbosity level
+- **Professional format**: Consistent timestamps and categorization
+- **Easy filtering**: Quickly identify important messages
 
 #### Output Structure
 
@@ -446,6 +495,8 @@ Para usar el modo GCS, necesitas configurar la autenticación:
 
 El script incluye soporte integrado para trazas Phoenix/OpenTelemetry para monitorear la ejecución y rendimiento. **El trazado siempre está activo** cuando ejecutas el script.
 
+> **Para configuración detallada de Phoenix y características avanzadas, consulta la [Guía de Phoenix](../../docs/phoenix_guide.md)**
+
 **Características:**
 - Instrumentación automática de peticiones HTTP
 - Spans personalizados para todas las operaciones principales (descarga, parsing, guardado)
@@ -477,6 +528,7 @@ uv run extract_law_text.py --phoenix-endpoint https://tu-instancia.phoenix.arize
 |-----------|-------------|-------------|-----------|
 | `--phoenix-endpoint` | URL del endpoint de Phoenix para enviar trazas | `http://localhost:6006/v1/traces` | No |
 | `--phoenix-project-name` | Nombre del proyecto para las trazas de Phoenix | `lus-laboris-processing` | No |
+| `--phoenix-log-level` | Nivel de logging de Phoenix (DEBUG/INFO/WARNING/ERROR) | `INFO` | No |
 
 **Uso:**
 
@@ -498,6 +550,52 @@ uv run extract_law_text.py --phoenix-endpoint https://tu-instancia.phoenix.arize
 - **Verificación de Phoenix**: Antes del procesamiento, el script verifica si Phoenix es alcanzable
 - **Advertencia si no disponible**: Si Phoenix no está ejecutándose, verás advertencias pero el procesamiento continuará
 - **Sin pérdida de datos**: Si Phoenix se vuelve disponible durante la ejecución, las trazas se enviarán
+
+#### Sistema de Logging Separado
+
+El script implementa un sistema de logging separado que distingue entre mensajes del proceso principal y mensajes de Phoenix/debug:
+
+**Logs del Proceso Principal:**
+```
+10:30:15 [PROCESO] 🔄 Iniciando procesamiento en modo: LOCAL
+10:30:15 [PROCESO] 🔄 Descargando desde: https://example.com/ley
+10:30:16 [PROCESO] ✅ Página descargada y guardada en: data/raw/ley.html
+10:30:16 [PROCESO] ✅ Contenido de la Ley extraído exitosamente
+10:30:17 [PROCESO] ✅ Guardado localmente: data/processed/articulos.json
+10:30:17 [PROCESO] 📊 Artículos totales: 150
+10:30:17 [PROCESO] ✅ Proceso completado exitosamente!
+```
+
+**Logs de Phoenix/Debug:**
+```
+10:30:15 [PHOENIX] Phoenix tracing inicializado correctamente
+10:30:15 [PHOENIX] Sesión creada: 550e8400-e29b-41d4-a716-446655440000
+10:30:15 [PHOENIX] Iniciando span Phoenix: download_law_page (kind: CLIENT) [Sesión: 550e8400]
+10:30:16 [PHOENIX] Finalizando span Phoenix: download_law_page
+10:30:17 [PHOENIX] Sesión finalizada: 550e8400-e29b-41d4-a716-446655440000
+```
+
+**Control de Nivel de Logging:**
+
+```bash
+# Ver todos los logs de Phoenix (debug completo)
+uv run extract_law_text.py --phoenix-log-level DEBUG
+
+# Solo información importante de Phoenix (por defecto)
+uv run extract_law_text.py --phoenix-log-level INFO
+
+# Solo warnings y errores de Phoenix
+uv run extract_law_text.py --phoenix-log-level WARNING
+
+# Solo errores críticos de Phoenix
+uv run extract_law_text.py --phoenix-log-level ERROR
+```
+
+**Beneficios:**
+- **Separación clara**: Proceso principal vs debugging/tracing
+- **Control granular**: Ajustar nivel de verbosidad de Phoenix
+- **Formato profesional**: Timestamps y categorización consistente
+- **Fácil filtrado**: Identificar rápidamente mensajes importantes
 
 #### Estructura de Salida
 
