@@ -20,6 +20,9 @@ This guide provides comprehensive instructions for setting up and using Phoenix 
 - [Local Setup](#local-setup)
 - [Configuration](#configuration)
 - [Integration with RAG API](#integration-with-rag-api)
+- [Advanced Tracing Features](#advanced-tracing-features)
+- [Session Management](#session-management)
+- [Span Kinds and Categorization](#span-kinds-and-categorization)
 - [Monitoring Features](#monitoring-features)
 - [Production Deployment](#production-deployment)
 - [Troubleshooting](#troubleshooting)
@@ -160,6 +163,150 @@ def retrieve_documents(self, query: str):
     return results
 ```
 
+## Advanced Tracing Features
+
+The law processing system includes advanced Phoenix tracing features for comprehensive observability:
+
+### Context Managers vs Decorators
+
+The system uses **context managers** instead of decorators for better control and granular tracing:
+
+```python
+from opentelemetry.trace import SpanKind
+
+# Using context manager for custom spans
+with phoenix_span("operation_name", SpanKind.INTERNAL, {"param": "value"}):
+    # Your operation code here
+    pass
+```
+
+### Automatic Session Grouping
+
+All spans from a single execution are automatically grouped under a session with unique identifiers.
+
+## Session Management
+
+The system implements automatic session management to group all spans from a single execution:
+
+### Session Features
+
+- **Unique Session ID**: Each execution gets a UUID for identification
+- **Automatic Grouping**: All spans are grouped under a root session span
+- **Session Attributes**: Each span includes session information
+- **Duration Tracking**: Total execution time is tracked at session level
+
+### Session Structure
+
+```
+execution_session (SERVER) 🔵 [ROOT SESSION]
+├── session.id: "550e8400-e29b-41d4-a716-446655440000"
+├── session.start_time: "2024-01-15T10:30:00.123456"
+├── session.type: "law_processing"
+├── session.version: "1.0"
+│
+└── main_process (SERVER) 🔵 [CHILD OF SESSION]
+    ├── session.id: "550e8400-e29b-41d4-a716-446655440000"
+    ├── execution.timestamp: "2024-01-15T10:30:00.234567"
+    │
+    └── All operation spans with session.id attribute
+```
+
+### Session Benefits
+
+1. **Visual Grouping**: All spans from one execution appear grouped in Phoenix
+2. **Easy Filtering**: Filter by `session.id` to see specific executions
+3. **Performance Analysis**: Compare different executions easily
+4. **Complete Traceability**: Track the full lifecycle of each execution
+
+### Using Sessions in Phoenix
+
+**Filter by Session:**
+```
+session.id = "550e8400-e29b-41d4-a716-446655440000"
+```
+
+**View Session Duration:**
+- The root `execution_session` span shows total execution time
+- Compare durations across different executions
+
+## Span Kinds and Categorization
+
+The system uses OpenTelemetry Span Kinds for better visualization and categorization:
+
+### Span Kind Types
+
+#### 🔵 **SpanKind.SERVER**
+**Purpose**: Main operations that coordinate other operations
+- `main_process` - Main application process
+- `process_law_local` - Complete local processing
+- `process_law_gcs` - Complete GCS processing
+
+#### 🟢 **SpanKind.CLIENT**
+**Purpose**: Operations that make external calls
+- `download_law_page` - Download from external URL
+
+#### 🟡 **SpanKind.PRODUCER**
+**Purpose**: Operations that send data to external systems
+- `save_parsed_json_gcs` - Save to Google Cloud Storage
+- `upload_file_to_gcs` - Upload files to GCS
+
+#### ⚪ **SpanKind.INTERNAL**
+**Purpose**: Internal data processing operations
+- `extract_metadata` - Extract law metadata
+- `extract_articles` - Segment articles
+- `parse_law_text` - Process complete text
+- `extract_text_from_html` - Extract clean text from HTML
+- `save_parsed_json_local` - Save files locally
+
+### Benefits of Span Kinds
+
+1. **Better Visualization**: Different icons and colors for each operation type
+2. **Clear Categorization**: Easy identification of operation types
+3. **Performance Analysis**: Identify where resources are spent by type
+4. **Improved Debugging**: Easier problem identification
+5. **Type-specific Metrics**: Generate metrics by operation type
+
+### Span Hierarchy
+
+```
+main_process (SERVER) 🔵
+├── process_law_local/process_law_gcs (SERVER) 🔵
+    ├── download_law_page (CLIENT) 🟢
+    ├── extract_text_from_html (INTERNAL) ⚪
+    ├── parse_law_text (INTERNAL) ⚪
+    │   ├── extract_metadata (INTERNAL) ⚪
+    │   └── extract_articles (INTERNAL) ⚪
+    ├── save_parsed_json_local (INTERNAL) ⚪ [local mode]
+    ├── upload_file_to_gcs (PRODUCER) 🟡 [GCS mode]
+    └── save_parsed_json_gcs (PRODUCER) 🟡 [GCS mode]
+```
+
+### Attributes by Span Type
+
+**CLIENT Spans:**
+- `url` - External call URL
+- `output_path` - Local output path
+
+**PRODUCER Spans:**
+- `bucket_name` - GCS bucket name
+- `filename` - File name
+- `articles_count` - Number of processed articles
+
+**INTERNAL Spans:**
+- `lines_count` - Number of processed lines
+- `text_length` - Text length
+- `html_path` - HTML file path
+- `articles_count` - Number of extracted articles
+
+**SERVER Spans:**
+- `mode` - Operation mode (local/gcs)
+- `url` - Law URL
+- `bucket_name` - Bucket name (GCS mode only)
+- `raw_filename` - HTML filename
+- `processed_filename` - JSON filename
+- `output_root` - Output root directory (local mode only)
+- `use_local_credentials` - Use local credentials (GCS mode only)
+
 ## Monitoring Features
 
 ### 1. Trace Analysis
@@ -294,6 +441,9 @@ Esta guía proporciona instrucciones completas para configurar y usar Phoenix pa
 - [Configuración Local](#configuración-local)
 - [Configuración](#configuración)
 - [Integración con API RAG](#integración-con-api-rag)
+- [Características Avanzadas de Tracing](#características-avanzadas-de-tracing)
+- [Gestión de Sesiones](#gestión-de-sesiones)
+- [Tipos de Spans y Categorización](#tipos-de-spans-y-categorización)
 - [Características de Monitoreo](#características-de-monitoreo)
 - [Despliegue en Producción](#despliegue-en-producción)
 - [Solución de Problemas](#solución-de-problemas)
@@ -433,6 +583,150 @@ def retrieve_documents(self, query: str):
     
     return results
 ```
+
+## Características Avanzadas de Tracing
+
+El sistema de procesamiento de leyes incluye características avanzadas de tracing en Phoenix para observabilidad integral:
+
+### Context Managers vs Decoradores
+
+El sistema usa **context managers** en lugar de decoradores para mejor control y tracing granular:
+
+```python
+from opentelemetry.trace import SpanKind
+
+# Usando context manager para spans personalizados
+with phoenix_span("nombre_operacion", SpanKind.INTERNAL, {"param": "valor"}):
+    # Tu código de operación aquí
+    pass
+```
+
+### Agrupación Automática de Sesiones
+
+Todos los spans de una sola ejecución se agrupan automáticamente bajo una sesión con identificadores únicos.
+
+## Gestión de Sesiones
+
+El sistema implementa gestión automática de sesiones para agrupar todos los spans de una sola ejecución:
+
+### Características de Sesión
+
+- **ID de Sesión Único**: Cada ejecución obtiene un UUID para identificación
+- **Agrupación Automática**: Todos los spans se agrupan bajo un span de sesión raíz
+- **Atributos de Sesión**: Cada span incluye información de sesión
+- **Seguimiento de Duración**: El tiempo total de ejecución se rastrea a nivel de sesión
+
+### Estructura de Sesión
+
+```
+execution_session (SERVER) 🔵 [SESIÓN RAÍZ]
+├── session.id: "550e8400-e29b-41d4-a716-446655440000"
+├── session.start_time: "2024-01-15T10:30:00.123456"
+├── session.type: "law_processing"
+├── session.version: "1.0"
+│
+└── main_process (SERVER) 🔵 [HIJO DE SESIÓN]
+    ├── session.id: "550e8400-e29b-41d4-a716-446655440000"
+    ├── execution.timestamp: "2024-01-15T10:30:00.234567"
+    │
+    └── Todos los spans de operación con atributo session.id
+```
+
+### Beneficios de Sesión
+
+1. **Agrupación Visual**: Todos los spans de una ejecución aparecen agrupados en Phoenix
+2. **Filtrado Fácil**: Filtrar por `session.id` para ver ejecuciones específicas
+3. **Análisis de Rendimiento**: Comparar diferentes ejecuciones fácilmente
+4. **Trazabilidad Completa**: Rastrear el ciclo de vida completo de cada ejecución
+
+### Usando Sesiones en Phoenix
+
+**Filtrar por Sesión:**
+```
+session.id = "550e8400-e29b-41d4-a716-446655440000"
+```
+
+**Ver Duración de Sesión:**
+- El span raíz `execution_session` muestra el tiempo total de ejecución
+- Comparar duraciones entre diferentes ejecuciones
+
+## Tipos de Spans y Categorización
+
+El sistema usa Span Kinds de OpenTelemetry para mejor visualización y categorización:
+
+### Tipos de Span Kind
+
+#### 🔵 **SpanKind.SERVER**
+**Propósito**: Operaciones principales que coordinan otras operaciones
+- `main_process` - Proceso principal de la aplicación
+- `process_law_local` - Procesamiento local completo
+- `process_law_gcs` - Procesamiento GCS completo
+
+#### 🟢 **SpanKind.CLIENT**
+**Propósito**: Operaciones que realizan llamadas externas
+- `download_law_page` - Descarga desde URL externa
+
+#### 🟡 **SpanKind.PRODUCER**
+**Propósito**: Operaciones que envían datos a sistemas externos
+- `save_parsed_json_gcs` - Guardar en Google Cloud Storage
+- `upload_file_to_gcs` - Subir archivos a GCS
+
+#### ⚪ **SpanKind.INTERNAL**
+**Propósito**: Operaciones de procesamiento interno de datos
+- `extract_metadata` - Extraer metadatos de la ley
+- `extract_articles` - Segmentar artículos
+- `parse_law_text` - Procesar texto completo
+- `extract_text_from_html` - Extraer texto limpio del HTML
+- `save_parsed_json_local` - Guardar archivos localmente
+
+### Beneficios de Span Kinds
+
+1. **Mejor Visualización**: Diferentes iconos y colores para cada tipo de operación
+2. **Categorización Clara**: Identificación fácil de tipos de operación
+3. **Análisis de Rendimiento**: Identificar dónde se gastan recursos por tipo
+4. **Debugging Mejorado**: Identificación más fácil de problemas
+5. **Métricas Específicas por Tipo**: Generar métricas por tipo de operación
+
+### Jerarquía de Spans
+
+```
+main_process (SERVER) 🔵
+├── process_law_local/process_law_gcs (SERVER) 🔵
+    ├── download_law_page (CLIENT) 🟢
+    ├── extract_text_from_html (INTERNAL) ⚪
+    ├── parse_law_text (INTERNAL) ⚪
+    │   ├── extract_metadata (INTERNAL) ⚪
+    │   └── extract_articles (INTERNAL) ⚪
+    ├── save_parsed_json_local (INTERNAL) ⚪ [modo local]
+    ├── upload_file_to_gcs (PRODUCER) 🟡 [modo GCS]
+    └── save_parsed_json_gcs (PRODUCER) 🟡 [modo GCS]
+```
+
+### Atributos por Tipo de Span
+
+**Spans CLIENT:**
+- `url` - URL de llamada externa
+- `output_path` - Ruta de salida local
+
+**Spans PRODUCER:**
+- `bucket_name` - Nombre del bucket de GCS
+- `filename` - Nombre del archivo
+- `articles_count` - Número de artículos procesados
+
+**Spans INTERNAL:**
+- `lines_count` - Número de líneas procesadas
+- `text_length` - Longitud del texto
+- `html_path` - Ruta del archivo HTML
+- `articles_count` - Número de artículos extraídos
+
+**Spans SERVER:**
+- `mode` - Modo de operación (local/gcs)
+- `url` - URL de la ley
+- `bucket_name` - Nombre del bucket (solo modo GCS)
+- `raw_filename` - Nombre del archivo HTML
+- `processed_filename` - Nombre del archivo JSON
+- `output_root` - Directorio raíz de salida (solo modo local)
+- `use_local_credentials` - Usar credenciales locales (solo modo GCS)
 
 ## Características de Monitoreo
 
