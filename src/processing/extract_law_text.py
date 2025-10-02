@@ -46,7 +46,7 @@ HEADER_PATTERNS = {
     'capitulo': re.compile(r"^CAPITULO\s+([IVXLCDM]+)\s*$", re.IGNORECASE),
 }
 
-ARTICULO_PATTERN = re.compile(r"^Art[íi]?t?culo\s+(\d+)\s*(?:[°º])?\s*\.?\s*-\s*$", re.IGNORECASE)
+ARTICULO_PATTERN = re.compile(r"^Art[íi]?t?culo\s+(\d+)\s*(?:[°º])?\s*\.?\s*-?\s*", re.IGNORECASE)
 
 ROMAN_MAP = {
     'PRIMERO': 1, 'SEGUNDO': 2, 'TERCERO': 3, 'CUARTO': 4, 'QUINTO': 5,
