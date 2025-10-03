@@ -170,10 +170,10 @@ def create_span_with_kind_fallback(tracer, operation_name: str, kind: SpanKind, 
         else:
             span = tracer.start_span(operation_name, kind=kind, attributes=attributes)
         
-        log_phoenix(f"Span creado con método estándar: {operation_name} (kind: {kind.name})", "debug")
+        log_phoenix(f"Span created with standard method: {operation_name} (kind: {kind.name})", "debug")
         
     except Exception as e1:
-        log_phoenix(f"Error con método estándar: {e1}, intentando método alternativo", "warning")
+        log_phoenix(f"Error with standard method: {e1}, trying alternative method", "warning")
         
         try:
             # Method 2: Try without context first, then add kind manually
@@ -192,7 +192,7 @@ def create_span_with_kind_fallback(tracer, operation_name: str, kind: SpanKind, 
                 log_phoenix(f"Span kind establecido como atributo: {kind.name}", "debug")
                 
         except Exception as e2:
-            log_phoenix(f"Error con método alternativo: {e2}, usando span básico", "warning")
+            log_phoenix(f"Error with alternative method: {e2}, using basic span", "warning")
             
             # Method 3: Basic span creation
             if context:
@@ -203,7 +203,7 @@ def create_span_with_kind_fallback(tracer, operation_name: str, kind: SpanKind, 
             if span and hasattr(span, 'set_attribute'):
                 span.set_attribute("span.kind", kind.name)
                 span.set_attribute("span.type", str(kind))
-                log_phoenix(f"Span básico creado con atributos de kind: {kind.name}", "debug")
+                log_phoenix(f"Basic span created with kind attributes: {kind.name}", "debug")
     
     return span
 
@@ -321,11 +321,11 @@ def create_session():
             }
         )
         _session_context = set_span_in_context(session_span)
-        log_phoenix(f"Sesión creada: {_session_id}", "info")
+        log_phoenix(f"Session created: {_session_id}", "info")
         return session_span
     else:
         _session_context = None
-        log_phoenix(f"Sesión creada (sin tracing): {_session_id}", "info")
+        log_phoenix(f"Session created (without tracing): {_session_id}", "info")
         return None
 
 
@@ -365,7 +365,7 @@ def end_session():
             current_span.set_attribute("session.duration_ms", 
                 int((datetime.now() - _session_start_time).total_seconds() * 1000))
             current_span.end()
-            log_phoenix(f"Sesión finalizada: {_session_id}", "info")
+            log_phoenix(f"Session ended: {_session_id}", "info")
     
     # Reset session variables
     _session_id = None
@@ -375,15 +375,15 @@ def end_session():
 @contextmanager
 def phoenix_span(operation_name: str, kind: SpanKind = SpanKind.INTERNAL, attributes: Dict[str, Any] = None):
     """
-    Context manager para crear spans personalizados de Phoenix con información de sesión.
+    Context manager to create custom Phoenix spans with session information.
     
     Args:
-        operation_name: Nombre de la operación para el span
-        kind: Tipo de span (INTERNAL, SERVER, CLIENT, PRODUCER, CONSUMER)
-        attributes: Diccionario de atributos para el span
+        operation_name: Name of the operation for the span
+        kind: Type of span (INTERNAL, SERVER, CLIENT, PRODUCER, CONSUMER)
+        attributes: Dictionary of attributes for the span
         
     Yields:
-        span: El span de Phoenix o None si no está disponible
+        span: The Phoenix span or None if not available
     """
     tracer = get_phoenix_tracer()
     span = None
@@ -406,7 +406,7 @@ def phoenix_span(operation_name: str, kind: SpanKind = SpanKind.INTERNAL, attrib
                 _session_context
             )
             
-            log_phoenix(f"Iniciando span Phoenix: {operation_name} (kind: {kind.name}) [Sesión: {_session_id[:8] if _session_id else 'N/A'}]", "debug")
+            log_phoenix(f"Starting Phoenix span: {operation_name} (kind: {kind.name}) [Session: {_session_id[:8] if _session_id else 'N/A'}]", "debug")
             yield span
         except Exception as e:
             log_phoenix(f"Error creando span Phoenix: {e}", "warning")
@@ -460,7 +460,7 @@ def download_law_page(url: str, output_path: str = "data/raw/codigo_trabajo_py.h
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(response.text)
         
-        log_process(f"Página descargada y guardada en: {out_path}", "success")
+        log_process(f"Page downloaded and saved to: {out_path}", "success")
 
 
 def extract_metadata(lines: List[str]) -> Dict[str, Any]:
@@ -595,13 +595,7 @@ def parse_law_text(raw_text: str) -> Dict[str, Any]:
 
 def validate_processed_data(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Valida la integridad y calidad de los datos procesados.
-    
-    Args:
-        articles: Lista de artículos procesados
-        
-    Returns:
-        Diccionario con resultados de validación
+    Validates the integrity and quality of processed data.
     """
     with phoenix_span("validate_processed_data", SpanKind.INTERNAL, {"articles_count": len(articles)}):
         validation_results = {
@@ -618,20 +612,20 @@ def validate_processed_data(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
             article_valid = True
             article_issues = []
             
-            # Verificar campos requeridos
+            # Check required fields
             for field in required_fields:
                 if field not in article or not article[field]:
                     article_issues.append(f"Campo faltante: {field}")
                     article_valid = False
             
-            # Verificar que el número de artículo sea válido
+            # Check that article number is valid
             if 'articulo_numero' in article:
                 art_num = article['articulo_numero']
                 if not isinstance(art_num, int) or art_num < 1 or art_num > 413:
                     article_issues.append(f"Número de artículo inválido: {art_num}")
                     article_valid = False
             
-            # Verificar que el contenido no esté vacío
+            # Check that content is not empty
             if 'articulo' in article and len(article['articulo'].strip()) < 10:
                 article_issues.append("Contenido del artículo demasiado corto")
                 article_valid = False
@@ -648,7 +642,7 @@ def validate_processed_data(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
         if validation_results['total_articles'] > 0:
             validation_results['quality_score'] = validation_results['valid_articles'] / validation_results['total_articles']
         
-        log_process(f"Validación completada: {validation_results['valid_articles']}/{validation_results['total_articles']} artículos válidos", "result")
+        log_process(f"Validation completed: {validation_results['valid_articles']}/{validation_results['total_articles']} valid articles", "result")
         log_process(f"Score de calidad: {validation_results['quality_score']:.2%}", "result")
         
         return validation_results
@@ -656,13 +650,7 @@ def validate_processed_data(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def verify_data_completeness(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Verifica que todos los artículos esperados estén presentes.
-    
-    Args:
-        articles: Lista de artículos procesados
-        
-    Returns:
-        Diccionario con reporte de completitud
+    Verifies that all expected articles are present.
     """
     with phoenix_span("verify_data_completeness", SpanKind.INTERNAL, {"articles_count": len(articles)}):
         article_numbers = [art['articulo_numero'] for art in articles if 'articulo_numero' in art]
@@ -685,23 +673,17 @@ def verify_data_completeness(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
         log_process(f"Completitud de datos: {completeness_report['completeness_percentage']:.1f}%", "result")
         
         if missing_articles:
-            log_process(f"Artículos faltantes: {missing_articles}", "warning")
+            log_process(f"Missing articles: {missing_articles}", "warning")
         
         if duplicate_articles:
-            log_process(f"Artículos duplicados: {duplicate_articles}", "warning")
+            log_process(f"Duplicate articles: {duplicate_articles}", "warning")
         
         return completeness_report
 
 
 def analyze_content_quality(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Analiza la calidad del contenido extraído.
-    
-    Args:
-        articles: Lista de artículos procesados
-        
-    Returns:
-        Diccionario con métricas de calidad de contenido
+    Analyzes the quality of extracted content.
     """
     with phoenix_span("analyze_content_quality", SpanKind.INTERNAL, {"articles_count": len(articles)}):
         quality_metrics = {
@@ -723,7 +705,7 @@ def analyze_content_quality(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
             content_length = len(content.strip())
             content_lengths.append(content_length)
             
-            # Clasificar por longitud
+            # Classify by length
             if content_length < 50:
                 quality_metrics['short_articles'] += 1
             elif content_length <= 200:
@@ -731,7 +713,7 @@ def analyze_content_quality(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
             else:
                 quality_metrics['long_articles'] += 1
             
-            # Verificar características especiales
+            # Check special characteristics
             if any(char in content for char in ['°', 'º', '§', '¶']):
                 quality_metrics['articles_with_special_chars'] += 1
             
@@ -741,21 +723,15 @@ def analyze_content_quality(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
         if content_lengths:
             quality_metrics['avg_content_length'] = sum(content_lengths) / len(content_lengths)
         
-        log_process(f"Análisis de calidad completado", "result")
-        log_process(f"Longitud promedio de artículos: {quality_metrics['avg_content_length']:.1f} caracteres", "result")
+        log_process(f"Quality analysis completed", "result")
+        log_process(f"Average article length: {quality_metrics['avg_content_length']:.1f} characters", "result")
         
         return quality_metrics
 
 
 def generate_quality_report(articles: List[Dict[str, Any]]) -> str:
     """
-    Genera un reporte completo de calidad de datos.
-    
-    Args:
-        articles: Lista de artículos procesados
-        
-    Returns:
-        String con reporte formateado de calidad
+    Generates a comprehensive data quality report.
     """
     with phoenix_span("generate_quality_report", SpanKind.INTERNAL, {"articles_count": len(articles)}):
         validation_results = validate_processed_data(articles)
@@ -808,7 +784,7 @@ def save_parsed_json_local(parsed: Dict[str, Any], processed_filename: str = "co
             json.dump(parsed, f, ensure_ascii=False, indent=2)
         
         log_process(f"Guardado localmente: {out_path}", "success")
-        log_process(f"Artículos totales: {articles_count}", "result")
+        log_process(f"Total articles: {articles_count}", "result")
         return str(out_path)
 
 
@@ -825,7 +801,7 @@ def save_parsed_json_gcs(parsed: Dict[str, Any], bucket_name: str, processed_fil
         gcs_path = f"gs://{bucket_name}/processed/{processed_filename}"
         
         log_process(f"Guardado en GCS: {gcs_path}", "success")
-        log_process(f"Artículos totales: {articles_count}", "result")
+        log_process(f"Total articles: {articles_count}", "result")
         return gcs_path
 
 
@@ -898,13 +874,13 @@ def process_law_local(url: str, raw_filename: str = "codigo_trabajo_py.html", pr
             raise
         parsed = parse_law_text(texto_limpio)
         
-        # Validación de calidad de datos (opcional)
+        # Data quality validation (optional)
         if not skip_quality_validation:
-            log_process("=== VALIDACIÓN DE CALIDAD ===", "step")
+            log_process("=== QUALITY VALIDATION ===", "step")
             quality_report = generate_quality_report(parsed['articulos'])
             print(quality_report)  # Mostrar reporte completo
         else:
-            log_process("Validación de calidad omitida", "step")
+            log_process("Quality validation skipped", "step")
         
         output_path = save_parsed_json_local(parsed, processed_filename, output_root=output_root)
         
@@ -934,13 +910,13 @@ def process_law_gcs(url: str, bucket_name: str, raw_filename: str = "codigo_trab
                 raise
             parsed = parse_law_text(texto_limpio)
             
-            # Validación de calidad de datos (opcional)
+            # Data quality validation (optional)
             if not skip_quality_validation:
-                log_process("=== VALIDACIÓN DE CALIDAD ===", "step")
+                log_process("=== QUALITY VALIDATION ===", "step")
                 quality_report = generate_quality_report(parsed['articulos'])
                 print(quality_report)  # Mostrar reporte completo
             else:
-                log_process("Validación de calidad omitida", "step")
+                log_process("Quality validation skipped", "step")
             
             # Always upload processed JSON
             gcs_path = save_parsed_json_gcs(parsed, bucket_name, processed_filename)
@@ -977,7 +953,7 @@ def extract_text_from_html(html_path: str) -> str:
         # Extract clean text
         texto_limpio = contenido_ley.get_text(separator='\n', strip=True)
         
-        log_process("Contenido de la Ley extraído exitosamente", "success")
+        log_process("Law content extracted successfully", "success")
         
         return texto_limpio
 
@@ -1088,7 +1064,7 @@ def main() -> int:
     
     log_process(f"Iniciando procesamiento en modo: {args.mode.upper()}", "step")
     log_process(f"URL: {args.url}", "info")
-    log_process(f"Sesión ID: {_session_id}", "info")
+    log_process(f"Session ID: {_session_id}", "info")
     
     try:
         # Main span for the entire operation (now as child of session)
@@ -1108,7 +1084,7 @@ def main() -> int:
                 )
                 log_process("Proceso completado exitosamente!", "success")
                 log_process(f"Archivo guardado en: {output_path}", "result")
-                log_process(f"Sesión: {_session_id}", "info")
+                log_process(f"Session: {_session_id}", "info")
             elif args.mode == 'gcs':
                 if not args.bucket_name:
                     log_process("--bucket-name es requerido para el modo GCS", "error")
@@ -1124,7 +1100,7 @@ def main() -> int:
                 )
                 log_process("Proceso completado exitosamente!", "success")
                 log_process(f"Archivo guardado en GCS: {gcs_path}", "result")
-                log_process(f"Sesión: {_session_id}", "info")
+                log_process(f"Session: {_session_id}", "info")
             
             return 0
             
