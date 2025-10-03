@@ -178,6 +178,7 @@ class QuestionResponse(BaseResponse):
     answer: Optional[str] = Field(None, description="The generated answer (required when success=True)")
     error: Optional[str] = Field(None, description="Error message (only present when success=False)")
     processing_time_seconds: float = Field(..., description="Processing time in seconds")
+    session_id: Optional[str] = Field(None, description="Phoenix monitoring session ID")
     # Source transparency fields (required when success=True)
     documents_retrieved: Optional[int] = Field(None, description="Number of documents retrieved from the knowledge base (required when success=True)")
     top_k: Optional[int] = Field(None, description="Number of most relevant documents considered (required when success=True)")
@@ -194,6 +195,7 @@ class QuestionResponse(BaseResponse):
                     "question": "¿Cuáles son los derechos del trabajador en caso de despido?",
                     "answer": "Según el Código del Trabajo paraguayo, el trabajador tiene derecho a...",
                     "processing_time_seconds": 2.345,
+                    "session_id": "550e8400-e29b-41d4-a716-446655440000",
                     "documents_retrieved": 5,
                     "top_k": 5,
                     "reranking_applied": True,
@@ -215,7 +217,8 @@ class QuestionResponse(BaseResponse):
                     "timestamp": "2024-01-15T10:30:00Z",
                     "question": "¿Cuáles son los derechos del trabajador en caso de despido?",
                     "error": "No se pudo conectar con el servicio de embeddings",
-                    "processing_time_seconds": 1.234
+                    "processing_time_seconds": 1.234,
+                    "session_id": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         }

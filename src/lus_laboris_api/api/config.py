@@ -56,6 +56,12 @@ class Settings(BaseSettings):
     # Debug Configuration
     api_debug_config: bool = False
     
+    # Phoenix Monitoring Configuration
+    api_phoenix_enabled: bool = True
+    api_phoenix_endpoint: Optional[str] = None
+    api_phoenix_api_key: Optional[str] = None
+    api_phoenix_project_name: str = "lus-laboris-api"
+    
     class Config:
         project_root = Path(__file__).parent.parent.parent.parent
         path_env_file_default = project_root / ".env"
