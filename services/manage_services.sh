@@ -47,7 +47,7 @@ is_service_running() {
     
     if [ -f "$service_dir/docker-compose.yml" ]; then
         cd "$service_dir"
-        if docker-compose ps | grep -q "Up"; then
+        if docker compose ps | grep -q "Up"; then
             return 0
         else
             return 1
@@ -76,7 +76,7 @@ start_service() {
         return 0
     fi
     
-    docker-compose up -d
+    docker compose up -d
     
     if [ $? -eq 0 ]; then
         print_status "$service_name iniciado exitosamente"
@@ -118,7 +118,7 @@ stop_service() {
         return 0
     fi
     
-    docker-compose down
+    docker compose down
     
     if [ $? -eq 0 ]; then
         print_status "$service_name detenido exitosamente"
@@ -164,7 +164,7 @@ show_logs() {
     fi
     
     cd "$service_dir"
-    docker-compose logs -f
+    docker compose logs -f
 }
 
 # Main menu function
