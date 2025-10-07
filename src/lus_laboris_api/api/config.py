@@ -67,7 +67,9 @@ class Settings(BaseSettings):
         path_env_file_default = project_root / ".env"
 
         # Get the environment file path from the environment variable or use the default
-        env_file = os.getenv("API_ENV_FILE_PATH", path_env_file_default)
+        # Convert to Path to ensure consistency
+        env_file_path = os.getenv("API_ENV_FILE_PATH", path_env_file_default)
+        env_file = Path(env_file_path) if isinstance(env_file_path, str) else env_file_path
         env_file_encoding = "utf-8"
         case_sensitive = False
         extra = "ignore"  # Ignore extra variables from the .env
@@ -76,7 +78,10 @@ class Settings(BaseSettings):
 # Global settings instance
 settings = Settings()
 
-# Optional: Log which .env file is being used
+# Log which .env file is being used
+print(f"Using .env file: {settings.Config.env_file}")
+
+# Optional: Debug information
 if settings.api_debug_config:
-    print(f"Using .env file: {settings.Config.env_file}")
     print(f"File exists: {settings.Config.env_file.exists()}")
+    print(f"Project root: {settings.Config.project_root}")
