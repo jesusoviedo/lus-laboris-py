@@ -9,7 +9,7 @@
 
 # Lus Laboris API
 
-REST API built with FastAPI for semantic search and information retrieval from Paraguay's Labor Code using Qdrant as vector database.
+REST API built with FastAPI for semantic search and information retrieval from Paraguay's Labor Code using Qdrant as vector database. Features integrated Phoenix monitoring for LLM tracking, session management, and quality metrics.
 
 ## Quick Start
 
@@ -136,6 +136,12 @@ API_DEBUG_CONFIG=false
 OPENAI_API_KEY=your_openai_api_key
 GEMINI_API_KEY=your_gemini_api_key
 
+# Phoenix Monitoring Configuration
+API_PHOENIX_ENABLED=true
+API_PHOENIX_ENDPOINT=http://localhost:6006
+API_PHOENIX_API_KEY=your_phoenix_api_key_here
+API_PHOENIX_PROJECT_NAME=lus-laboris-api
+
 # Docker Configuration (optional)
 API_ENV_FILE_PATH=/app/.env
 ```
@@ -220,10 +226,25 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 - **No authentication required** - public endpoint with rate limiting
 - Rate limit: 10 requests per minute per IP address
 - Uses OpenAI or Gemini LLM with context from Qdrant
+- **Phoenix Evals**: Automatic asynchronous evaluation with LLM-as-a-Judge
+  - Relevance scoring
+  - Hallucination detection
+  - Toxicity checking
+  - Grounding verification
 
 **GET** `/api/rag/health`
 - RAG service health check
 - No authentication required
+
+**GET** `/api/rag/metrics`
+- Phoenix monitoring metrics and session statistics
+- **Requires JWT authentication** - protected endpoint
+- Returns active sessions, total actions, and LLM calls count
+
+**GET** `/api/rag/evaluations/status`
+- Evaluation service status and queue information
+- **Requires JWT authentication** - protected endpoint
+- Returns evaluation queue size and service health
 
 #### Health Check Examples
 
@@ -250,15 +271,23 @@ curl -X GET "http://localhost:8000/api/health/qdrant" \
   -H "Authorization: Bearer your_jwt_token_here"
 ```
 
-**RAG endpoints (no token required):**
+**RAG endpoints:**
 ```bash
-# Ask a question
+# Ask a question (public, no token required)
 curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
 
-# RAG health check
+# RAG health check (public, no token required)
 curl -X GET "http://localhost:8000/api/rag/health"
+
+# Phoenix metrics (requires JWT token)
+curl -X GET "http://localhost:8000/api/rag/metrics" \
+  -H "Authorization: Bearer your_jwt_token_here"
+
+# Evaluation service status (requires JWT token)
+curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
+  -H "Authorization: Bearer your_jwt_token_here"
 ```
 
 #### Vectorstore (Qdrant)
@@ -481,6 +510,31 @@ The text used to generate embeddings combines:
 - Rate limiting and error handling
 - Comprehensive response with metadata and reranking information
 
+### PhoenixMonitoringService
+- **LLM Monitoring**: Complete tracking of OpenAI and Gemini API calls
+- **Session Management**: Groups all actions within execution sessions
+- **Quality Metrics**: Automatic evaluation of response coherence, relevance, and completeness
+- **Performance Tracking**: Monitors embedding generation, vectorstore searches, and reranking
+- **OpenTelemetry Integration**: Full observability with distributed tracing
+- **Non-intrusive**: Asynchronous tracking without affecting API performance
+- **Hierarchical Spans**: Parent-child span relationships for complex operations
+
+### EvaluationService
+
+**NEW**: Asynchronous evaluation service using Phoenix Evals (LLM-as-a-Judge):
+- **Asynchronous Processing**: Evaluations run in background without blocking user responses
+- **Phoenix Evals Integration**: Uses proven evaluation templates from Arize Phoenix
+- **Evaluation Metrics**:
+  - **Relevance**: How relevant is the answer to the question (0.0-1.0)
+  - **Hallucination**: Does the answer contain information not in the context (0.0-1.0)
+  - **Toxicity**: Does the answer contain offensive content (0.0-1.0)
+  - **Grounding**: Is the answer based solely on provided context (0.0-1.0)
+  - **Overall Quality**: Weighted average of all metrics
+- **Queue-Based Architecture**: ThreadPoolExecutor with 2 workers processes evaluations
+- **GPT-4o-mini**: Uses cost-effective model for evaluations
+- **Graceful Shutdown**: Ensures pending evaluations complete before shutdown
+- **Zero Latency Impact**: User receives response immediately (~2s), evaluation happens in background (~5s)
+
 ## Troubleshooting
 
 ### Error: "uv is not installed"
@@ -584,12 +638,13 @@ docker run -it --rm \
 - **FastAPI Guide**: `docs/fastapi_guide.md` - FastAPI guide
 - **UV Guide**: `docs/uv_guide.md` - UV guide
 - **GCP Setup**: `docs/setup_gcp_project.md` - GCP configuration
+- **Phoenix Monitoring**: Built-in LLM monitoring with session tracking and quality metrics
 
 ---
 
 # API Lus Laboris
 
-API REST construida con FastAPI para búsqueda semántica y recuperación de información del Código Laboral de Paraguay usando Qdrant como base de datos vectorial.
+API REST construida con FastAPI para búsqueda semántica y recuperación de información del Código Laboral de Paraguay usando Qdrant como base de datos vectorial. Incluye monitoreo integrado con Phoenix para tracking de LLM, gestión de sesiones y métricas de calidad.
 
 ## Inicio Rápido
 
@@ -716,6 +771,12 @@ API_DEBUG_CONFIG=false
 OPENAI_API_KEY=your_openai_api_key
 GEMINI_API_KEY=your_gemini_api_key
 
+# Configuración de Monitoreo Phoenix
+API_PHOENIX_ENABLED=true
+API_PHOENIX_ENDPOINT=http://localhost:6006
+API_PHOENIX_API_KEY=tu_phoenix_api_key_aqui
+API_PHOENIX_PROJECT_NAME=lus-laboris-api
+
 # Docker Configuration (opcional)
 API_ENV_FILE_PATH=/app/.env
 ```
@@ -766,10 +827,18 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 **POST** `/api/data/load-to-vectorstore-local`
 - Cargar datos JSON desde archivos locales a Qdrant
 - Requiere autenticación JWT
+- **Phoenix Tracking**: Tracking completo con spans jerárquicos
+  - Track de operación principal con payload JWT decodificado
+  - Spans por etapa: carga, embedding, creación de colección, inserción
+  - Métricas detalladas de tiempo y contadores por etapa
 
 **POST** `/api/data/load-to-vectorstore-gcp`
 - Cargar datos JSON desde Google Cloud Storage a Qdrant
 - Requiere autenticación JWT
+- **Phoenix Tracking**: Tracking completo con spans jerárquicos
+  - Track de operación principal con payload JWT decodificado
+  - Spans por etapa: carga desde GCS, embedding, creación de colección, inserción
+  - Métricas detalladas de tiempo y contadores por etapa
 
 **GET** `/api/data/collections`
 - Listar todas las colecciones
@@ -782,6 +851,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 **DELETE** `/api/data/collections/{collection_name}`
 - Eliminar una colección
 - Requiere autenticación JWT
+- **Phoenix Tracking**: Tracking de operación con información del usuario
 
 #### Health Checks (Públicos - Sin Autenticación Requerida)
 
@@ -822,14 +892,25 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 - **Sin autenticación requerida** - endpoint público con control de límites
 - Límite de velocidad: 10 solicitudes por minuto por IP
 - Utiliza OpenAI o Gemini LLM con contexto de Qdrant
+- **Phoenix Evals**: Evaluación automática asíncrona con LLM-as-a-Judge
+  - Scoring de relevancia
+  - Detección de alucinaciones
+  - Verificación de toxicidad
+  - Verificación de grounding
 
 **GET** `/api/rag/health`
 - Health check del servicio RAG
 - Sin autenticación requerida
 
-**GET** `/api/rag/config`
-- Obtener configuración actual del servicio RAG
-- Sin autenticación requerida
+**GET** `/api/rag/metrics`
+- Métricas de monitoreo Phoenix y estadísticas de sesiones
+- **Requiere autenticación JWT** - endpoint protegido
+- Retorna sesiones activas, acciones totales y llamadas LLM
+
+**GET** `/api/rag/evaluations/status`
+- Estado del servicio de evaluación e información de la cola
+- **Requiere autenticación JWT** - endpoint protegido
+- Retorna tamaño de la cola de evaluaciones y salud del servicio
 
 #### Ejemplos de Health Check
 
@@ -865,6 +946,9 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 
 # Health check RAG
 curl -X GET "http://localhost:8000/api/rag/health"
+
+# Métricas Phoenix
+curl -X GET "http://localhost:8000/api/rag/metrics"
 ```
 
 ### Modelos de Datos
@@ -1047,7 +1131,30 @@ El texto que se usa para generar embeddings combina:
 - Control de límites y manejo de errores
 - Respuesta comprensiva con metadatos e información de reranking
 
+### PhoenixMonitoringService
+- **Monitoreo de LLM**: Tracking completo de llamadas a APIs de OpenAI y Gemini
+- **Gestión de Sesiones**: Agrupa todas las acciones dentro de sesiones de ejecución
+- **Métricas de Calidad**: Evaluación automática de coherencia, relevancia y completitud de respuestas
+- **Tracking de Rendimiento**: Monitorea generación de embeddings, búsquedas en vectorstore y reranking
+- **Integración OpenTelemetry**: Observabilidad completa con trazabilidad distribuida
+- **No intrusivo**: Tracking asíncrono sin afectar el rendimiento de la API
+- **Spans Jerárquicos**: Relaciones padre-hijo para operaciones complejas
 
+### EvaluationService
+
+**NUEVO**: Servicio de evaluación asíncrona usando Phoenix Evals (LLM-as-a-Judge):
+- **Procesamiento Asíncrono**: Las evaluaciones se ejecutan en background sin bloquear las respuestas al usuario
+- **Integración Phoenix Evals**: Usa templates de evaluación probados de Arize Phoenix
+- **Métricas de Evaluación**:
+  - **Relevancia**: Qué tan relevante es la respuesta a la pregunta (0.0-1.0)
+  - **Alucinación**: La respuesta contiene información no presente en el contexto (0.0-1.0)
+  - **Toxicidad**: La respuesta contiene contenido ofensivo (0.0-1.0)
+  - **Grounding**: La respuesta se basa únicamente en el contexto proporcionado (0.0-1.0)
+  - **Calidad General**: Promedio ponderado de todas las métricas
+- **Arquitectura Basada en Cola**: ThreadPoolExecutor con 2 workers procesa evaluaciones
+- **GPT-4o-mini**: Usa modelo cost-effective para evaluaciones
+- **Shutdown Graceful**: Asegura que las evaluaciones pendientes se completen antes del cierre
+- **Sin Impacto en Latencia**: Usuario recibe respuesta inmediatamente (~2s), evaluación ocurre en background (~5s)
 
 ## Solución de Problemas
 
@@ -1144,11 +1251,72 @@ docker run -it --rm \
   tu_usuario/legal-rag-api:latest /bin/bash
 ```
 
+## Phoenix Evals - Evaluación Automática de Calidad
+
+### ¿Qué es Phoenix Evals?
+
+Phoenix Evals es un sistema de evaluación de calidad para sistemas RAG que usa **LLM-as-a-Judge** (un LLM para evaluar las respuestas de otro LLM).
+
+### Arquitectura de Evaluación
+
+```
+Usuario hace pregunta
+    ↓
+RAG genera respuesta (2-3s)
+    ↓
+✅ Usuario recibe respuesta (sin bloqueo)
+    ↓
+📊 Evaluación encolada
+    ↓
+🔄 Worker evalúa en background (2-5s)
+    - Relevancia
+    - Alucinaciones
+    - Toxicidad
+    - Grounding
+    ↓
+💾 Métricas guardadas en Phoenix
+```
+
+### Métricas Evaluadas
+
+| Métrica | Descripción | Rango | Peso |
+|---------|-------------|-------|------|
+| **Relevance** | ¿La respuesta es relevante a la pregunta? | 0.0-1.0 | 50% |
+| **Hallucination** | ¿Inventa información no presente en el contexto? | 0.0-1.0 | - |
+| **Grounding** | ¿Se basa únicamente en el contexto? (1.0 - hallucination) | 0.0-1.0 | 40% |
+| **Toxicity** | ¿Contiene contenido ofensivo? | 0.0-1.0 | 10% |
+| **Overall Quality** | Promedio ponderado de todas las métricas | 0.0-1.0 | 100% |
+
+### Ver Evaluaciones en Phoenix
+
+1. Abrir Phoenix UI: `http://localhost:6006`
+2. Seleccionar proyecto: `lus-laboris-api`
+3. Filtrar por `operation_type: llm_evaluation`
+4. Ver métricas en los atributos del span
+
+### Costos de Evaluación
+
+- **Modelo usado**: GPT-4o-mini (~$0.150 / 1M tokens input, ~$0.600 / 1M tokens output)
+- **Tokens por evaluación**: ~500-1000 tokens
+- **Costo estimado**: ~$0.0005-0.001 por evaluación
+- **Para 1000 evaluaciones/día**: ~$0.50-1.00/día
+
+### Deshabilitar Evaluaciones
+
+Si no quieres usar evaluaciones (para reducir costos):
+
+```env
+# En .env
+API_PHOENIX_ENABLED=false
+```
+
 ## Documentación Adicional
 
 - **Utils**: `utils/README.md` - Scripts de utilidades
 - **Docker Guide**: `docs/docker_guide.md` - Guía completa de Docker
 - **Qdrant Guide**: `docs/qdrant_guide.md` - Guía de Qdrant
 - **FastAPI Guide**: `docs/fastapi_guide.md` - Guía de FastAPI
+- **Phoenix Evals**: `api/services/evaluation_service.py` - Implementación de evaluaciones
 - **UV Guide**: `docs/uv_guide.md` - Guía de UV
 - **GCP Setup**: `docs/setup_gcp_project.md` - Configuración de GCP
+- **Monitoreo Phoenix**: Monitoreo integrado de LLM con tracking de sesiones y métricas de calidad
