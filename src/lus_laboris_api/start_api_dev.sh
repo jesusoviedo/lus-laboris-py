@@ -20,9 +20,11 @@ if [ ! -f "../../.env" ]; then
     echo "   La API usará valores por defecto"
 else
     echo "✅ Cargando variables de entorno desde ../../.env"
-    # Cargar variables de entorno de forma segura
+    # Cargar variables de entorno usando dotenv-style parsing
+    # Esto maneja correctamente valores con espacios, comillas, etc.
     set -a  # Automáticamente exportar variables
-    source ../../.env
+    # Usar grep y eval para manejar correctamente valores con espacios y comillas
+    eval "$(grep -v '^#' ../../.env | grep -v '^[[:space:]]*$' | sed 's/^/export /')"
     set +a  # Desactivar exportación automática
 fi
 
