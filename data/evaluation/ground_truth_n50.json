@@ -1,0 +1,502 @@
+[
+    {
+        "question": "¿Cuál es el objeto del código mencionado en el artículo?",
+        "expected_answer": "Establecer normas para regular las relaciones entre trabajadores y empleadores en la prestación subordinada y retribuida de la actividad laboral.",
+        "expected_articles": [
+            1
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "del objeto y aplicación del código"
+    },
+    {
+        "question": "¿Qué tipos de trabajadores están sujetos a las disposiciones del código?",
+        "expected_answer": "Los trabajadores intelectuales, manuales o técnicos en relación de dependencia, los profesores de institutos de enseñanza privada y quienes ejerzan la práctica deportiva profesional.",
+        "expected_articles": [
+            2
+        ],
+        "category": "definiciones",
+        "difficulty": "avanzado",
+        "chapter": "del objeto y aplicación del código"
+    },
+    {
+        "question": "¿Qué tipo de acuerdos son nulos en relación a los derechos de los trabajadores según el artículo?",
+        "expected_answer": "Son nulos los pactos que renuncien, transean o limiten convencionalmente los derechos reconocidos a los trabajadores.",
+        "expected_articles": [
+            3
+        ],
+        "category": "derechos",
+        "difficulty": "intermedio",
+        "chapter": "del objeto y aplicación del código"
+    },
+    {
+        "question": "¿Qué ocurre con los contratos o reglamentos que otorgan derechos a los trabajadores inferiores a los establecidos por la ley?",
+        "expected_answer": "No producirán efecto y serán sustituidos por los establecidos por la ley.",
+        "expected_articles": [
+            4
+        ],
+        "category": "derechos",
+        "difficulty": "básico",
+        "chapter": "del objeto y aplicación del código"
+    },
+    {
+        "question": "¿Qué se establece sobre las garantías y derechos de los trabajadores según el código?",
+        "expected_answer": "Se establece que contiene el mínimo de garantías y derechos que no podrá alterarse en detrimento de los trabajadores.",
+        "expected_articles": [
+            5
+        ],
+        "category": "derechos",
+        "difficulty": "intermedio",
+        "chapter": "del objeto y aplicación del código"
+    },
+    {
+        "question": "¿Cómo se resolverá un caso laboral en ausencia de normas legales o contractuales aplicables?",
+        "expected_answer": "Se resolverá de acuerdo con la equidad, principios generales del derecho laboral, convenios de la OIT aplicables, principios del derecho común, doctrina, jurisprudencia, y costumbre o uso local.",
+        "expected_articles": [
+            6
+        ],
+        "category": "obligaciones",
+        "difficulty": "avanzado",
+        "chapter": "del objeto y aplicación del código"
+    },
+    {
+        "question": "¿Qué sucede en caso de duda sobre la interpretación o aplicación de las normas de trabajo?",
+        "expected_answer": "Prevalecerán las normas que sean más favorables al trabajador.",
+        "expected_articles": [
+            7
+        ],
+        "category": "derechos",
+        "difficulty": "intermedio",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Qué se entiende por trabajo según el código mencionado?",
+        "expected_answer": "Toda actividad humana, consciente y voluntaria, prestada en forma dependiente y retribuida, para la producción de bienes o servicios.",
+        "expected_articles": [
+            8
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Cuáles son las condiciones que deben asegurarse en el trabajo según el artículo?",
+        "expected_answer": "Se deben asegurar condiciones que garanticen la vida, la salud y un nivel económico compatible con las responsabilidades del trabajador padre o madre de familia.",
+        "expected_articles": [
+            9
+        ],
+        "category": "derechos",
+        "difficulty": "básico",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Qué tipo de contratos sobre trabajo no se reconocerán como válidos según el artículo?",
+        "expected_answer": "Los contratos que estipulen el menoscabo, sacrificio o pérdida de la libertad personal.",
+        "expected_articles": [
+            10
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Qué tipos de trabajo gozan de garantías según el artículo?",
+        "expected_answer": "El trabajo intelectual, manual o técnico goza de las garantías establecidas por la legislación.",
+        "expected_articles": [
+            11
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Qué se establece sobre la remuneración del trabajo según el artículo?",
+        "expected_answer": "Todo trabajo debe ser remunerado y su gratuidad no se presume.",
+        "expected_articles": [
+            12
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Bajo qué condiciones puede una persona ser privada del producto de su trabajo?",
+        "expected_answer": "Solo por resolución de autoridad competente fundada en ley.",
+        "expected_articles": [
+            13
+        ],
+        "category": "derechos",
+        "difficulty": "básico",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Quién puede impedir la ejecución del trabajo lícito según el artículo?",
+        "expected_answer": "Sólo la autoridad competente, mediante resolución fundada.",
+        "expected_articles": [
+            14
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Qué derechos debe tener todo trabajador según el artículo?",
+        "expected_answer": "Derecho a una existencia digna, condiciones justas en el trabajo, educación profesional y técnica para mejorar sus aptitudes, y mayores ingresos.",
+        "expected_articles": [
+            15
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "del trabajo y sus garantías"
+    },
+    {
+        "question": "¿Qué tipo de educación brindará el estado a los trabajadores según el artículo?",
+        "expected_answer": "Educación profesional y técnica para perfeccionar las aptitudes de los trabajadores.",
+        "expected_articles": [
+            16
+        ],
+        "category": "derechos",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Qué es un contrato de trabajo según el artículo?",
+        "expected_answer": "Es un convenio donde un trabajador se obliga a ejecutar una obra o prestar un servicio a un empleador, bajo su dirección y por un pago de remuneración.",
+        "expected_articles": [
+            17
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Cuáles son las características del contrato de trabajo según el artículo?",
+        "expected_answer": "El contrato de trabajo es consensual, bilateral, oneroso, conmutativo, no solemne ni formal.",
+        "expected_articles": [
+            18
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Cómo se determina la existencia de un contrato de trabajo en ausencia de estipulación escrita o verbal?",
+        "expected_answer": "Se presumirá la existencia del contrato y se aplicarán las condiciones establecidas por las leyes del trabajo, los contratos colectivos o, en su defecto, por las costumbres del lugar.",
+        "expected_articles": [
+            19
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Quiénes son los sujetos que celebran el contrato de trabajo?",
+        "expected_answer": "El trabajador y el empleador.",
+        "expected_articles": [
+            20
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Quiénes son considerados trabajadores según el artículo?",
+        "expected_answer": "Son considerados trabajadores quienes ejecutan una obra o prestan servicios conforme a un contrato de trabajo, incluyendo aprendices que reciben salarios o pagan emolumentos.",
+        "expected_articles": [
+            21
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Puede un trabajador tener contrato de trabajo con múltiples empleadores?",
+        "expected_answer": "Sí, siempre que no se haya pactado la exclusividad de servicios con uno solo.",
+        "expected_articles": [
+            22
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿A quiénes no les rige este código según el artículo?",
+        "expected_answer": "No les rige a los directores, gerentes, administradores y otros ejecutivos de la empresa.",
+        "expected_articles": [
+            23
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Quién se considera empleador según el artículo mencionado?",
+        "expected_answer": "Toda persona natural o jurídica que utiliza los servicios de uno o más trabajadores en virtud de un contrato de trabajo.",
+        "expected_articles": [
+            24
+        ],
+        "category": "definiciones",
+        "difficulty": "avanzado",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Quiénes son considerados como representantes del empleador según el artículo?",
+        "expected_answer": "Los directores, gerentes, administradores, capitanes de barco y los intermediarios.",
+        "expected_articles": [
+            25
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Qué condiciones deben cumplir las personas para ser consideradas como empleadores según el artículo?",
+        "expected_answer": "Deben ejecutar trabajos en beneficio ajeno, asumir todos los riesgos, y utilizar sus propios elementos y autonomía directa.",
+        "expected_articles": [
+            26
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Quiénes se consideran empleados de confianza según el artículo?",
+        "expected_answer": "Son empleados de confianza quienes prestan servicios de asesoramiento, administran dinero o bienes de la empresa, y aquellos que realizan tareas de vigilancia, inspección o conocen secretos del empleador.",
+        "expected_articles": [
+            27
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Qué implicaciones tiene la substitución del empleador en los contratos de trabajo vigentes?",
+        "expected_answer": "La substitución del empleador no afecta los contratos de trabajo vigentes y el empleador substituido responde solidariamente con el substituyente por obligaciones previas durante seis meses.",
+        "expected_articles": [
+            28
+        ],
+        "category": "obligaciones",
+        "difficulty": "básico",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Qué tipos de trabajos no están comprendidos en la regulación del contrato según el artículo?",
+        "expected_answer": "No están comprendidos los trabajos de carácter familiar y los trabajos ocasionales mediante servicios amistosos y de buena vecindad.",
+        "expected_articles": [
+            29
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Bajo qué circunstancias un trabajador puede estar obligado a prestar más servicios de los estipulados en su contrato?",
+        "expected_answer": "El trabajador puede estar obligado a prestar más servicios solo en caso de accidentes ocurridos o riesgos inminentes para evitar serios trastornos en la marcha regular de la empresa.",
+        "expected_articles": [
+            30
+        ],
+        "category": "obligaciones",
+        "difficulty": "avanzado",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿A quién pertenece el resultado o producto del trabajo contratado según el artículo?",
+        "expected_answer": "Pertenece al empleador, quien recibe todos los derechos sobre él.",
+        "expected_articles": [
+            31
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿A quién pertenecen las invenciones de explotación realizadas en el ámbito laboral?",
+        "expected_answer": "A pertenecen en propiedad al empleador.",
+        "expected_articles": [
+            32
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Qué derecho tiene el trabajador si hay desproporción entre las ganancias del empleador y su remuneración por la invención de servicio?",
+        "expected_answer": "El trabajador tiene derecho a pedir compensación especial.",
+        "expected_articles": [
+            33
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "definición, sujetos y objetos"
+    },
+    {
+        "question": "¿Cuál es la propiedad de las invenciones llamadas libres realizadas por el trabajador durante su actividad laboral?",
+        "expected_answer": "Son propiedad exclusiva del trabajador.",
+        "expected_articles": [
+            34
+        ],
+        "category": "derechos",
+        "difficulty": "avanzado",
+        "chapter": "de la capacidad para contratar"
+    },
+    {
+        "question": "¿Qué condición deben cumplir los menores de edad y las mujeres casadas para celebrar un contrato de trabajo según el artículo?",
+        "expected_answer": "Los menores de edad deben haber cumplido dieciocho años y las mujeres casadas pueden contratar sin necesidad de autorización.",
+        "expected_articles": [
+            35
+        ],
+        "category": "derechos",
+        "difficulty": "intermedio",
+        "chapter": "de la capacidad para contratar"
+    },
+    {
+        "question": "¿Qué requisitos deben cumplir los menores de edad para celebrar un contrato de trabajo?",
+        "expected_answer": "Los menores de más de doce años y menos de dieciocho pueden celebrar un contrato de trabajo con autorización de su representante legal.",
+        "expected_articles": [
+            36
+        ],
+        "category": "derechos",
+        "difficulty": "básico",
+        "chapter": "de la capacidad para contratar"
+    },
+    {
+        "question": "¿Qué ocurre si el empleador no tiene la autorización requerida según el artículo anterior?",
+        "expected_answer": "El empleador no queda exonerado de cumplir con las obligaciones del contrato de trabajo hasta que se declare su caducidad.",
+        "expected_articles": [
+            37
+        ],
+        "category": "obligaciones",
+        "difficulty": "básico",
+        "chapter": "de la capacidad para contratar"
+    },
+    {
+        "question": "¿Qué norma regula la capacidad del empleador unipersonal y de las personas jurídicas contratantes según el artículo?",
+        "expected_answer": "La capacidad se regirá conforme al derecho común.",
+        "expected_articles": [
+            38
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "de las limitaciones a la libertad contractual"
+    },
+    {
+        "question": "¿Cuál es la norma general que rige la voluntad en un contrato de trabajo?",
+        "expected_answer": "La norma general es que la voluntad de las partes debe ser libremente manifestada.",
+        "expected_articles": [
+            39
+        ],
+        "category": "definiciones",
+        "difficulty": "avanzado",
+        "chapter": "de las limitaciones a la libertad contractual"
+    },
+    {
+        "question": "¿Qué tipos de disposiciones deben ser respetadas para que un contrato sea válido en relación con el trabajador?",
+        "expected_answer": "El contrato no debe contradecir las disposiciones legales, acuerdos conciliatorios, laudos voluntarios y contratos colectivos de trabajo.",
+        "expected_articles": [
+            40
+        ],
+        "category": "obligaciones",
+        "difficulty": "básico",
+        "chapter": "de las limitaciones a la libertad contractual"
+    },
+    {
+        "question": "¿Qué sucede con una cláusula que impone condiciones injustas o no equitativas debido a la necesidad o inexperiencia de una parte?",
+        "expected_answer": "Se considerará nula.",
+        "expected_articles": [
+            41
+        ],
+        "category": "sanciones",
+        "difficulty": "básico",
+        "chapter": "de las limitaciones a la libertad contractual"
+    },
+    {
+        "question": "¿Qué ocurre si se declara nula una parte del contrato de trabajo según el artículo mencionado?",
+        "expected_answer": "El contrato permanecerá válido en lo restante, y el juez decidirá la compensación correspondiente si hay ventajas particulares en las cláusulas anuladas.",
+        "expected_articles": [
+            42
+        ],
+        "category": "obligaciones",
+        "difficulty": "básico",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿Qué forma debe tener un contrato de trabajo cuando la remuneración estipulada es superior al salario mínimo legal?",
+        "expected_answer": "Debe constar por escrito.",
+        "expected_articles": [
+            43
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿En qué casos se podrá celebrar un contrato verbal según el artículo mencionado?",
+        "expected_answer": "Cuando se refiera al servicio doméstico, trabajos accidentales o temporales de hasta noventa días, y obra determinada cuyo valor no exceda el límite fijado.",
+        "expected_articles": [
+            44
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿Cuántos ejemplares del contrato de trabajo escrito deben redactarse y conservarse, según el artículo?",
+        "expected_answer": "Se deben redactar tantos ejemplares como sean los interesados, conservando uno cada parte.",
+        "expected_articles": [
+            45
+        ],
+        "category": "obligaciones",
+        "difficulty": "básico",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿Qué datos deben consignarse en un contrato de trabajo escrito según el artículo mencionado?",
+        "expected_answer": "Se deben consignar lugar y fecha, datos de los contratantes, clase de trabajo, remuneración, jornada de trabajo, beneficios, estipulaciones y firmas.",
+        "expected_articles": [
+            46
+        ],
+        "category": "obligaciones",
+        "difficulty": "avanzado",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿Qué condiciones se consideran nulas y no obligan a los contratantes según el artículo?",
+        "expected_answer": "Las condiciones que estipulen jornadas excesivas, trabajos peligrosos para mujeres y menores, renuncias de derechos, salarios inferiores por discriminación, entre otras especificadas en el artículo.",
+        "expected_articles": [
+            47
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿Qué se presume en ausencia de un contrato de trabajo escrito según el artículo?",
+        "expected_answer": "Se presume la existencia de la relación laboral alegada por el trabajador, salvo prueba en contrario.",
+        "expected_articles": [
+            48
+        ],
+        "category": "definiciones",
+        "difficulty": "intermedio",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿Qué duración máxima tiene un contrato de trabajo por plazo determinado para obreros?",
+        "expected_answer": "Un año.",
+        "expected_articles": [
+            49
+        ],
+        "category": "definiciones",
+        "difficulty": "básico",
+        "chapter": "de las modalidades del contrato"
+    },
+    {
+        "question": "¿Qué tipo de contratos se consideran celebrados por tiempo indefinido según el artículo?",
+        "expected_answer": "Los contratos relativos a labores permanentes o continuas en la empresa, aunque expresen término de duración.",
+        "expected_articles": [
+            50
+        ],
+        "category": "definiciones",
+        "difficulty": "avanzado",
+        "chapter": "de las modalidades del contrato"
+    }
+]

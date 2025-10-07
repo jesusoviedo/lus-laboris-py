@@ -11,7 +11,7 @@
 
 ## Data
 
-This folder contains all data used in the project, organized into two main subdirectories:
+This folder contains all data used in the project, organized into three main subdirectories:
 
 ## Structure
 
@@ -22,6 +22,11 @@ This folder contains all data used in the project, organized into two main subdi
 - **`processed/`**: Stores cleaned and processed data ready for indexing, analysis, or use by the application
   - Contains structured JSON files with parsed legal articles
   - Data is normalized and ready for downstream processing
+
+- **`evaluation/`**: Contains datasets used for evaluating the RAG pipeline performance
+  - Test datasets with curated questions and answers
+  - Ground truth data for measuring accuracy and relevance
+  - Evaluation metrics and benchmark results
 
 ## Data Processing
 
@@ -50,7 +55,7 @@ Keep data organized for reproducibility and collaboration. The processing pipeli
 
 ## Datos
 
-Esta carpeta contiene todos los datos utilizados en el proyecto, organizados en dos subdirectorios principales:
+Esta carpeta contiene todos los datos utilizados en el proyecto, organizados en tres subdirectorios principales:
 
 ## Estructura
 
@@ -61,6 +66,11 @@ Esta carpeta contiene todos los datos utilizados en el proyecto, organizados en 
 - **`processed/`**: Almacena los datos limpios y procesados, listos para indexar, analizar o usar por la aplicación
   - Contiene archivos JSON estructurados con artículos legales parseados
   - Los datos están normalizados y listos para procesamiento posterior
+
+- **`evaluation/`**: Contiene datasets utilizados para evaluar el rendimiento del pipeline RAG
+  - Datasets de prueba con preguntas y respuestas curadas
+  - Datos de referencia para medir precisión y relevancia
+  - Métricas de evaluación y resultados de benchmarks
 
 ## Procesamiento de Datos
 
