@@ -6,7 +6,7 @@ import json
 import time
 import logging
 from typing import Dict, Any
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from pathlib import Path
 
 from ..models.requests import LoadToVectorstoreLocalRequest, LoadToVectorstoreGCPRequest
@@ -14,7 +14,9 @@ from ..models.responses import LoadToVectorstoreResponse, CollectionInfoResponse
 from ..services.qdrant_service import qdrant_service
 from ..services.gcp_service import gcp_service
 from ..services.embedding_service import embedding_service
+from ..services.phoenix_service import phoenix_service
 from ..auth.security import require_vectorstore_write, get_current_user
+from ..auth.jwt_handler import jwt_validator
 from ..config import settings
 
 logger = logging.getLogger(__name__)
@@ -22,6 +24,26 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/data", tags=["vectorstore"])
 
 
+def _extract_token_payload(request: Request) -> Dict[str, Any]:
+    """Extract and decode JWT token payload from request"""
+    try:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header.replace("Bearer ", "")
+            # Decode token to get payload
+            payload = jwt_validator.validate_token(token)
+            return {
+                "user": payload.get("sub", "unknown"),
+                "email": payload.get("email", "unknown"),
+                "roles": payload.get("roles", []),
+                "permissions": payload.get("permissions", []),
+                "token_exp": payload.get("exp"),
+                "token_iat": payload.get("iat")
+            }
+    except Exception as e:
+        logger.warning(f"Failed to extract token payload: {e}")
+    
+    return {"user": "unknown", "error": "token_not_decoded"}
 
 
 @router.get(
@@ -71,11 +93,33 @@ async def get_collection_info(
     description="Delete a specific collection from Qdrant"
 )
 async def delete_collection(
+    request: Request,
     collection_name: str,
     current_user: str = Depends(require_vectorstore_write)
 ):
     """Delete a collection"""
+    session_id = None
     try:
+        # Crear sesión de monitoreo Phoenix
+        session_id = phoenix_service.create_session(user_id=current_user)
+        
+        # Extraer payload del token JWT
+        token_payload = _extract_token_payload(request)
+        
+        # Track operación principal
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="delete_collection",
+            collection_name=collection_name,
+            metadata={
+                "user": current_user,
+                "token_payload": token_payload,
+                "endpoint": "/api/data/collections/{collection_name}",
+                "method": "DELETE"
+            }
+        )
+        
+        # Ejecutar eliminación
         success = qdrant_service.delete_collection(collection_name)
         
         if not success:
@@ -83,6 +127,17 @@ async def delete_collection(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Collection '{collection_name}' not found"
             )
+        
+        # Track resultado exitoso
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="delete_collection_success",
+            collection_name=collection_name,
+            metadata={
+                "success": True,
+                "collection_deleted": collection_name
+            }
+        )
         
         return CollectionDeleteResponse(
             success=True,
@@ -93,10 +148,24 @@ async def delete_collection(
         raise
     except Exception as e:
         logger.error(f"Failed to delete collection: {str(e)}")
+        
+        # Track error
+        if session_id:
+            phoenix_service.track_vectorstore_operation(
+                session_id=session_id,
+                operation_type="delete_collection_error",
+                collection_name=collection_name,
+                metadata={"error": str(e)}
+            )
+        
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete collection: {str(e)}"
         )
+    finally:
+        # Finalizar sesión Phoenix
+        if session_id:
+            phoenix_service.end_session(session_id)
 
 
 @router.get(
@@ -135,41 +204,143 @@ async def list_collections(
     description="Load JSON data from local files into Qdrant vector database"
 )
 async def load_to_vectorstore_local(
+    http_request: Request,
     request: LoadToVectorstoreLocalRequest,
     current_user: str = Depends(require_vectorstore_write)
 ):
     """Load data to vectorstore from local files"""
+    session_id = None
     try:
         start_time = time.time()
         
-        # Load data from local file
-        data = await _load_local_data_new(request)
+        # Crear sesión de monitoreo Phoenix
+        session_id = phoenix_service.create_session(user_id=current_user)
         
-        # Process data and generate embeddings
+        # Extraer payload del token JWT
+        token_payload = _extract_token_payload(http_request)
+        
+        # Track operación principal
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_local",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "user": current_user,
+                "token_payload": token_payload,
+                "endpoint": "/api/data/load-to-vectorstore-local",
+                "method": "POST",
+                "source": "local_file",
+                "filename": request.filename,
+                "local_data_path": request.local_data_path,
+                "replace_collection": request.replace_collection,
+                "batch_size": request.batch_size
+            }
+        )
+        
+        # Etapa 1: Load data from local file
+        load_start = time.time()
+        data = await _load_local_data_new(request)
+        load_time = time.time() - load_start
+        
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_local_data",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "articles_count": len(data.get('articulos', [])),
+                "load_time_seconds": load_time,
+                "file_path": request.filename
+            }
+        )
+        
+        # Etapa 2: Process data and generate embeddings
+        embedding_start = time.time()
         documents, embeddings, embedding_metadata = await _process_data_for_embedding(
             data, settings.api_embedding_model, settings.api_embedding_batch_size
+        )
+        embedding_time = time.time() - embedding_start
+        
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="generate_embeddings",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "documents_count": len(documents),
+                "embedding_model": embedding_metadata["model_name"],
+                "embedding_dimensions": embedding_metadata["dimensions"],
+                "embedding_time_seconds": embedding_time,
+                "batch_size": request.batch_size
+            }
         )
         
         # Use configured collection name
         collection_name = settings.api_qdrant_collection_name
         
-        # Create collection in Qdrant
+        # Etapa 3: Create collection in Qdrant
+        collection_start = time.time()
         vector_size = embeddings.shape[1]
         qdrant_service.create_collection(
             collection_name=collection_name,
             vector_size=vector_size,
             replace_existing=request.replace_collection
         )
+        collection_time = time.time() - collection_start
         
-        # Insert documents
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="create_collection",
+            collection_name=collection_name,
+            metadata={
+                "vector_size": vector_size,
+                "replace_existing": request.replace_collection,
+                "collection_time_seconds": collection_time
+            }
+        )
+        
+        # Etapa 4: Insert documents
+        insert_start = time.time()
         documents_processed, documents_inserted = qdrant_service.insert_documents(
             collection_name=collection_name,
             documents=documents,
             embeddings=embeddings,
             batch_size=request.batch_size
         )
+        insert_time = time.time() - insert_start
+        
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="insert_documents",
+            collection_name=collection_name,
+            metadata={
+                "documents_processed": documents_processed,
+                "documents_inserted": documents_inserted,
+                "insert_time_seconds": insert_time,
+                "batch_size": request.batch_size
+            }
+        )
         
         processing_time = time.time() - start_time
+        
+        # Track resultado final exitoso
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_local_success",
+            collection_name=collection_name,
+            metadata={
+                "success": True,
+                "total_processing_time_seconds": processing_time,
+                "documents_processed": documents_processed,
+                "documents_inserted": documents_inserted,
+                "embedding_model": embedding_metadata["model_name"],
+                "vector_dimensions": vector_size,
+                "breakdown": {
+                    "load_time": load_time,
+                    "embedding_time": embedding_time,
+                    "collection_time": collection_time,
+                    "insert_time": insert_time
+                }
+            }
+        )
         
         return LoadToVectorstoreResponse(
             success=True,
@@ -185,10 +356,24 @@ async def load_to_vectorstore_local(
         
     except Exception as e:
         logger.error(f"Failed to load data to vectorstore from local files: {str(e)}")
+        
+        # Track error
+        if session_id:
+            phoenix_service.track_vectorstore_operation(
+                session_id=session_id,
+                operation_type="load_to_vectorstore_local_error",
+                collection_name=settings.api_qdrant_collection_name,
+                metadata={"error": str(e), "error_type": type(e).__name__}
+            )
+        
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to load data to vectorstore from local files: {str(e)}"
         )
+    finally:
+        # Finalizar sesión Phoenix
+        if session_id:
+            phoenix_service.end_session(session_id)
 
 
 @router.post(
@@ -199,41 +384,145 @@ async def load_to_vectorstore_local(
     description="Load JSON data from Google Cloud Storage into Qdrant vector database"
 )
 async def load_to_vectorstore_gcp(
+    http_request: Request,
     request: LoadToVectorstoreGCPRequest,
     current_user: str = Depends(require_vectorstore_write)
 ):
     """Load data to vectorstore from GCS"""
+    session_id = None
     try:
         start_time = time.time()
         
-        # Load data from GCS
-        data = await _load_gcp_data_new(request)
+        # Crear sesión de monitoreo Phoenix
+        session_id = phoenix_service.create_session(user_id=current_user)
         
-        # Process data and generate embeddings
+        # Extraer payload del token JWT
+        token_payload = _extract_token_payload(http_request)
+        
+        # Track operación principal
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_gcp",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "user": current_user,
+                "token_payload": token_payload,
+                "endpoint": "/api/data/load-to-vectorstore-gcp",
+                "method": "POST",
+                "source": "gcs",
+                "bucket_name": request.bucket_name,
+                "filename": request.filename,
+                "folder": request.folder,
+                "replace_collection": request.replace_collection,
+                "batch_size": request.batch_size
+            }
+        )
+        
+        # Etapa 1: Load data from GCS
+        load_start = time.time()
+        data = await _load_gcp_data_new(request)
+        load_time = time.time() - load_start
+        
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_gcs_data",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "articles_count": len(data.get('articulos', [])),
+                "load_time_seconds": load_time,
+                "bucket_name": request.bucket_name,
+                "file_path": f"{request.folder}/{request.filename}"
+            }
+        )
+        
+        # Etapa 2: Process data and generate embeddings
+        embedding_start = time.time()
         documents, embeddings, embedding_metadata = await _process_data_for_embedding(
             data, settings.api_embedding_model, settings.api_embedding_batch_size
+        )
+        embedding_time = time.time() - embedding_start
+        
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="generate_embeddings",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "documents_count": len(documents),
+                "embedding_model": embedding_metadata["model_name"],
+                "embedding_dimensions": embedding_metadata["dimensions"],
+                "embedding_time_seconds": embedding_time,
+                "batch_size": request.batch_size
+            }
         )
         
         # Use configured collection name
         collection_name = settings.api_qdrant_collection_name
         
-        # Create collection in Qdrant
+        # Etapa 3: Create collection in Qdrant
+        collection_start = time.time()
         vector_size = embeddings.shape[1]
         qdrant_service.create_collection(
             collection_name=collection_name,
             vector_size=vector_size,
             replace_existing=request.replace_collection
         )
+        collection_time = time.time() - collection_start
         
-        # Insert documents
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="create_collection",
+            collection_name=collection_name,
+            metadata={
+                "vector_size": vector_size,
+                "replace_existing": request.replace_collection,
+                "collection_time_seconds": collection_time
+            }
+        )
+        
+        # Etapa 4: Insert documents
+        insert_start = time.time()
         documents_processed, documents_inserted = qdrant_service.insert_documents(
             collection_name=collection_name,
             documents=documents,
             embeddings=embeddings,
             batch_size=request.batch_size
         )
+        insert_time = time.time() - insert_start
+        
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="insert_documents",
+            collection_name=collection_name,
+            metadata={
+                "documents_processed": documents_processed,
+                "documents_inserted": documents_inserted,
+                "insert_time_seconds": insert_time,
+                "batch_size": request.batch_size
+            }
+        )
         
         processing_time = time.time() - start_time
+        
+        # Track resultado final exitoso
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_gcp_success",
+            collection_name=collection_name,
+            metadata={
+                "success": True,
+                "total_processing_time_seconds": processing_time,
+                "documents_processed": documents_processed,
+                "documents_inserted": documents_inserted,
+                "embedding_model": embedding_metadata["model_name"],
+                "vector_dimensions": vector_size,
+                "breakdown": {
+                    "load_time": load_time,
+                    "embedding_time": embedding_time,
+                    "collection_time": collection_time,
+                    "insert_time": insert_time
+                }
+            }
+        )
         
         return LoadToVectorstoreResponse(
             success=True,
@@ -249,10 +538,24 @@ async def load_to_vectorstore_gcp(
         
     except Exception as e:
         logger.error(f"Failed to load data to vectorstore from GCS: {str(e)}")
+        
+        # Track error
+        if session_id:
+            phoenix_service.track_vectorstore_operation(
+                session_id=session_id,
+                operation_type="load_to_vectorstore_gcp_error",
+                collection_name=settings.api_qdrant_collection_name,
+                metadata={"error": str(e), "error_type": type(e).__name__}
+            )
+        
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to load data to vectorstore from GCS: {str(e)}"
         )
+    finally:
+        # Finalizar sesión Phoenix
+        if session_id:
+            phoenix_service.end_session(session_id)
 
 
 

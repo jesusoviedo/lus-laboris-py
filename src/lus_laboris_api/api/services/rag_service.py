@@ -21,6 +21,8 @@ from ..config import settings
 from .embedding_service import embedding_service
 from .qdrant_service import qdrant_service
 from .reranking_service import reranking_service
+from .phoenix_service import phoenix_service
+from .evaluation_service import evaluation_service
 
 logger = logging.getLogger(__name__)
 
@@ -96,30 +98,61 @@ class RAGService:
             logger.error(f"RAG service health check failed: {str(e)}")
             return {"status": "unhealthy", "error": str(e)}
     
-    def _retrieve_documents(self, query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    def _retrieve_documents(self, query: str, session_id: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         """Retrieve relevant documents from Qdrant with optional reranking"""
         try:
             # Generate query embedding
+            embedding_start = time.time()
             query_embedding = embedding_service.generate_single_embedding(
                 query, 
                 model_name=self.embedding_model
             )
+            embedding_time = time.time() - embedding_start
+            
+            # Track embedding generation
+            phoenix_service.track_embedding_generation(
+                session_id=session_id,
+                text=query,
+                model=self.embedding_model,
+                generation_time=embedding_time
+            )
             
             # Search in Qdrant - get more documents if reranking is enabled
+            search_start = time.time()
             search_limit = self.top_k * 2 if settings.api_use_reranking else self.top_k
             search_results = qdrant_service.search_documents(
                 collection_name=self.collection_name,
                 query_vector=query_embedding,
                 limit=search_limit
             )
+            search_time = time.time() - search_start
+            
+            # Track vectorstore search
+            phoenix_service.track_vectorstore_search(
+                session_id=session_id,
+                query=query,
+                results_count=len(search_results),
+                search_time=search_time
+            )
             
             # Apply reranking if enabled
             if settings.api_use_reranking and search_results:
+                rerank_start = time.time()
                 reranked_docs, rerank_metadata = reranking_service.rerank_documents(
                     query=query,
                     documents=search_results,
                     top_k=self.top_k
                 )
+                rerank_time = time.time() - rerank_start
+                
+                # Track reranking
+                phoenix_service.track_reranking(
+                    session_id=session_id,
+                    query=query,
+                    documents_count=len(search_results),
+                    reranking_time=rerank_time
+                )
+                
                 return reranked_docs, rerank_metadata
             else:
                 return search_results, {"reranking_applied": False}
@@ -213,7 +246,7 @@ class RAGService:
             logger.error(f"Gemini API error: {str(e)}")
             raise
     
-    def _generate_response(self, query: str, documents: List[Dict[str, Any]]) -> str:
+    def _generate_response(self, query: str, documents: List[Dict[str, Any]], session_id: str) -> str:
         """Generate response using LLM with context from documents"""
         if not documents:
             return "No se encontraron documentos relevantes para responder la pregunta."
@@ -232,21 +265,58 @@ class RAGService:
         else:
             raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
         
+        # Track LLM call
+        phoenix_service.track_llm_call(
+            session_id=session_id,
+            provider=self.llm_provider,
+            model=self.llm_model,
+            prompt=prompt,
+            response=response,
+            metadata={
+                "context_length": len(context_text),
+                "documents_count": len(documents),
+                "query": query
+            }
+        )
+        
         return response
     
-    def answer_question(self, question: str) -> Dict[str, Any]:
-        """Answer a question using RAG pipeline"""
+    def answer_question(self, question: str, session_id: Optional[str] = None) -> Dict[str, Any]:
+        """Answer a question using RAG pipeline with Phoenix monitoring"""
         start_time = time.time()
+        
+        # Crear sesión si no se proporciona
+        if not session_id:
+            session_id = phoenix_service.create_session()
         
         try:
             # Retrieve relevant documents with optional reranking
-            documents, retrieval_metadata = self._retrieve_documents(question)
+            documents, retrieval_metadata = self._retrieve_documents(question, session_id)
             
             # Generate response
-            answer = self._generate_response(question, documents)
+            answer = self._generate_response(question, documents, session_id)
             
             # Calculate processing time
             processing_time = time.time() - start_time
+            
+            # Build full context for evaluation
+            context_text = self._build_context(documents)
+            
+            # Encolar evaluación asíncrona (no bloquea la respuesta al usuario)
+            evaluation_service.enqueue_evaluation(
+                session_id=session_id,
+                question=question,
+                context=context_text,
+                answer=answer,
+                documents=documents,
+                metadata={
+                    "processing_time": processing_time,
+                    "llm_provider": self.llm_provider,
+                    "llm_model": self.llm_model,
+                    "reranking_applied": retrieval_metadata.get("reranking_applied", False),
+                    "top_k": self.top_k
+                }
+            )
             
             # Prepare response
             response = {
@@ -257,6 +327,7 @@ class RAGService:
                 "documents_retrieved": len(documents),
                 "top_k": self.top_k,
                 "reranking_applied": retrieval_metadata.get("reranking_applied", False),
+                "session_id": session_id,
                 "documents": [
                     {
                         "id": doc["id"],
@@ -272,7 +343,8 @@ class RAGService:
                 ]
             }
             
-            logger.info(f"Question answered successfully in {processing_time:.3f}s")
+            logger.info(f"Question answered successfully in {processing_time:.3f}s for session {session_id}")
+            logger.debug(f"Evaluation enqueued for asynchronous processing (session {session_id})")
             return response
             
         except Exception as e:
@@ -283,7 +355,8 @@ class RAGService:
                 "success": False,
                 "question": question,
                 "error": str(e),
-                "processing_time_seconds": round(processing_time, 3)
+                "processing_time_seconds": round(processing_time, 3),
+                "session_id": session_id
             }
 
 

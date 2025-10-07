@@ -11,6 +11,7 @@ from ..services.gcp_service import gcp_service
 from ..services.embedding_service import embedding_service
 from ..services.reranking_service import reranking_service
 from ..services.rag_service import rag_service
+from ..services.evaluation_service import evaluation_service
 from ..auth.security import optional_auth
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ async def health_check():
         embedding_status = embedding_service.health_check()
         reranking_status = reranking_service.health_check()
         rag_status = rag_service.health_check()
+        eval_status = evaluation_service.health_check()
         
         # Determine overall health
         all_healthy = (
@@ -53,7 +55,8 @@ async def health_check():
             "embedding_service": embedding_status.get("status", "unknown"),
             "reranking_service": reranking_status.get("status", "unknown"),
             "rag_service": rag_status.get("status", "unknown"),
-            "gcp": gcp_status.get("status", "unknown")
+            "gcp": gcp_status.get("status", "unknown"),
+            "evaluation_service": eval_status.get("status", "unknown")
         }
         
         # Add additional info if available
@@ -72,6 +75,10 @@ async def health_check():
         if rag_status.get("provider"):
             dependencies["rag_provider"] = rag_status["provider"]
             dependencies["rag_model"] = rag_status.get("model", "unknown")
+        
+        if eval_status.get("queue_size") is not None:
+            dependencies["evaluation_queue_size"] = str(eval_status["queue_size"])
+            dependencies["phoenix_evals_available"] = str(eval_status.get("phoenix_evals_available", False))
         
         return HealthCheckResponse(
             success=all_healthy,

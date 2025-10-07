@@ -16,6 +16,7 @@ from .services.qdrant_service import qdrant_service
 from .services.gcp_service import gcp_service
 from .services.embedding_service import embedding_service
 from .services.rag_service import rag_service
+from .services.evaluation_service import evaluation_service
 from .config import settings
 from .models.responses import RootResponse, ServiceStatusResponse
 
@@ -57,6 +58,10 @@ async def lifespan(app: FastAPI):
         if rag_status.get("status") != "healthy":
             logger.warning(f"RAG service issue: {rag_status}")
         
+        # Initialize evaluation service
+        eval_status = evaluation_service.health_check()
+        logger.info(f"Evaluation service status: {eval_status.get('status')}")
+        
         logger.info("All services initialized successfully")
         
     except Exception as e:
@@ -66,6 +71,13 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Shutting down Lus Laboris API...")
+    
+    # Shutdown evaluation service gracefully
+    try:
+        evaluation_service.shutdown()
+        logger.info("Evaluation service shut down successfully")
+    except Exception as e:
+        logger.error(f"Error shutting down evaluation service: {e}")
 
 
 # Create FastAPI application
