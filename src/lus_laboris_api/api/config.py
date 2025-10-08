@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     api_allowed_origins: List[str] = Field(default=["*"], json_schema_extra={"example": ["*"]})
     api_allowed_hosts: List[str] = Field(default=["*"], json_schema_extra={"example": ["*"]})
     api_jwt_public_key_path: str = None
+    api_jwt_aud: str = "lus-laboris-client"
+    api_jwt_iss: str = "lus-laboris-api"
     
     # Qdrant Configuration
     api_qdrant_url: str = None

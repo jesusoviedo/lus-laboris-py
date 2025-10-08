@@ -51,11 +51,17 @@ class JWTValidator:
             raise ValueError("Public key not available for token validation")
         
         try:
+            # Get expected issuer and audience from settings
+            expected_issuer = settings.api_jwt_iss
+            expected_audience = settings.api_jwt_aud
+            
             payload = jwt.decode(
                 token,
                 self.public_key,
                 algorithms=[self.algorithm],
-                options={"verify_exp": True, "verify_iat": True}
+                audience=expected_audience,  # Validate audience from config
+                issuer=expected_issuer,      # Validate issuer from config
+                options={"verify_exp": True, "verify_iat": True, "verify_aud": True, "verify_iss": True}
             )
             
             logger.info(f"JWT token validated for subject: {payload.get('sub', 'unknown')}")
@@ -64,6 +70,12 @@ class JWTValidator:
         except jwt.ExpiredSignatureError:
             logger.warning("JWT token has expired")
             raise ValueError("Token has expired")
+        except jwt.InvalidAudienceError:
+            logger.warning(f"Invalid JWT audience. Expected: {expected_audience}")
+            raise ValueError(f"Invalid audience. Expected: {expected_audience}")
+        except jwt.InvalidIssuerError:
+            logger.warning(f"Invalid JWT issuer. Expected: {expected_issuer}")
+            raise ValueError(f"Invalid issuer. Expected: {expected_issuer}")
         except jwt.InvalidTokenError as e:
             logger.warning(f"Invalid JWT token: {str(e)}")
             raise ValueError(f"Invalid token: {str(e)}")
