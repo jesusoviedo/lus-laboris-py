@@ -237,6 +237,12 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 - **Without token**: Returns only `{"status": "healthy"}` (basic info)
 - **With JWT token**: Returns full info including `provider`, `model`, `embedding_model`
 
+**GET** `/api/health/phoenix`
+- Phoenix monitoring service health check
+- **Optional authentication**: Works with or without token
+- **Without token**: Returns only `{"status": "healthy"}` (basic info)
+- **With JWT token**: Returns full info including `project_name`, `active_sessions`, `phoenix_connection` status, and performs active connection test to Phoenix collector
+
 **GET** `/api/status`
 - **Comprehensive status of ALL services** (aggregated diagnostic endpoint)
 - **Optional authentication**: Works with or without token
@@ -524,6 +530,7 @@ Health check endpoints implement **smart information filtering** based on authen
 | `/api/health/embeddings` | `{"status": "healthy"}` | `{"status": "healthy", "loaded_models": [...], "device": "cuda"}` |
 | `/api/health/reranking` | `{"status": "healthy"}` | `{"status": "healthy", "model_name": "...", "device": "cpu"}` |
 | `/api/health/rag` | `{"status": "healthy"}` | `{"status": "healthy", "provider": "openai", "model": "gpt-4"}` |
+| `/api/health/phoenix` | `{"status": "healthy"}` | `{"status": "healthy", "project_name": "...", "phoenix_connection": "verified"}` |
 
 **Security Benefits:**
 - ✅ **Prevents reconnaissance attacks**: Attackers cannot map your infrastructure
@@ -1091,6 +1098,12 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 - **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
 - **Con token JWT**: Retorna info completa incluyendo `provider`, `model`, `embedding_model`
 
+**GET** `/api/health/phoenix`
+- Health check del servicio de monitoreo Phoenix
+- **Autenticación opcional**: Funciona con o sin token
+- **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
+- **Con token JWT**: Retorna info completa incluyendo `project_name`, `active_sessions`, estado de `phoenix_connection`, y realiza test activo de conexión al collector de Phoenix
+
 **GET** `/api/status`
 - **Estado completo de TODOS los servicios** (endpoint de diagnóstico agregado)
 - **Autenticación opcional**: Funciona con o sin token
@@ -1325,6 +1338,7 @@ Los endpoints de health check implementan **filtrado inteligente de información
 | `/api/health/embeddings` | `{"status": "healthy"}` | `{"status": "healthy", "loaded_models": [...], "device": "cuda"}` |
 | `/api/health/reranking` | `{"status": "healthy"}` | `{"status": "healthy", "model_name": "...", "device": "cpu"}` |
 | `/api/health/rag` | `{"status": "healthy"}` | `{"status": "healthy", "provider": "openai", "model": "gpt-4"}` |
+| `/api/health/phoenix` | `{"status": "healthy"}` | `{"status": "healthy", "project_name": "...", "phoenix_connection": "verified"}` |
 
 **Beneficios de Seguridad:**
 - ✅ **Previene ataques de reconocimiento**: Los atacantes no pueden mapear tu infraestructura
