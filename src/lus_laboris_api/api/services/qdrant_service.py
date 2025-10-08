@@ -41,8 +41,9 @@ class QdrantService:
                 https=not is_local,        # HTTPS solo para conexiones remotas
             )
             
-            # Log tipo de conexión
-            connection_type = "gRPC" if self.client.grpc_client else "HTTP"
+            # Log connection type (check for gRPC methods)
+            has_grpc = hasattr(self.client, 'grpc_points') or hasattr(self.client, 'grpc_collections')
+            connection_type = "gRPC" if has_grpc and self.prefer_grpc else "HTTP"
             logger.info(f"Connected to Qdrant at {self.qdrant_url} using {connection_type}")
             
             if connection_type == "gRPC":
@@ -72,13 +73,14 @@ class QdrantService:
             # Try to get collections info
             collections = self.client.get_collections()
             
-            # Detectar tipo de conexión
-            connection_type = "gRPC" if self.client.grpc_client else "HTTP"
+            # Detect connection type (check for gRPC methods)
+            has_grpc = hasattr(self.client, 'grpc_points') or hasattr(self.client, 'grpc_collections')
+            connection_type = "gRPC" if has_grpc else "HTTP"
             
             return {
                 "status": "connected",
                 "collections_count": len(collections.collections),
-                "connection_type": connection_type  # Info útil para debugging
+                "connection_type": connection_type
             }
         except Exception as e:
             logger.error(f"Qdrant health check failed: {str(e)}")

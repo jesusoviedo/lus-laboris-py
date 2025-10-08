@@ -61,8 +61,13 @@ class Settings(BaseSettings):
     # Phoenix Monitoring Configuration
     api_phoenix_enabled: bool = True
     api_phoenix_endpoint: Optional[str] = None
+    api_phoenix_grpc_endpoint: Optional[str] = "localhost:4317"
+    api_phoenix_use_grpc: bool = True
     api_phoenix_api_key: Optional[str] = None
     api_phoenix_project_name: str = "lus-laboris-api"
+    
+    # Environment Configuration
+    api_environment: str = "development"
     
     class Config:
         project_root = Path(__file__).parent.parent.parent.parent

@@ -40,25 +40,70 @@ class PhoenixMonitoringService:
             logger.info("Phoenix monitoring disabled by configuration")
     
     def _initialize_phoenix(self):
-        """Inicializar Phoenix con configuración de proyecto"""
+        """Initialize Phoenix with project configuration"""
         try:
-            # Registrar Phoenix con auto-instrumentación
-            self.tracer_provider = register(
-                project_name=self.project_name,
-                auto_instrument=True,
-                # Configuración adicional para exportar a Phoenix
-                endpoint=settings.api_phoenix_endpoint or "http://localhost:6006",
-                api_key=settings.api_phoenix_api_key,
-            )
+            # Get configuration from settings (centralized)
+            is_production = settings.api_environment.lower() == "production"
+            phoenix_endpoint = settings.api_phoenix_endpoint or "http://localhost:6006"
+            use_grpc = settings.api_phoenix_use_grpc
+            grpc_endpoint = settings.api_phoenix_grpc_endpoint
+            
+            # If gRPC is enabled, use gRPC endpoint
+            if use_grpc and grpc_endpoint:
+                logger.info(f"Attempting to connect to Phoenix via gRPC at {grpc_endpoint}")
+                
+                # Register Phoenix with gRPC endpoint
+                self.tracer_provider = register(
+                    project_name=self.project_name,
+                    auto_instrument=True,
+                    endpoint=f"grpc://{grpc_endpoint}",  # Use gRPC protocol
+                    api_key=settings.api_phoenix_api_key,
+                    batch=is_production,
+                )
+                
+                transport = "gRPC"
+            else:
+                # Fallback to HTTP
+                logger.info(f"Connecting to Phoenix via HTTP at {phoenix_endpoint}")
+                
+                self.tracer_provider = register(
+                    project_name=self.project_name,
+                    auto_instrument=True,
+                    endpoint=phoenix_endpoint,
+                    api_key=settings.api_phoenix_api_key,
+                    batch=is_production,
+                )
+                
+                transport = "HTTP"
             
             # Get tracer
             self.tracer = trace.get_tracer(__name__)
             
+            processor_type = "BatchSpanProcessor" if is_production else "SimpleSpanProcessor"
             logger.info(f"Phoenix monitoring initialized for project: {self.project_name}")
+            logger.info(f"Using {processor_type} (environment: {settings.api_environment})")
+            logger.info(f"Transport: {transport} - {'Optimized for performance' if transport == 'gRPC' else 'Standard HTTP'}")
             
         except Exception as e:
-            logger.error(f"Failed to initialize Phoenix: {str(e)}")
-            self.enabled = False
+            logger.error(f"Failed to initialize Phoenix with gRPC, falling back to HTTP: {str(e)}")
+            
+            # Fallback to HTTP if gRPC fails
+            try:
+                phoenix_endpoint = settings.api_phoenix_endpoint or "http://localhost:6006"
+                is_production = settings.api_environment.lower() == "production"
+                
+                self.tracer_provider = register(
+                    project_name=self.project_name,
+                    auto_instrument=True,
+                    endpoint=phoenix_endpoint,
+                    api_key=settings.api_phoenix_api_key,
+                    batch=is_production,
+                )
+                self.tracer = trace.get_tracer(__name__)
+                logger.warning("Fell back to HTTP transport for Phoenix")
+            except Exception as e2:
+                logger.error(f"Failed to initialize Phoenix even with HTTP: {str(e2)}")
+                self.enabled = False
     
     def create_session(self, user_id: Optional[str] = None) -> str:
         """Crear una nueva sesión de monitoreo"""
