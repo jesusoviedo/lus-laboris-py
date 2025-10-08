@@ -187,8 +187,8 @@ class QuestionResponse(BaseResponse):
     
     class Config:
         json_schema_extra = {
-            "examples": {
-                "successful_response": {
+            "examples": [
+                {
                     "success": True,
                     "message": "Question answered successfully",
                     "timestamp": "2024-01-15T10:30:00Z",
@@ -210,15 +210,6 @@ class QuestionResponse(BaseResponse):
                             }
                         }
                     ]
-                },
-                "error_response": {
-                    "success": False,
-                    "message": "Failed to answer question",
-                    "timestamp": "2024-01-15T10:30:00Z",
-                    "question": "¿Cuáles son los derechos del trabajador en caso de despido?",
-                    "error": "No se pudo conectar con el servicio de embeddings",
-                    "processing_time_seconds": 1.234,
-                    "session_id": "550e8400-e29b-41d4-a716-446655440000"
                 }
-            }
+            ]
         }
