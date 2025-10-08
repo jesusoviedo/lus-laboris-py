@@ -19,6 +19,7 @@ from .services.gcp_service import gcp_service
 from .services.embedding_service import embedding_service
 from .services.rag_service import rag_service
 from .services.evaluation_service import evaluation_service
+from .utils.cache import health_check_cache
 from .config import settings
 from .models.responses import RootResponse, ServiceStatusResponse
 
@@ -209,11 +210,22 @@ async def get_service_status(
     try:
         is_authenticated = token_payload is not None
         
-        # Get full status from all services
-        qdrant_status = qdrant_service.health_check()
-        gcp_status = gcp_service.health_check()
-        embedding_status = embedding_service.health_check()
-        rag_status = rag_service.health_check()
+        # Get full status from all services (with cache)
+        # Try cache first for each service
+        qdrant_status = health_check_cache.get("qdrant") or qdrant_service.health_check()
+        gcp_status = health_check_cache.get("gcp") or gcp_service.health_check()
+        embedding_status = health_check_cache.get("embedding") or embedding_service.health_check()
+        rag_status = health_check_cache.get("rag") or rag_service.health_check()
+        
+        # Update cache if it was a miss
+        if health_check_cache.get("qdrant") is None:
+            health_check_cache.set("qdrant", qdrant_status)
+        if health_check_cache.get("gcp") is None:
+            health_check_cache.set("gcp", gcp_status)
+        if health_check_cache.get("embedding") is None:
+            health_check_cache.set("embedding", embedding_status)
+        if health_check_cache.get("rag") is None:
+            health_check_cache.set("rag", rag_status)
         
         # Sanitize sensitive information based on authentication
         sanitized_qdrant = _sanitize_service_status(qdrant_status, is_authenticated)

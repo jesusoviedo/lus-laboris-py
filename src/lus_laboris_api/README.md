@@ -192,8 +192,9 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 **GET** `/api/health`
 - Comprehensive health check of API and dependencies
 - **No authentication required** - for monitoring systems
-- Returns service status, dependencies, and uptime
-- Always returns full information (public endpoint)
+- Returns service status, dependencies (basic status only), and uptime
+- **Safe for public access**: Only exposes service names and their status (connected/healthy/unhealthy)
+- Does NOT expose: model names, project IDs, collection counts, or other sensitive details
 
 **GET** `/api/health/ready`
 - Readiness check for load balancers and orchestrators
@@ -277,11 +278,24 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 
 **Public endpoints (no token required):**
 ```bash
-# General health check
+# General health check (basic status only)
 curl -X GET "http://localhost:8000/api/health/"
+# Response: {
+#   "success": true,
+#   "service": "lus-laboris-api",
+#   "status": "healthy",
+#   "dependencies": {
+#     "qdrant": "connected",
+#     "gcp": "connected",
+#     "embedding_service": "healthy",
+#     "rag_service": "healthy"
+#   },
+#   "uptime_seconds": 3600.5
+# }
 
 # Readiness check
 curl -X GET "http://localhost:8000/api/health/ready"
+# Response: {"success": true, "ready": true, "message": "Service is ready"}
 
 # Aggregated status (basic info without token)
 curl -X GET "http://localhost:8000/api/status"
@@ -398,8 +412,8 @@ curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
   "success": true,
   "message": "Data loaded successfully to vectorstore",
   "collection_name": "lus_laboris_articles",
-  "documents_processed": 410,
-  "documents_inserted": 410,
+  "documents_processed": 413,
+  "documents_inserted": 413,
   "processing_time_seconds": 45.2,
   "embedding_model_used": "sentence-transformers/all-MiniLM-L6-v2",
   "vector_dimensions": 384,
@@ -499,6 +513,8 @@ Health check endpoints implement **smart information filtering** based on authen
 
 | Endpoint | Without Authentication | With JWT Token |
 |----------|----------------------|----------------|
+| `/api/health` | Basic status only per service | **Same** (always basic, safe for public) |
+| `/api/status` | Basic status only per service | **Full details** for all services |
 | `/api/health/gcp` | `{"status": "connected"}` | `{"status": "connected", "project_id": "...", "buckets_count": 2}` |
 | `/api/health/qdrant` | `{"status": "connected"}` | `{"status": "connected", "collections_count": 5}` |
 | `/api/health/embeddings` | `{"status": "healthy"}` | `{"status": "healthy", "loaded_models": [...], "device": "cuda"}` |
@@ -927,8 +943,9 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 **GET** `/api/health`
 - Health check completo del sistema y dependencias
 - **Sin autenticación requerida** - para sistemas de monitoreo
-- Retorna estado del servicio, dependencias y tiempo de actividad
-- Siempre retorna información completa (endpoint público)
+- Retorna estado del servicio, dependencias (solo status básico) y tiempo de actividad
+- **Seguro para acceso público**: Solo expone nombres de servicios y su estado (connected/healthy/unhealthy)
+- NO expone: nombres de modelos, IDs de proyecto, conteo de colecciones, u otros detalles sensibles
 
 **GET** `/api/health/ready`
 - Verificación de disponibilidad para balanceadores de carga y orquestadores
@@ -1093,8 +1110,8 @@ curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
   "success": true,
   "message": "Data loaded successfully to vectorstore",
   "collection_name": "lus_laboris_articles",
-  "documents_processed": 410,
-  "documents_inserted": 410,
+  "documents_processed": 413,
+  "documents_inserted": 413,
   "processing_time_seconds": 45.2,
   "embedding_model_used": "sentence-transformers/all-MiniLM-L6-v2",
   "vector_dimensions": 384,
@@ -1194,6 +1211,8 @@ Los endpoints de health check implementan **filtrado inteligente de información
 
 | Endpoint | Sin Autenticación | Con Token JWT |
 |----------|------------------|---------------|
+| `/api/health` | Solo status básico por servicio | **Igual** (siempre básico, seguro para público) |
+| `/api/status` | Solo status básico por servicio | **Detalles completos** de todos los servicios |
 | `/api/health/gcp` | `{"status": "connected"}` | `{"status": "connected", "project_id": "...", "buckets_count": 2}` |
 | `/api/health/qdrant` | `{"status": "connected"}` | `{"status": "connected", "collections_count": 5}` |
 | `/api/health/embeddings` | `{"status": "healthy"}` | `{"status": "healthy", "loaded_models": [...], "device": "cuda"}` |

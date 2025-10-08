@@ -2,6 +2,7 @@
 Health check endpoints
 """
 import time
+import asyncio
 import logging
 from typing import Dict, Any
 from fastapi import APIRouter, Depends
@@ -13,6 +14,7 @@ from ..services.reranking_service import reranking_service
 from ..services.rag_service import rag_service
 from ..services.evaluation_service import evaluation_service
 from ..auth.security import optional_auth
+from ..utils.cache import health_check_cache
 
 logger = logging.getLogger(__name__)
 
@@ -51,18 +53,30 @@ def _sanitize_health_response(status: Dict[str, Any], is_authenticated: bool) ->
     description="Check the health status of the API and its dependencies"
 )
 async def health_check():
-    """Comprehensive health check endpoint"""
+    """Comprehensive health check endpoint with parallel execution"""
     try:
         # Calculate uptime
         uptime_seconds = time.time() - startup_time
         
-        # Check service dependencies
-        qdrant_status = qdrant_service.health_check()
-        gcp_status = gcp_service.health_check()
-        embedding_status = embedding_service.health_check()
-        reranking_status = reranking_service.health_check()
-        rag_status = rag_service.health_check()
-        eval_status = evaluation_service.health_check()
+        # Check service dependencies in parallel (OPTIMIZED)
+        # Ejecutar todos los health checks simultáneamente
+        health_check_tasks = await asyncio.gather(
+            asyncio.to_thread(qdrant_service.health_check),
+            asyncio.to_thread(gcp_service.health_check),
+            asyncio.to_thread(embedding_service.health_check),
+            asyncio.to_thread(reranking_service.health_check),
+            asyncio.to_thread(rag_service.health_check),
+            asyncio.to_thread(evaluation_service.health_check),
+            return_exceptions=True  # No fallar si uno falla
+        )
+        
+        # Extraer resultados
+        qdrant_status = health_check_tasks[0] if not isinstance(health_check_tasks[0], Exception) else {"status": "error"}
+        gcp_status = health_check_tasks[1] if not isinstance(health_check_tasks[1], Exception) else {"status": "error"}
+        embedding_status = health_check_tasks[2] if not isinstance(health_check_tasks[2], Exception) else {"status": "error"}
+        reranking_status = health_check_tasks[3] if not isinstance(health_check_tasks[3], Exception) else {"status": "error"}
+        rag_status = health_check_tasks[4] if not isinstance(health_check_tasks[4], Exception) else {"status": "error"}
+        eval_status = health_check_tasks[5] if not isinstance(health_check_tasks[5], Exception) else {"status": "error"}
         
         # Determine overall health
         all_healthy = (
@@ -80,27 +94,6 @@ async def health_check():
             "gcp": gcp_status.get("status", "unknown"),
             "evaluation_service": eval_status.get("status", "unknown")
         }
-        
-        # Add additional info if available
-        if qdrant_status.get("collections_count") is not None:
-            dependencies["qdrant_collections"] = str(qdrant_status["collections_count"])
-        
-        if gcp_status.get("buckets_count") is not None:
-            dependencies["gcp_buckets"] = str(gcp_status["buckets_count"])
-        
-        if embedding_status.get("loaded_models"):
-            dependencies["loaded_models"] = ", ".join(embedding_status["loaded_models"])
-        
-        if reranking_status.get("model_name"):
-            dependencies["reranking_model"] = reranking_status["model_name"]
-        
-        if rag_status.get("provider"):
-            dependencies["rag_provider"] = rag_status["provider"]
-            dependencies["rag_model"] = rag_status.get("model", "unknown")
-        
-        if eval_status.get("queue_size") is not None:
-            dependencies["evaluation_queue_size"] = str(eval_status["queue_size"])
-            dependencies["phoenix_evals_available"] = str(eval_status.get("phoenix_evals_available", False))
         
         return HealthCheckResponse(
             success=all_healthy,
@@ -134,10 +127,19 @@ async def health_check():
 async def qdrant_health_check(
     token_payload: Dict[str, Any] = Depends(optional_auth)
 ):
-    """Check Qdrant service health"""
+    """Check Qdrant service health with caching"""
     try:
         is_authenticated = token_payload is not None
-        status = qdrant_service.health_check()
+        
+        # Try to get from cache first
+        cached_status = health_check_cache.get("qdrant")
+        if cached_status is not None:
+            status = cached_status
+        else:
+            # Not in cache, execute health check
+            status = qdrant_service.health_check()
+            # Save to cache
+            health_check_cache.set("qdrant", status)
         
         # Sanitizar información sensible si no está autenticado
         sanitized_status = _sanitize_health_response(status, is_authenticated)
@@ -168,10 +170,19 @@ async def qdrant_health_check(
 async def gcp_health_check(
     token_payload: Dict[str, Any] = Depends(optional_auth)
 ):
-    """Check GCP service health"""
+    """Check GCP service health with caching"""
     try:
         is_authenticated = token_payload is not None
-        status = gcp_service.health_check()
+        
+        # Try to get from cache first
+        cached_status = health_check_cache.get("gcp")
+        if cached_status is not None:
+            status = cached_status
+        else:
+            # Not in cache, execute health check
+            status = gcp_service.health_check()
+            # Save to cache
+            health_check_cache.set("gcp", status)
         
         # Sanitizar información sensible si no está autenticado
         sanitized_status = _sanitize_health_response(status, is_authenticated)
@@ -202,10 +213,19 @@ async def gcp_health_check(
 async def embedding_health_check(
     token_payload: Dict[str, Any] = Depends(optional_auth)
 ):
-    """Check embedding service health"""
+    """Check embedding service health with caching"""
     try:
         is_authenticated = token_payload is not None
-        status = embedding_service.health_check()
+        
+        # Try to get from cache first
+        cached_status = health_check_cache.get("embedding")
+        if cached_status is not None:
+            status = cached_status
+        else:
+            # Not in cache, execute health check
+            status = embedding_service.health_check()
+            # Save to cache
+            health_check_cache.set("embedding", status)
         
         # Sanitizar información sensible si no está autenticado
         sanitized_status = _sanitize_health_response(status, is_authenticated)
@@ -236,10 +256,19 @@ async def embedding_health_check(
 async def reranking_health_check(
     token_payload: Dict[str, Any] = Depends(optional_auth)
 ):
-    """Check reranking service health"""
+    """Check reranking service health with caching"""
     try:
         is_authenticated = token_payload is not None
-        status = reranking_service.health_check()
+        
+        # Try to get from cache first
+        cached_status = health_check_cache.get("reranking")
+        if cached_status is not None:
+            status = cached_status
+        else:
+            # Not in cache, execute health check
+            status = reranking_service.health_check()
+            # Save to cache
+            health_check_cache.set("reranking", status)
         
         # Sanitizar información sensible si no está autenticado
         sanitized_status = _sanitize_health_response(status, is_authenticated)
@@ -270,10 +299,19 @@ async def reranking_health_check(
 async def rag_health_check(
     token_payload: Dict[str, Any] = Depends(optional_auth)
 ):
-    """Check RAG service health"""
+    """Check RAG service health with caching"""
     try:
         is_authenticated = token_payload is not None
-        status = rag_service.health_check()
+        
+        # Try to get from cache first
+        cached_status = health_check_cache.get("rag")
+        if cached_status is not None:
+            status = cached_status
+        else:
+            # Not in cache, execute health check
+            status = rag_service.health_check()
+            # Save to cache
+            health_check_cache.set("rag", status)
         
         # Sanitizar información sensible si no está autenticado
         sanitized_status = _sanitize_health_response(status, is_authenticated)
