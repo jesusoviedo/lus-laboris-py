@@ -187,37 +187,64 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 - **Header**: `Authorization: Bearer <token>`
 - **Generation**: Use scripts in `utils/`
 
-#### Health Check (Public - No Authentication Required)
+#### Health Check Endpoints
 
 **GET** `/api/health`
 - Comprehensive health check of API and dependencies
 - **No authentication required** - for monitoring systems
 - Returns service status, dependencies, and uptime
+- Always returns full information (public endpoint)
 
 **GET** `/api/health/ready`
 - Readiness check for load balancers and orchestrators
 - **No authentication required** - for deployment verification
 - Returns simple ready/not ready status
 
+**Service-Specific Health Checks (Optional Authentication with Info Filtering):**
+
 **GET** `/api/health/qdrant`
 - Qdrant-specific health check
-- Optional authentication (works with or without token)
+- **Optional authentication**: Works with or without token
+- **Without token**: Returns only `{"status": "connected"}` (basic info)
+- **With JWT token**: Returns full info including `collections_count`
 
 **GET** `/api/health/gcp`
 - GCP-specific health check
-- Optional authentication (works with or without token)
+- **Optional authentication**: Works with or without token
+- **Without token**: Returns only `{"status": "connected"}` (basic info)
+- **With JWT token**: Returns full info including `project_id`, `buckets_count` (⚠️ sensitive)
 
 **GET** `/api/health/embeddings`
 - Embedding service health check
-- Optional authentication (works with or without token)
+- **Optional authentication**: Works with or without token
+- **Without token**: Returns only `{"status": "healthy"}` (basic info)
+- **With JWT token**: Returns full info including `loaded_models`, `device`, `model_dimensions`
 
 **GET** `/api/health/reranking`
 - Reranking service health check
-- Optional authentication (works with or without token)
+- **Optional authentication**: Works with or without token
+- **Without token**: Returns only `{"status": "healthy"}` (basic info)
+- **With JWT token**: Returns full info including `model_name`, `device`
 
 **GET** `/api/health/rag`
 - RAG service health check
-- Optional authentication (works with or without token)
+- **Optional authentication**: Works with or without token
+- **Without token**: Returns only `{"status": "healthy"}` (basic info)
+- **With JWT token**: Returns full info including `provider`, `model`, `embedding_model`
+
+**GET** `/api/status`
+- **Comprehensive status of ALL services** (aggregated diagnostic endpoint)
+- **Optional authentication**: Works with or without token
+- **Without token**: Returns only basic status for each service `{"status": "connected/healthy"}`
+- **With JWT token**: Returns detailed information for all services:
+  - Qdrant (with collections count)
+  - GCP (with project_id and buckets count)
+  - Embedding service (with loaded models and device)
+  - RAG service (with provider, model, embedding model)
+- **Use case**: 
+  - Public monitoring tools can check service health
+  - Authenticated admins get full diagnostic information
+- **Security**: Smart filtering - no sensitive info exposed without authentication
 
 #### RAG (Question Answering)
 
@@ -255,20 +282,34 @@ curl -X GET "http://localhost:8000/api/health/"
 
 # Readiness check
 curl -X GET "http://localhost:8000/api/health/ready"
+
+# Aggregated status (basic info without token)
+curl -X GET "http://localhost:8000/api/status"
+# Response: {"services": {"qdrant": {"status": "connected"}, "gcp": {"status": "connected"}, ...}}
 ```
 
-**Optional authentication endpoints (with or without token):**
+**Optional authentication endpoints (basic info without token, detailed info with token):**
 ```bash
-# Without token
-curl -X GET "http://localhost:8000/api/health/qdrant"
+# Without token - Returns only basic status
 curl -X GET "http://localhost:8000/api/health/gcp"
-curl -X GET "http://localhost:8000/api/health/embeddings"
-curl -X GET "http://localhost:8000/api/health/reranking"
-curl -X GET "http://localhost:8000/api/health/rag"
+# Response: {"status": {"status": "connected"}}  ← No sensitive info
 
-# With token (optional)
-curl -X GET "http://localhost:8000/api/health/qdrant" \
+curl -X GET "http://localhost:8000/api/health/embeddings"
+# Response: {"status": {"status": "healthy"}}  ← No model info
+
+# With token - Returns detailed information
+curl -X GET "http://localhost:8000/api/health/gcp" \
   -H "Authorization: Bearer your_jwt_token_here"
+# Response: {"status": {"status": "connected", "project_id": "...", "buckets_count": 2}}
+
+curl -X GET "http://localhost:8000/api/health/embeddings" \
+  -H "Authorization: Bearer your_jwt_token_here"
+# Response: {"status": {"status": "healthy", "loaded_models": [...], "device": "cuda"}}
+
+# Aggregated status with token - Returns detailed info for ALL services
+curl -X GET "http://localhost:8000/api/status" \
+  -H "Authorization: Bearer your_jwt_token_here"
+# Response: {"services": {"qdrant": {...full info...}, "gcp": {...full info...}, ...}}
 ```
 
 **RAG endpoints:**
@@ -451,6 +492,34 @@ The text used to generate embeddings combines:
 - **Example**: `"del objeto y aplicación del código: este código tiene por objeto establecer normas..."`
 
 ## Security
+
+### Information Security in Health Checks
+
+Health check endpoints implement **smart information filtering** based on authentication:
+
+| Endpoint | Without Authentication | With JWT Token |
+|----------|----------------------|----------------|
+| `/api/health/gcp` | `{"status": "connected"}` | `{"status": "connected", "project_id": "...", "buckets_count": 2}` |
+| `/api/health/qdrant` | `{"status": "connected"}` | `{"status": "connected", "collections_count": 5}` |
+| `/api/health/embeddings` | `{"status": "healthy"}` | `{"status": "healthy", "loaded_models": [...], "device": "cuda"}` |
+| `/api/health/reranking` | `{"status": "healthy"}` | `{"status": "healthy", "model_name": "...", "device": "cpu"}` |
+| `/api/health/rag` | `{"status": "healthy"}` | `{"status": "healthy", "provider": "openai", "model": "gpt-4"}` |
+
+**Security Benefits:**
+- ✅ **Prevents reconnaissance attacks**: Attackers cannot map your infrastructure
+- ✅ **Protects sensitive data**: Project IDs, model names, device info hidden from public
+- ✅ **Maintains monitoring capability**: External tools can still check service status
+- ✅ **Flexible access**: Authenticated users get full diagnostic information
+
+**Implementation:**
+```python
+# Automatic sanitization based on authentication
+def _sanitize_health_response(status, is_authenticated):
+    if is_authenticated:
+        return status  # Full info
+    else:
+        return {"status": status.get("status")}  # Basic info only
+```
 
 ### JWT Authentication
 
@@ -853,37 +922,64 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 - Requiere autenticación JWT
 - **Phoenix Tracking**: Tracking de operación con información del usuario
 
-#### Health Checks (Públicos - Sin Autenticación Requerida)
+#### Health Checks
 
 **GET** `/api/health`
 - Health check completo del sistema y dependencias
 - **Sin autenticación requerida** - para sistemas de monitoreo
 - Retorna estado del servicio, dependencias y tiempo de actividad
+- Siempre retorna información completa (endpoint público)
 
 **GET** `/api/health/ready`
 - Verificación de disponibilidad para balanceadores de carga y orquestadores
 - **Sin autenticación requerida** - para verificación de despliegues
 - Retorna estado simple de listo/no listo
 
+**Health Checks de Servicios Específicos (Autenticación Opcional con Filtrado de Información):**
+
 **GET** `/api/health/qdrant`
 - Health check específico de Qdrant
-- Autenticación opcional (funciona con o sin token)
+- **Autenticación opcional**: Funciona con o sin token
+- **Sin token**: Retorna solo `{"status": "connected"}` (info básica)
+- **Con token JWT**: Retorna info completa incluyendo `collections_count`
 
 **GET** `/api/health/gcp`
 - Health check específico de GCP
-- Autenticación opcional (funciona con o sin token)
+- **Autenticación opcional**: Funciona con o sin token
+- **Sin token**: Retorna solo `{"status": "connected"}` (info básica)
+- **Con token JWT**: Retorna info completa incluyendo `project_id`, `buckets_count` (⚠️ sensible)
 
 **GET** `/api/health/embeddings`
 - Health check del servicio de embeddings
-- Autenticación opcional (funciona con o sin token)
+- **Autenticación opcional**: Funciona con o sin token
+- **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
+- **Con token JWT**: Retorna info completa incluyendo `loaded_models`, `device`, `model_dimensions`
 
 **GET** `/api/health/reranking`
 - Health check del servicio de reranking
-- Autenticación opcional (funciona con o sin token)
+- **Autenticación opcional**: Funciona con o sin token
+- **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
+- **Con token JWT**: Retorna info completa incluyendo `model_name`, `device`
 
 **GET** `/api/health/rag`
 - Health check del servicio RAG
-- Autenticación opcional (funciona con o sin token)
+- **Autenticación opcional**: Funciona con o sin token
+- **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
+- **Con token JWT**: Retorna info completa incluyendo `provider`, `model`, `embedding_model`
+
+**GET** `/api/status`
+- **Estado completo de TODOS los servicios** (endpoint de diagnóstico agregado)
+- **Autenticación opcional**: Funciona con o sin token
+- **Sin token**: Retorna solo estado básico de cada servicio `{"status": "connected/healthy"}`
+- **Con token JWT**: Retorna información detallada de todos los servicios:
+  - Qdrant (con conteo de colecciones)
+  - GCP (con project_id y conteo de buckets)
+  - Servicio de embeddings (con modelos cargados y dispositivo)
+  - Servicio RAG (con proveedor, modelo, modelo de embedding)
+- **Caso de uso**: 
+  - Herramientas públicas de monitoreo pueden verificar salud de servicios
+  - Administradores autenticados obtienen información completa de diagnóstico
+- **Seguridad**: Filtrado inteligente - no se expone info sensible sin autenticación
 
 #### RAG (Preguntas y Respuestas)
 
@@ -921,34 +1017,53 @@ curl -X GET "http://localhost:8000/api/health/"
 
 # Verificación de disponibilidad
 curl -X GET "http://localhost:8000/api/health/ready"
+
+# Estado agregado de servicios (info básica sin token)
+curl -X GET "http://localhost:8000/api/status"
+# Respuesta: {"services": {"qdrant": {"status": "connected"}, "gcp": {"status": "connected"}, ...}}
 ```
 
-**Endpoints con autenticación opcional (con o sin token):**
+**Endpoints con autenticación opcional (info básica sin token, info detallada con token):**
 ```bash
-# Sin token
-curl -X GET "http://localhost:8000/api/health/qdrant"
+# Sin token - Retorna solo estado básico
 curl -X GET "http://localhost:8000/api/health/gcp"
-curl -X GET "http://localhost:8000/api/health/embeddings"
-curl -X GET "http://localhost:8000/api/health/reranking"
-curl -X GET "http://localhost:8000/api/health/rag"
+# Respuesta: {"status": {"status": "connected"}}  ← No info sensible
 
-# Con token (opcional)
-curl -X GET "http://localhost:8000/api/health/qdrant" \
+curl -X GET "http://localhost:8000/api/health/embeddings"
+# Respuesta: {"status": {"status": "healthy"}}  ← No info de modelos
+
+# Con token - Retorna información detallada
+curl -X GET "http://localhost:8000/api/health/gcp" \
   -H "Authorization: Bearer tu_jwt_token_aqui"
+# Respuesta: {"status": {"status": "connected", "project_id": "...", "buckets_count": 2}}
+
+curl -X GET "http://localhost:8000/api/health/embeddings" \
+  -H "Authorization: Bearer tu_jwt_token_aqui"
+# Respuesta: {"status": {"status": "healthy", "loaded_models": [...], "device": "cuda"}}
+
+# Estado agregado con token - Retorna info detallada de TODOS los servicios
+curl -X GET "http://localhost:8000/api/status" \
+  -H "Authorization: Bearer tu_jwt_token_aqui"
+# Respuesta: {"services": {"qdrant": {...info completa...}, "gcp": {...info completa...}, ...}}
 ```
 
-**Endpoints RAG (sin token requerido):**
+**Endpoints RAG:**
 ```bash
-# Hacer una pregunta
+# Hacer una pregunta (público, sin token requerido)
 curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
 
-# Health check RAG
+# Health check RAG (público, sin token requerido)
 curl -X GET "http://localhost:8000/api/rag/health"
 
-# Métricas Phoenix
-curl -X GET "http://localhost:8000/api/rag/metrics"
+# Métricas Phoenix (requiere token JWT)
+curl -X GET "http://localhost:8000/api/rag/metrics" \
+  -H "Authorization: Bearer tu_jwt_token_aqui"
+
+# Estado de evaluaciones (requiere token JWT)
+curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
+  -H "Authorization: Bearer tu_jwt_token_aqui"
 ```
 
 ### Modelos de Datos
@@ -1072,6 +1187,34 @@ El texto que se usa para generar embeddings combina:
 - **Ejemplo**: `"del objeto y aplicación del código: este código tiene por objeto establecer normas..."`
 
 ## Seguridad
+
+### Seguridad de Información en Health Checks
+
+Los endpoints de health check implementan **filtrado inteligente de información** basado en autenticación:
+
+| Endpoint | Sin Autenticación | Con Token JWT |
+|----------|------------------|---------------|
+| `/api/health/gcp` | `{"status": "connected"}` | `{"status": "connected", "project_id": "...", "buckets_count": 2}` |
+| `/api/health/qdrant` | `{"status": "connected"}` | `{"status": "connected", "collections_count": 5}` |
+| `/api/health/embeddings` | `{"status": "healthy"}` | `{"status": "healthy", "loaded_models": [...], "device": "cuda"}` |
+| `/api/health/reranking` | `{"status": "healthy"}` | `{"status": "healthy", "model_name": "...", "device": "cpu"}` |
+| `/api/health/rag` | `{"status": "healthy"}` | `{"status": "healthy", "provider": "openai", "model": "gpt-4"}` |
+
+**Beneficios de Seguridad:**
+- ✅ **Previene ataques de reconocimiento**: Los atacantes no pueden mapear tu infraestructura
+- ✅ **Protege datos sensibles**: IDs de proyecto, nombres de modelos, info de hardware oculta del público
+- ✅ **Mantiene capacidad de monitoreo**: Herramientas externas pueden verificar el estado del servicio
+- ✅ **Acceso flexible**: Usuarios autenticados obtienen información completa de diagnóstico
+
+**Implementación:**
+```python
+# Sanitización automática basada en autenticación
+def _sanitize_health_response(status, is_authenticated):
+    if is_authenticated:
+        return status  # Info completa
+    else:
+        return {"status": status.get("status")}  # Solo info básica
+```
 
 ### Autenticación JWT
 
