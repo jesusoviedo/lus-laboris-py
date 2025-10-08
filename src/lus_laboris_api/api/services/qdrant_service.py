@@ -4,6 +4,7 @@ Qdrant service for vector database operations
 import os
 import time
 import logging
+import warnings
 from typing import List, Dict, Any, Optional, Tuple
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams, PointStruct, Filter
@@ -12,6 +13,9 @@ import numpy as np
 from ..config import settings
 
 logger = logging.getLogger(__name__)
+
+# Suppress Qdrant API key warning for local development (HTTP + API key)
+warnings.filterwarnings("ignore", message="Api key is used with an insecure connection")
 
 
 class QdrantService:

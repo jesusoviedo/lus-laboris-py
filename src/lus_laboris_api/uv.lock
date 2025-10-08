@@ -846,7 +846,6 @@ dependencies = [
     { name = "google-genai" },
     { name = "openai" },
     { name = "openinference-instrumentation-openai" },
-    { name = "openinference-instrumentation-vertexai" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp" },
     { name = "opentelemetry-instrumentation-fastapi" },
@@ -874,7 +873,6 @@ requires-dist = [
     { name = "google-genai", specifier = ">=1.39.1" },
     { name = "openai", specifier = ">=1.109.1" },
     { name = "openinference-instrumentation-openai", specifier = ">=0.1.37" },
-    { name = "openinference-instrumentation-vertexai", specifier = ">=0.1.11" },
     { name = "opentelemetry-api", specifier = ">=1.37.0" },
     { name = "opentelemetry-exporter-otlp", specifier = ">=1.37.0" },
     { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.58b0" },
@@ -1178,23 +1176,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e7/0f/1012bc967c308c58ded6fb3be1dce9b47692b5a61505f1117f1976cf8aa5/openinference_instrumentation_openai-0.1.37.tar.gz", hash = "sha256:af5525d326d0ab3a58f8a1bc1b438a8dc7e89e5d6d571c66abe797576e2642b4", size = 22769, upload_time = "2025-10-07T14:18:41.009Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/16/87/bf24e571159895fbbb32e0c83142d024a086e46e05813e29c0e137edecfa/openinference_instrumentation_openai-0.1.37-py3-none-any.whl", hash = "sha256:40b00a89d3dedbb578af446df1022af96ca5d14386c68df81c00c89d6477e867", size = 30170, upload_time = "2025-10-07T14:18:40.179Z" },
-]
-
-[[package]]
-name = "openinference-instrumentation-vertexai"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "openinference-instrumentation" },
-    { name = "openinference-semantic-conventions" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-semantic-conventions" },
-    { name = "wrapt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/06/3e/a1cd041ed1237e80178c70e5d71d95417225f84065e3aae854b70173f01c/openinference_instrumentation_vertexai-0.1.11.tar.gz", hash = "sha256:600d9be988af6e1371e17187cf6aeed3ebb893d1ca0ef567cc00f67b3242aba6", size = 21061, upload_time = "2025-05-05T16:38:46.18Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/c9/e2ea586fec1f7650d0f8c6e630417859851995ed5ba693315d1ef282de57/openinference_instrumentation_vertexai-0.1.11-py3-none-any.whl", hash = "sha256:5fceb31a89aea0d8b7c93b7b89f8095888fedf8f8944518b2d803b02f39810dc", size = 17169, upload_time = "2025-05-05T16:38:45.151Z" },
 ]
 
 [[package]]
