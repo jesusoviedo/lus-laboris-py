@@ -13,6 +13,7 @@ from ..services.embedding_service import embedding_service
 from ..services.reranking_service import reranking_service
 from ..services.rag_service import rag_service
 from ..services.evaluation_service import evaluation_service
+from ..services.phoenix_service import phoenix_service
 from ..auth.security import optional_auth
 from ..utils.cache import health_check_cache
 
@@ -58,7 +59,7 @@ async def health_check():
         uptime_seconds = time.time() - startup_time
         
         # Check service dependencies in parallel (OPTIMIZED)
-        # Execute todos los health checks simultáneamente
+        # Execute all health checks simultaneously
         health_check_tasks = await asyncio.gather(
             asyncio.to_thread(qdrant_service.health_check),
             asyncio.to_thread(gcp_service.health_check),
@@ -66,16 +67,18 @@ async def health_check():
             asyncio.to_thread(reranking_service.health_check),
             asyncio.to_thread(rag_service.health_check),
             asyncio.to_thread(evaluation_service.health_check),
-            return_exceptions=True  # No fallar si uno falla
+            asyncio.to_thread(phoenix_service.health_check),
+            return_exceptions=True  # Don't fail if one fails
         )
         
-        # Extract resultados
+        # Extract results
         qdrant_status = health_check_tasks[0] if not isinstance(health_check_tasks[0], Exception) else {"status": "error"}
         gcp_status = health_check_tasks[1] if not isinstance(health_check_tasks[1], Exception) else {"status": "error"}
         embedding_status = health_check_tasks[2] if not isinstance(health_check_tasks[2], Exception) else {"status": "error"}
         reranking_status = health_check_tasks[3] if not isinstance(health_check_tasks[3], Exception) else {"status": "error"}
         rag_status = health_check_tasks[4] if not isinstance(health_check_tasks[4], Exception) else {"status": "error"}
         eval_status = health_check_tasks[5] if not isinstance(health_check_tasks[5], Exception) else {"status": "error"}
+        phoenix_status = health_check_tasks[6] if not isinstance(health_check_tasks[6], Exception) else {"status": "error"}
         
         # Determine overall health
         all_healthy = (
@@ -91,7 +94,8 @@ async def health_check():
             "reranking_service": reranking_status.get("status", "unknown"),
             "rag_service": rag_status.get("status", "unknown"),
             "gcp": gcp_status.get("status", "unknown"),
-            "evaluation_service": eval_status.get("status", "unknown")
+            "evaluation_service": eval_status.get("status", "unknown"),
+            "phoenix": phoenix_status.get("status", "unknown")
         }
         
         return HealthCheckResponse(
@@ -365,5 +369,60 @@ async def readiness_check():
             "success": False,
             "message": f"Readiness check failed: {str(e)}",
             "ready": False,
+            "timestamp": time.time()
+        }
+
+
+@router.get(
+    "/phoenix",
+    response_model=Dict[str, Any],
+    summary="Phoenix monitoring health check",
+    description="Check Phoenix monitoring service status and connection"
+)
+async def phoenix_health_check(
+    token_payload: Dict[str, Any] = Depends(optional_auth)
+):
+    """
+    Check Phoenix monitoring service health with caching
+    
+    **Optional authentication** with smart information filtering:
+    - **Without token**: Returns only basic status (healthy/disabled/unhealthy)
+    - **With JWT token**: Returns detailed info + performs connection test to Phoenix collector
+    """
+    try:
+        is_authenticated = token_payload is not None
+        
+        # Try to get from cache first
+        cached_status = health_check_cache.get("phoenix")
+        if cached_status is not None:
+            status = cached_status
+        else:
+            # Not in cache, execute health check
+            if is_authenticated:
+                # Extended health check with connection test (only for authenticated users)
+                status = phoenix_service.health_check_extended()
+            else:
+                # Basic health check (for public access)
+                status = phoenix_service.health_check()
+            
+            # Save to cache
+            health_check_cache.set("phoenix", status)
+        
+        # Sanitize sensitive information if not authenticated
+        sanitized_status = _sanitize_health_response(status, is_authenticated)
+        
+        return {
+            "success": status.get("status") in ["healthy", "disabled"],
+            "message": "Phoenix monitoring is healthy" if status.get("status") == "healthy" else "Phoenix monitoring has issues",
+            "status": sanitized_status,
+            "timestamp": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Phoenix health check failed: {str(e)}")
+        return {
+            "success": False,
+            "message": "Phoenix health check failed",
+            "status": {"status": "error"},
             "timestamp": time.time()
         }

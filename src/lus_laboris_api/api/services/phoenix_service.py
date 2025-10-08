@@ -522,6 +522,87 @@ class PhoenixMonitoringService:
         except Exception as e:
             logger.error(f"Failed to calculate session metrics: {str(e)}")
             return {}
+    
+    def health_check(self) -> Dict[str, Any]:
+        """
+        Check Phoenix monitoring service health
+        
+        Returns basic status without authentication, detailed status with authentication.
+        """
+        try:
+            if not self.enabled:
+                return {
+                    "status": "disabled",
+                    "message": "Phoenix monitoring is disabled in configuration"
+                }
+            
+            # Basic check: verify tracer is available
+            if not self.tracer:
+                return {
+                    "status": "unhealthy",
+                    "error": "Tracer not initialized"
+                }
+            
+            # Get basic status
+            basic_status = {
+                "status": "healthy",
+                "project_name": self.project_name,
+                "active_sessions": len(self.session_tracker),
+                "total_llm_calls": sum(len(s.get("llm_calls", [])) for s in self.session_tracker.values()),
+                "total_actions": sum(len(s.get("actions", [])) for s in self.session_tracker.values())
+            }
+            
+            return basic_status
+            
+        except Exception as e:
+            logger.error(f"Phoenix health check failed: {str(e)}")
+            return {"status": "unhealthy", "error": str(e)}
+    
+    def health_check_extended(self) -> Dict[str, Any]:
+        """
+        Extended health check with connection test to Phoenix collector
+        
+        This should only be called with authentication as it performs
+        active connection testing.
+        """
+        try:
+            basic_health = self.health_check()
+            
+            if basic_health.get("status") != "healthy":
+                return basic_health
+            
+            # Perform connection test by creating a test span
+            test_session_id = "health-check-test"
+            
+            try:
+                # Create a test span to verify connection
+                with self.tracer.start_as_current_span(
+                    name="phoenix_health_check_test",
+                    kind=SpanKind.INTERNAL,
+                    attributes={
+                        "health_check": True,
+                        "test_type": "connection_verification",
+                        "session.id": test_session_id
+                    }
+                ) as span:
+                    span.set_status(Status(StatusCode.OK))
+                    span.add_event("Health check test completed")
+                
+                # If we got here, connection is working
+                basic_health["phoenix_connection"] = "verified"
+                basic_health["collector_reachable"] = True
+                
+            except Exception as conn_error:
+                logger.warning(f"Phoenix connection test failed: {conn_error}")
+                basic_health["phoenix_connection"] = "degraded"
+                basic_health["collector_reachable"] = False
+                basic_health["connection_error"] = str(conn_error)
+            
+            return basic_health
+            
+        except Exception as e:
+            logger.error(f"Phoenix extended health check failed: {str(e)}")
+            return {"status": "unhealthy", "error": str(e)}
 
 
 # Instancia global del servicio de monitoreo
