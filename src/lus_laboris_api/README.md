@@ -103,6 +103,8 @@ API_LOG_LEVEL=info
 API_ALLOWED_ORIGINS='["*"]'
 API_ALLOWED_HOSTS='["*"]'
 API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+API_JWT_AUD=lus-laboris-client  # JWT audience claim validation
+API_JWT_ISS=lus-laboris-api     # JWT issuer claim validation
 
 # Qdrant Configuration
 API_QDRANT_URL=http://localhost:6333
@@ -545,12 +547,39 @@ def _sanitize_health_response(status, is_authenticated):
 - **Keys**: RSA public/private key pair
 - **Generation**: Scripts in `utils/`
 - **Validation**: Public key only (API doesn't generate tokens)
+- **Issuer (`iss`)**: Configurable via `API_JWT_ISS` (default: `lus-laboris-api`)
+- **Audience (`aud`)**: Configurable via `API_JWT_AUD` (default: `lus-laboris-client`)
 
 ### Authentication Flow
 
 1. **Generate keys**: `utils/setup_jwt_token.sh`
 2. **Generate token**: `utils/generate_jwt_token.py`
 3. **Use token**: `Authorization: Bearer <token>`
+
+### JWT Token Validation
+
+The API validates the following claims:
+
+| Claim | Description | Validated | Configurable |
+|-------|-------------|-----------|--------------|
+| **`exp`** | Expiration time | ✅ Yes | Via token generation |
+| **`iat`** | Issued at time | ✅ Yes | Via token generation |
+| **`iss`** | Issuer (who issued the token) | ✅ Yes | `API_JWT_ISS` |
+| **`aud`** | Audience (who the token is for) | ✅ Yes | `API_JWT_AUD` |
+| **`sub`** | Subject (username) | ℹ️ Informational | - |
+
+**Configuration:**
+```env
+API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+API_JWT_AUD=lus-laboris-client
+API_JWT_ISS=lus-laboris-api
+```
+
+**Security Benefits:**
+- ✅ Prevents token reuse across different systems
+- ✅ Validates token origin (issuer)
+- ✅ Validates token destination (audience)
+- ✅ Follows RFC 7519 best practices
 
 ### Separation of Responsibilities
 
@@ -897,6 +926,8 @@ API_LOG_LEVEL=info
 API_ALLOWED_ORIGINS='["*"]'
 API_ALLOWED_HOSTS='["*"]'
 API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+API_JWT_AUD=lus-laboris-client  # Validación de claim audience en JWT
+API_JWT_ISS=lus-laboris-api     # Validación de claim issuer en JWT
 
 # Qdrant Configuration
 API_QDRANT_URL=http://localhost:6333
@@ -1317,12 +1348,39 @@ def _sanitize_health_response(status, is_authenticated):
 - **Claves**: Par de claves pública/privada RSA
 - **Generación**: Scripts en `utils/`
 - **Validación**: Solo clave pública (API no genera tokens)
+- **Issuer (`iss`)**: Configurable vía `API_JWT_ISS` (default: `lus-laboris-api`)
+- **Audience (`aud`)**: Configurable vía `API_JWT_AUD` (default: `lus-laboris-client`)
 
 ### Flujo de Autenticación
 
 1. **Generar claves**: `utils/setup_jwt_token.sh`
 2. **Generar token**: `utils/generate_jwt_token.py`
 3. **Usar token**: `Authorization: Bearer <token>`
+
+### Validación de Claims JWT
+
+La API valida los siguientes claims:
+
+| Claim | Descripción | Validado | Configurable |
+|-------|-------------|----------|--------------|
+| **`exp`** | Tiempo de expiración | ✅ Sí | Vía generación de token |
+| **`iat`** | Tiempo de emisión | ✅ Sí | Vía generación de token |
+| **`iss`** | Emisor (quién emitió el token) | ✅ Sí | `API_JWT_ISS` |
+| **`aud`** | Audiencia (para quién es el token) | ✅ Sí | `API_JWT_AUD` |
+| **`sub`** | Sujeto (username) | ℹ️ Informativo | - |
+
+**Configuración:**
+```env
+API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
+API_JWT_AUD=lus-laboris-client
+API_JWT_ISS=lus-laboris-api
+```
+
+**Beneficios de Seguridad:**
+- ✅ Previene reutilización de tokens entre sistemas diferentes
+- ✅ Valida el origen del token (issuer)
+- ✅ Valida el destino del token (audience)
+- ✅ Sigue las mejores prácticas de RFC 7519
 
 ### Separación de Responsabilidades
 

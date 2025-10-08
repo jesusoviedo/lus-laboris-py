@@ -26,22 +26,21 @@ startup_time = time.time()
 
 def _sanitize_health_response(status: Dict[str, Any], is_authenticated: bool) -> Dict[str, Any]:
     """
-    Sanitizar información sensible en health checks según autenticación.
-    Sin autenticación: solo status básico
-    Con autenticación: información completa
+    Sanitize sensitive information in health checks based on authentication.
+    Without authentication: only basic status
+    With authentication: full information
     """
     if is_authenticated:
-        # Usuario autenticado: retornar información completa
+        # Authenticated user: return full information
         return status
     
-    # Usuario no autenticado: retornar solo información básica
+    # Unauthenticated user: return only basic status (no additional fields)
     sanitized = {
         "status": status.get("status", "unknown")
     }
     
-    # Solo incluir información no sensible
-    if "error" in status:
-        sanitized["error"] = "Service unavailable"  # No exponer detalles del error
+    # Don't include error, message, or any other fields without authentication
+    # This ensures consistent response: only {"status": "..."}
     
     return sanitized
 
