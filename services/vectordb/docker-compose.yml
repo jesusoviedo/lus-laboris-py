@@ -8,13 +8,13 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_storage:/qdrant/storage
-    env_file:
-      - ../../.env
+    #env_file:
+      #- ../../.env
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
       - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__LOG_LEVEL=INFO
-      #- QDRANT__SERVICE__API_KEY=9UQEpDHjOqv1B9FGDRelHCmW2iWGSGCr
+      #- QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
     restart: always
     networks:
       - qdrant-network
