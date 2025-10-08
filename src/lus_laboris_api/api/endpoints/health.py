@@ -22,6 +22,28 @@ router = APIRouter(prefix="/api/health", tags=["health"])
 startup_time = time.time()
 
 
+def _sanitize_health_response(status: Dict[str, Any], is_authenticated: bool) -> Dict[str, Any]:
+    """
+    Sanitizar información sensible en health checks según autenticación.
+    Sin autenticación: solo status básico
+    Con autenticación: información completa
+    """
+    if is_authenticated:
+        # Usuario autenticado: retornar información completa
+        return status
+    
+    # Usuario no autenticado: retornar solo información básica
+    sanitized = {
+        "status": status.get("status", "unknown")
+    }
+    
+    # Solo incluir información no sensible
+    if "error" in status:
+        sanitized["error"] = "Service unavailable"  # No exponer detalles del error
+    
+    return sanitized
+
+
 @router.get(
     "/",
     response_model=HealthCheckResponse,
@@ -114,12 +136,16 @@ async def qdrant_health_check(
 ):
     """Check Qdrant service health"""
     try:
+        is_authenticated = token_payload is not None
         status = qdrant_service.health_check()
+        
+        # Sanitizar información sensible si no está autenticado
+        sanitized_status = _sanitize_health_response(status, is_authenticated)
         
         return {
             "success": status.get("status") == "connected",
             "message": "Qdrant is healthy" if status.get("status") == "connected" else "Qdrant has issues",
-            "status": status,
+            "status": sanitized_status,
             "timestamp": time.time()
         }
         
@@ -127,8 +153,8 @@ async def qdrant_health_check(
         logger.error(f"Qdrant health check failed: {str(e)}")
         return {
             "success": False,
-            "message": f"Qdrant health check failed: {str(e)}",
-            "status": {"status": "error", "error": str(e)},
+            "message": "Qdrant health check failed",
+            "status": {"status": "error"},
             "timestamp": time.time()
         }
 
@@ -144,12 +170,16 @@ async def gcp_health_check(
 ):
     """Check GCP service health"""
     try:
+        is_authenticated = token_payload is not None
         status = gcp_service.health_check()
+        
+        # Sanitizar información sensible si no está autenticado
+        sanitized_status = _sanitize_health_response(status, is_authenticated)
         
         return {
             "success": status.get("status") == "connected",
             "message": "GCP is healthy" if status.get("status") == "connected" else "GCP has issues",
-            "status": status,
+            "status": sanitized_status,
             "timestamp": time.time()
         }
         
@@ -157,8 +187,8 @@ async def gcp_health_check(
         logger.error(f"GCP health check failed: {str(e)}")
         return {
             "success": False,
-            "message": f"GCP health check failed: {str(e)}",
-            "status": {"status": "error", "error": str(e)},
+            "message": "GCP health check failed",
+            "status": {"status": "error"},
             "timestamp": time.time()
         }
 
@@ -174,12 +204,16 @@ async def embedding_health_check(
 ):
     """Check embedding service health"""
     try:
+        is_authenticated = token_payload is not None
         status = embedding_service.health_check()
+        
+        # Sanitizar información sensible si no está autenticado
+        sanitized_status = _sanitize_health_response(status, is_authenticated)
         
         return {
             "success": status.get("status") == "healthy",
             "message": "Embedding service is healthy" if status.get("status") == "healthy" else "Embedding service has issues",
-            "status": status,
+            "status": sanitized_status,
             "timestamp": time.time()
         }
         
@@ -187,8 +221,8 @@ async def embedding_health_check(
         logger.error(f"Embedding service health check failed: {str(e)}")
         return {
             "success": False,
-            "message": f"Embedding service health check failed: {str(e)}",
-            "status": {"status": "error", "error": str(e)},
+            "message": "Embedding service health check failed",
+            "status": {"status": "error"},
             "timestamp": time.time()
         }
 
@@ -204,12 +238,16 @@ async def reranking_health_check(
 ):
     """Check reranking service health"""
     try:
+        is_authenticated = token_payload is not None
         status = reranking_service.health_check()
+        
+        # Sanitizar información sensible si no está autenticado
+        sanitized_status = _sanitize_health_response(status, is_authenticated)
         
         return {
             "success": status.get("status") == "healthy",
             "message": "Reranking service is healthy" if status.get("status") == "healthy" else "Reranking service has issues",
-            "status": status,
+            "status": sanitized_status,
             "timestamp": time.time()
         }
         
@@ -217,8 +255,8 @@ async def reranking_health_check(
         logger.error(f"Reranking service health check failed: {str(e)}")
         return {
             "success": False,
-            "message": f"Reranking service health check failed: {str(e)}",
-            "status": {"status": "error", "error": str(e)},
+            "message": "Reranking service health check failed",
+            "status": {"status": "error"},
             "timestamp": time.time()
         }
 
@@ -234,12 +272,16 @@ async def rag_health_check(
 ):
     """Check RAG service health"""
     try:
+        is_authenticated = token_payload is not None
         status = rag_service.health_check()
+        
+        # Sanitizar información sensible si no está autenticado
+        sanitized_status = _sanitize_health_response(status, is_authenticated)
         
         return {
             "success": status.get("status") == "healthy",
             "message": "RAG service is healthy" if status.get("status") == "healthy" else "RAG service has issues",
-            "status": status,
+            "status": sanitized_status,
             "timestamp": time.time()
         }
         
@@ -247,8 +289,8 @@ async def rag_health_check(
         logger.error(f"RAG service health check failed: {str(e)}")
         return {
             "success": False,
-            "message": f"RAG service health check failed: {str(e)}",
-            "status": {"status": "error", "error": str(e)},
+            "message": "RAG service health check failed",
+            "status": {"status": "error"},
             "timestamp": time.time()
         }
 

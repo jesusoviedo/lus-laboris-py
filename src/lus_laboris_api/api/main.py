@@ -3,8 +3,9 @@ FastAPI main application for Lus Laboris API
 """
 import os
 import logging
+from typing import Dict, Any
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
@@ -12,6 +13,7 @@ import uvicorn
 
 from .endpoints import vectorstore, health, rag
 from .auth.jwt_handler import jwt_validator
+from .auth.security import optional_auth
 from .services.qdrant_service import qdrant_service
 from .services.gcp_service import gcp_service
 from .services.embedding_service import embedding_service
@@ -26,6 +28,27 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_service_status(status: Dict[str, Any], is_authenticated: bool) -> Dict[str, Any]:
+    """
+    Sanitizar información sensible de servicios según autenticación.
+    Reutiliza la misma lógica que los health checks individuales.
+    """
+    if is_authenticated:
+        # Usuario autenticado: retornar información completa
+        return status
+    
+    # Usuario no autenticado: retornar solo información básica
+    sanitized = {
+        "status": status.get("status", "unknown")
+    }
+    
+    # Solo incluir información no sensible
+    if "error" in status and not is_authenticated:
+        sanitized["error"] = "Service unavailable"  # No exponer detalles del error
+    
+    return sanitized
 
 
 @asynccontextmanager
@@ -163,36 +186,63 @@ async def root():
 
 
 
-# Service status endpoint
+# Service status endpoint (Public with Info Filtering)
 @app.get(
     "/api/status",
     response_model=ServiceStatusResponse,
     summary="Service Status",
-    description="Get detailed status of all services"
+    description="Get status of all services (optional authentication for detailed info)"
 )
-async def get_service_status():
-    """Get detailed status of all services"""
+async def get_service_status(
+    token_payload: Dict[str, Any] = Depends(optional_auth)
+):
+    """
+    Get status of all services
+    
+    **Optional authentication** with smart information filtering:
+    - **Without token**: Returns only basic status (connected/healthy/unhealthy)
+    - **With JWT token**: Returns detailed information (project IDs, models, counts, etc.)
+    
+    This allows public monitoring tools to check service health while protecting
+    sensitive infrastructure details from unauthorized access.
+    """
     try:
+        is_authenticated = token_payload is not None
+        
+        # Get full status from all services
         qdrant_status = qdrant_service.health_check()
         gcp_status = gcp_service.health_check()
         embedding_status = embedding_service.health_check()
         rag_status = rag_service.health_check()
         
+        # Sanitize sensitive information based on authentication
+        sanitized_qdrant = _sanitize_service_status(qdrant_status, is_authenticated)
+        sanitized_gcp = _sanitize_service_status(gcp_status, is_authenticated)
+        sanitized_embedding = _sanitize_service_status(embedding_status, is_authenticated)
+        sanitized_rag = _sanitize_service_status(rag_status, is_authenticated)
+        
+        # Log access
+        if is_authenticated:
+            user = token_payload.get("sub", "unknown")
+            logger.info(f"Detailed service status requested by authenticated user: {user}")
+        else:
+            logger.debug("Basic service status requested (no authentication)")
+        
         return ServiceStatusResponse(
             success=True,
             message="Service status retrieved successfully",
             services={
-                "qdrant": qdrant_status,
-                "gcp": gcp_status,
-                "embedding_service": embedding_status,
-                "rag_service": rag_status
+                "qdrant": sanitized_qdrant,
+                "gcp": sanitized_gcp,
+                "embedding_service": sanitized_embedding,
+                "rag_service": sanitized_rag
             }
         )
     except Exception as e:
         logger.error(f"Failed to get service status: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get service status: {str(e)}"
+            detail="Failed to get service status"
         )
 
 
