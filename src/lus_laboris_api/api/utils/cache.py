@@ -117,7 +117,7 @@ def cached_health_check(service_name: str):
             # No en cache o expirado, ejecutar función
             result = func(*args, **kwargs)
             
-            # Guardar en cache
+            # Save en cache
             health_check_cache.set(service_name, result)
             
             return result

@@ -36,7 +36,7 @@ class QdrantService:
                 url=self.qdrant_url,
                 api_key=self.qdrant_api_key,
                 timeout=10.0,              # Timeout explícito (10 segundos)
-                prefer_grpc=self.prefer_grpc,  # Usar gRPC cuando esté disponible (2-3x más rápido)
+                prefer_grpc=self.prefer_grpc,  # Use gRPC cuando esté disponible (2-3x más rápido)
                 grpc_port=self.grpc_port,  # Puerto gRPC (default: 6334)
                 https=not is_local,        # HTTPS solo para conexiones remotas
             )

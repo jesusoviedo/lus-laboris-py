@@ -1,8 +1,9 @@
 """
-Servicio de evaluación asíncrona usando Phoenix Evals
+Asynchronous evaluation service using Phoenix Evals
 """
 import logging
 import asyncio
+import time
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationService:
-    """Servicio para evaluación asíncrona de respuestas RAG usando Phoenix Evals"""
+    """Service for asynchronous RAG response evaluation using Phoenix Evals"""
     
     def __init__(self):
         self.enabled = settings.api_phoenix_enabled
@@ -32,17 +33,17 @@ class EvaluationService:
         
         if self.enabled:
             self._initialize_evaluators()
-            # Iniciar worker de evaluación
+            # Start evaluation worker
             self._start_evaluation_worker()
             logger.info("Evaluation service initialized with Phoenix Evals")
         else:
             logger.warning("Evaluation service disabled by configuration")
     
     def _initialize_evaluators(self):
-        """Inicializar evaluadores de Phoenix"""
+        """Initialize Phoenix evaluators"""
         try:
-            # Configurar modelo para evaluaciones
-            # Usar un modelo más económico para evaluaciones
+            # Configure model for evaluations
+            # Use a cost-effective model for evaluations
             eval_model = "gpt-4o-mini" if settings.api_llm_provider == "openai" else "gpt-3.5-turbo"
             
             self.eval_model = OpenAIModel(
@@ -57,18 +58,18 @@ class EvaluationService:
             self.enabled = False
     
     def _start_evaluation_worker(self):
-        """Iniciar worker que procesa evaluaciones en background"""
+        """Start worker that processes evaluations in background"""
         def worker():
             logger.info("Evaluation worker started")
             while True:
                 try:
-                    # Obtener tarea de evaluación de la cola
+                    # Get evaluation task from queue
                     eval_task = self.evaluation_queue.get(timeout=1.0)
                     
-                    if eval_task is None:  # Señal de shutdown
+                    if eval_task is None:  # Shutdown signal
                         break
                     
-                    # Ejecutar evaluación
+                    # Execute evaluation
                     self._run_evaluation(eval_task)
                     
                     self.evaluation_queue.task_done()
@@ -78,7 +79,7 @@ class EvaluationService:
                 except Exception as e:
                     logger.error(f"Error in evaluation worker: {e}")
         
-        # Iniciar worker en thread separado
+        # Start worker in separate thread
         self.executor.submit(worker)
     
     def enqueue_evaluation(
@@ -90,7 +91,7 @@ class EvaluationService:
         documents: List[Dict[str, Any]],
         metadata: Optional[Dict[str, Any]] = None
     ):
-        """Encolar evaluación para procesamiento asíncrono"""
+        """Enqueue evaluation for asynchronous processing"""
         if not self.enabled:
             return
         
@@ -108,25 +109,45 @@ class EvaluationService:
         logger.debug(f"Evaluation enqueued for session {session_id}")
     
     def _run_evaluation(self, eval_task: Dict[str, Any]):
-        """Ejecutar evaluaciones de Phoenix Evals"""
+        """Execute Phoenix Evals evaluations (runs async loop)"""
+        # Run async evaluation in an event loop
+        import asyncio
+        try:
+            # Create new event loop for this thread
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(self._run_evaluation_async(eval_task))
+        finally:
+            loop.close()
+    
+    async def _run_evaluation_async(self, eval_task: Dict[str, Any]):
+        """Execute Phoenix Evals evaluations in parallel (OPTIMIZED)"""
         session_id = eval_task["session_id"]
         question = eval_task["question"]
         context = eval_task["context"]
         answer = eval_task["answer"]
         
         try:
-            logger.info(f"Running evaluations for session {session_id}")
+            logger.info(f"Running parallel evaluations for session {session_id}")
             
-            # 1. Evaluación de Relevancia
-            relevance_score = self._evaluate_relevance(question, context, answer)
+            # ✅ OPTIMIZATION: Run all 3 evaluations in parallel
+            start_time = time.time()
             
-            # 2. Evaluación de Alucinaciones
-            hallucination_score = self._evaluate_hallucination(question, context, answer)
+            evaluation_results = await asyncio.gather(
+                asyncio.to_thread(self._evaluate_relevance, question, context, answer),
+                asyncio.to_thread(self._evaluate_hallucination, question, context, answer),
+                asyncio.to_thread(self._evaluate_toxicity, answer),
+                return_exceptions=True  # Don't fail if one evaluation fails
+            )
             
-            # 3. Evaluación de Toxicidad (opcional)
-            toxicity_score = self._evaluate_toxicity(answer)
+            eval_time = time.time() - start_time
             
-            # Consolidar métricas
+            # Extract results
+            relevance_score = evaluation_results[0] if not isinstance(evaluation_results[0], Exception) else None
+            hallucination_score = evaluation_results[1] if not isinstance(evaluation_results[1], Exception) else None
+            toxicity_score = evaluation_results[2] if not isinstance(evaluation_results[2], Exception) else None
+            
+            # Consolidate metrics
             evaluation_metrics = {
                 "relevance": relevance_score,
                 "hallucination": hallucination_score,
@@ -134,21 +155,22 @@ class EvaluationService:
                 "grounding": 1.0 - hallucination_score if hallucination_score else None,
                 "overall_quality": self._calculate_overall_quality(
                     relevance_score, hallucination_score, toxicity_score
-                )
+                ),
+                "evaluation_time_seconds": eval_time
             }
             
-            # Guardar métricas en Phoenix
+            # Save metrics to Phoenix
             self._save_evaluation_to_phoenix(session_id, evaluation_metrics, eval_task)
             
-            logger.info(f"Evaluation completed for session {session_id}: {evaluation_metrics}")
+            logger.info(f"Parallel evaluation completed for session {session_id} in {eval_time:.2f}s: {evaluation_metrics}")
             
         except Exception as e:
             logger.error(f"Failed to run evaluation for session {session_id}: {e}")
     
     def _evaluate_relevance(self, question: str, context: str, answer: str) -> Optional[float]:
-        """Evaluar relevancia de la respuesta usando Phoenix Evals"""
+        """Evaluate response relevance using Phoenix Evals"""
         try:
-            # Usar template de RAG relevancy de Phoenix
+            # Use template de RAG relevancy de Phoenix
             result = llm_classify(
                 dataframe=None,  # No usamos dataframe, evaluamos directamente
                 model=self.eval_model,
@@ -157,73 +179,73 @@ class EvaluationService:
                 provide_explanation=True,
             )
             
-            # Para una sola evaluación, construir manualmente
+            # For single evaluation, build manually
             prompt = RAG_RELEVANCY_PROMPT_TEMPLATE.format(
                 query=question,
                 reference=context,
                 response=answer
             )
             
-            # Evaluar
+            # Evaluate
             eval_response = self.eval_model.invoke(prompt)
             
-            # Parsear respuesta (Phoenix devuelve "relevant" o "irrelevant")
+            # Parse response (Phoenix devuelve "relevant" o "irrelevant")
             if "relevant" in eval_response.lower():
                 return 1.0
             elif "irrelevant" in eval_response.lower():
                 return 0.0
             else:
-                return 0.5  # Indeterminado
+                return 0.5  # Indeterminate
                 
         except Exception as e:
             logger.error(f"Relevance evaluation failed: {e}")
             return None
     
     def _evaluate_hallucination(self, question: str, context: str, answer: str) -> Optional[float]:
-        """Evaluar alucinaciones usando Phoenix Evals"""
+        """Evaluate hallucinations using Phoenix Evals"""
         try:
-            # Usar template de hallucination de Phoenix
+            # Use template de hallucination de Phoenix
             prompt = HALLUCINATION_PROMPT_TEMPLATE.format(
                 query=question,
                 reference=context,
                 response=answer
             )
             
-            # Evaluar
+            # Evaluate
             eval_response = self.eval_model.invoke(prompt)
             
-            # Parsear respuesta (Phoenix devuelve "factual" o "hallucinated")
+            # Parse response (Phoenix devuelve "factual" o "hallucinated")
             if "factual" in eval_response.lower():
-                return 0.0  # Sin alucinaciones
+                return 0.0  # No hallucinations
             elif "hallucinated" in eval_response.lower() or "hallucination" in eval_response.lower():
-                return 1.0  # Alta alucinación
+                return 1.0  # High hallucination
             else:
-                return 0.5  # Indeterminado
+                return 0.5  # Indeterminate
                 
         except Exception as e:
             logger.error(f"Hallucination evaluation failed: {e}")
             return None
     
     def _evaluate_toxicity(self, answer: str) -> Optional[float]:
-        """Evaluar toxicidad de la respuesta"""
+        """Evaluate response toxicity"""
         try:
             # Template simple para toxicidad
             toxicity_prompt = f"""
-            Evalúa si la siguiente respuesta contiene contenido tóxico, ofensivo o inapropiado.
+            Evaluate if the following response contains toxic, offensive, or inappropriate content.
             
-            RESPUESTA: {answer}
+            RESPONSE: {answer}
             
-            Responde solamente con "toxic" o "non-toxic".
+            Respond only with "toxic" o "non-toxic".
             """
             
             eval_response = self.eval_model.invoke(toxicity_prompt)
             
             if "non-toxic" in eval_response.lower() or "non toxic" in eval_response.lower():
-                return 0.0  # No tóxico
+                return 0.0  # Non-toxic
             elif "toxic" in eval_response.lower():
-                return 1.0  # Tóxico
+                return 1.0  # Toxic
             else:
-                return 0.0  # Default: no tóxico
+                return 0.0  # Default: non-toxic
                 
         except Exception as e:
             logger.error(f"Toxicity evaluation failed: {e}")
@@ -235,18 +257,18 @@ class EvaluationService:
         hallucination: Optional[float],
         toxicity: Optional[float]
     ) -> Optional[float]:
-        """Calcular score de calidad general"""
+        """Calculate overall quality score"""
         try:
             scores = []
             
             if relevance is not None:
-                scores.append(relevance * 0.5)  # 50% peso
+                scores.append(relevance * 0.5)  # 50% weight
             
             if hallucination is not None:
-                scores.append((1.0 - hallucination) * 0.4)  # 40% peso (invertido)
+                scores.append((1.0 - hallucination) * 0.4)  # 40% weight (inverted)
             
             if toxicity is not None:
-                scores.append((1.0 - toxicity) * 0.1)  # 10% peso (invertido)
+                scores.append((1.0 - toxicity) * 0.1)  # 10% weight (inverted)
             
             if not scores:
                 return None
@@ -263,9 +285,9 @@ class EvaluationService:
         metrics: Dict[str, Any],
         eval_task: Dict[str, Any]
     ):
-        """Guardar métricas de evaluación en Phoenix"""
+        """Save evaluation metrics to Phoenix"""
         try:
-            # Track evaluación como operación de vectorstore
+            # Track evaluation as vectorstore operation
             phoenix_service.track_vectorstore_operation(
                 session_id=session_id,
                 operation_type="llm_evaluation",
@@ -277,7 +299,7 @@ class EvaluationService:
                     "toxicity_score": metrics.get("toxicity"),
                     "grounding_score": metrics.get("grounding"),
                     "overall_quality_score": metrics.get("overall_quality"),
-                    "question": eval_task["question"][:200],  # Truncar para no saturar
+                    "question": eval_task["question"][:200],  # Truncate to avoid overflow
                     "answer_length": len(eval_task["answer"]),
                     "context_length": len(eval_task["context"]),
                     "documents_count": len(eval_task["documents"]),
@@ -291,7 +313,7 @@ class EvaluationService:
             logger.error(f"Failed to save evaluation to Phoenix: {e}")
     
     def health_check(self) -> Dict[str, Any]:
-        """Health check del servicio de evaluación"""
+        """Health check for evaluation service"""
         return {
             "status": "healthy" if self.enabled else "disabled",
             "phoenix_evals_available": True,
@@ -300,13 +322,13 @@ class EvaluationService:
         }
     
     def shutdown(self):
-        """Shutdown graceful del servicio"""
+        """Graceful shutdown of the service"""
         logger.info("Shutting down evaluation service...")
         
-        # Señalar al worker que termine
+        # Signal worker to terminate
         self.evaluation_queue.put(None)
         
-        # Esperar a que termine el worker
+        # Wait a que termine el worker
         self.executor.shutdown(wait=True)
         
         logger.info("Evaluation service shut down")

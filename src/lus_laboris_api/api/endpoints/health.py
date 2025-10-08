@@ -59,7 +59,7 @@ async def health_check():
         uptime_seconds = time.time() - startup_time
         
         # Check service dependencies in parallel (OPTIMIZED)
-        # Ejecutar todos los health checks simultáneamente
+        # Execute todos los health checks simultáneamente
         health_check_tasks = await asyncio.gather(
             asyncio.to_thread(qdrant_service.health_check),
             asyncio.to_thread(gcp_service.health_check),
@@ -70,7 +70,7 @@ async def health_check():
             return_exceptions=True  # No fallar si uno falla
         )
         
-        # Extraer resultados
+        # Extract resultados
         qdrant_status = health_check_tasks[0] if not isinstance(health_check_tasks[0], Exception) else {"status": "error"}
         gcp_status = health_check_tasks[1] if not isinstance(health_check_tasks[1], Exception) else {"status": "error"}
         embedding_status = health_check_tasks[2] if not isinstance(health_check_tasks[2], Exception) else {"status": "error"}

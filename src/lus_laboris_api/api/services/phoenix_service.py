@@ -51,7 +51,7 @@ class PhoenixMonitoringService:
                 api_key=settings.api_phoenix_api_key,
             )
             
-            # Obtener tracer
+            # Get tracer
             self.tracer = trace.get_tracer(__name__)
             
             logger.info(f"Phoenix monitoring initialized for project: {self.project_name}")
@@ -146,7 +146,7 @@ class PhoenixMonitoringService:
                         "model": model
                     })
                 
-                # Evaluar calidad de la respuesta
+                # Evaluate calidad de la respuesta
                 quality_metrics = self._evaluate_response_quality(prompt, response)
                 
                 # Agregar métricas al span

@@ -100,10 +100,10 @@ async def delete_collection(
     """Delete a collection"""
     session_id = None
     try:
-        # Crear sesión de monitoreo Phoenix
+        # Create sesión de monitoreo Phoenix
         session_id = phoenix_service.create_session(user_id=current_user)
         
-        # Extraer payload del token JWT
+        # Extract payload del token JWT
         token_payload = _extract_token_payload(request)
         
         # Track operación principal
@@ -119,7 +119,7 @@ async def delete_collection(
             }
         )
         
-        # Ejecutar eliminación
+        # Execute eliminación
         success = qdrant_service.delete_collection(collection_name)
         
         if not success:
@@ -213,10 +213,10 @@ async def load_to_vectorstore_local(
     try:
         start_time = time.time()
         
-        # Crear sesión de monitoreo Phoenix
+        # Create sesión de monitoreo Phoenix
         session_id = phoenix_service.create_session(user_id=current_user)
         
-        # Extraer payload del token JWT
+        # Extract payload del token JWT
         token_payload = _extract_token_payload(http_request)
         
         # Track operación principal
@@ -393,10 +393,10 @@ async def load_to_vectorstore_gcp(
     try:
         start_time = time.time()
         
-        # Crear sesión de monitoreo Phoenix
+        # Create sesión de monitoreo Phoenix
         session_id = phoenix_service.create_session(user_id=current_user)
         
-        # Extraer payload del token JWT
+        # Extract payload del token JWT
         token_payload = _extract_token_payload(http_request)
         
         # Track operación principal

@@ -55,11 +55,11 @@ async def ask_question(
     try:
         logger.info(f"Received question: {question_data.question[:100]}...")
         
-        # Crear sesión de monitoreo
+        # Create sesión de monitoreo
         session_id = phoenix_service.create_session()
         
-        # Answer the question using RAG service
-        result = rag_service.answer_question(question_data.question, session_id)
+        # Answer the question using RAG service (async)
+        result = await rag_service.answer_question(question_data.question, session_id)
         
         # Create response
         response = QuestionResponse(
@@ -146,7 +146,7 @@ async def get_phoenix_metrics(
 ) -> Dict[str, Any]:
     """Get Phoenix monitoring metrics"""
     try:
-        # Obtener métricas del servicio Phoenix
+        # Get métricas del servicio Phoenix
         active_sessions = len(phoenix_service.session_tracker)
         
         # Calcular métricas agregadas

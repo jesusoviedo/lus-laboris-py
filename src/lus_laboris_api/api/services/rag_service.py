@@ -10,12 +10,12 @@ from datetime import datetime
 import numpy as np
 
 # LLM imports
-from openai import OpenAI
+from openai import AsyncOpenAI  # Async client for better performance
 import google.genai as genai
 from google.genai import types
 
 # Retry imports
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential, AsyncRetrying
 
 from ..config import settings
 from .embedding_service import embedding_service
@@ -43,24 +43,24 @@ class RAGService:
         logger.info(f"RAG service initialized with provider: {self.llm_provider}, model: {self.llm_model}")
     
     def _initialize_llm_clients(self):
-        """Initialize LLM clients based on provider"""
+        """Initialize LLM clients based on provider (async-ready)"""
         try:
             if self.llm_provider == "openai":
-                # Configure OpenAI with API key from settings
+                # Configure OpenAI with async client for better performance
                 openai_api_key = settings.openai_api_key
                 if openai_api_key:
-                    self.openai_client = OpenAI(api_key=openai_api_key)
+                    self.openai_client = AsyncOpenAI(api_key=openai_api_key)
                 else:
-                    self.openai_client = OpenAI()  # Will use OPENAI_API_KEY env var as fallback
-                logger.info("OpenAI client initialized")
+                    self.openai_client = AsyncOpenAI()  # Will use OPENAI_API_KEY env var as fallback
+                logger.info("OpenAI async client initialized (non-blocking)")
             elif self.llm_provider == "gemini":
-                # Configure Gemini with API key from settings
+                # Configure Gemini module with API key
                 gemini_api_key = settings.gemini_api_key
                 if gemini_api_key:
-                    self.genai_client.configure(api_key=gemini_api_key)
+                    genai.configure(api_key=gemini_api_key)
                 else:
-                    self.genai_client.configure() # Will use GEMINI_API_KEY env var as fallback
-                logger.info("Gemini client initialized")
+                    genai.configure()  # Will use GEMINI_API_KEY env var as fallback
+                logger.info("Gemini configured successfully")
             else:
                 raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
         except Exception as e:
@@ -203,21 +203,26 @@ class RAGService:
         
         return prompt
     
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=2, min=2, max=60))
-    def _generate_openai_response(self, prompt: str) -> str:
-        """Generate response using OpenAI"""
+    async def _generate_openai_response(self, prompt: str) -> str:
+        """Generate response using OpenAI (async for better performance)"""
         try:
-            response = self.openai_client.chat.completions.create(
-                model=self.llm_model,
-                messages=[
-                    {"role": "system", "content": "Eres un asistente especializado en derecho laboral paraguayo."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.2,
-                max_tokens=1500
-            )
-            
-            return response.choices[0].message.content.strip()
+            # Use AsyncRetrying for async retry logic
+            async for attempt in AsyncRetrying(
+                stop=stop_after_attempt(3),
+                wait=wait_exponential(multiplier=2, min=2, max=60)
+            ):
+                with attempt:
+                    response = await self.openai_client.chat.completions.create(
+                        model=self.llm_model,
+                        messages=[
+                            {"role": "system", "content": "Eres un asistente especializado en derecho laboral paraguayo."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.2,
+                        max_tokens=1500
+                    )
+                    
+                    return response.choices[0].message.content.strip()
             
         except Exception as e:
             logger.error(f"OpenAI API error: {str(e)}")
@@ -227,7 +232,9 @@ class RAGService:
     def _generate_gemini_response(self, prompt: str) -> str:
         """Generate response using Gemini"""
         try:
-            model = self.gemini_client.GenerativeModel(
+            # Create model instance for this request
+            # Note: This is lightweight - just creates a Python object, not a network connection
+            model = genai.GenerativeModel(
                 model_name=self.llm_model,
                 system_instruction="Eres un asistente especializado en derecho laboral paraguayo."
             )
@@ -246,10 +253,10 @@ class RAGService:
             logger.error(f"Gemini API error: {str(e)}")
             raise
     
-    def _generate_response(self, query: str, documents: List[Dict[str, Any]], session_id: str) -> str:
-        """Generate response using LLM with context from documents"""
+    async def _generate_response(self, query: str, documents: List[Dict[str, Any]], session_id: str) -> str:
+        """Generate response using LLM with context from documents (async)"""
         if not documents:
-            return "No se encontraron documentos relevantes para responder la pregunta."
+            return "No relevant documents found to answer the question."
         
         # Build context
         context_text = self._build_context(documents)
@@ -257,11 +264,11 @@ class RAGService:
         # Create prompt
         prompt = self._create_prompt(query, context_text)
         
-        # Generate response
+        # Generate response (async)
         if self.llm_provider == "openai":
-            response = self._generate_openai_response(prompt)
+            response = await self._generate_openai_response(prompt)
         elif self.llm_provider == "gemini":
-            response = self._generate_gemini_response(prompt)
+            response = self._generate_gemini_response(prompt)  # Gemini still synchronous
         else:
             raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
         
@@ -281,11 +288,11 @@ class RAGService:
         
         return response
     
-    def answer_question(self, question: str, session_id: Optional[str] = None) -> Dict[str, Any]:
-        """Answer a question using RAG pipeline with Phoenix monitoring"""
+    async def answer_question(self, question: str, session_id: Optional[str] = None) -> Dict[str, Any]:
+        """Answer a question using RAG pipeline with Phoenix monitoring (async)"""
         start_time = time.time()
         
-        # Crear sesión si no se proporciona
+        # Create session if not provided
         if not session_id:
             session_id = phoenix_service.create_session()
         
@@ -293,8 +300,8 @@ class RAGService:
             # Retrieve relevant documents with optional reranking
             documents, retrieval_metadata = self._retrieve_documents(question, session_id)
             
-            # Generate response
-            answer = self._generate_response(question, documents, session_id)
+            # Generate response (async)
+            answer = await self._generate_response(question, documents, session_id)
             
             # Calculate processing time
             processing_time = time.time() - start_time
@@ -302,7 +309,7 @@ class RAGService:
             # Build full context for evaluation
             context_text = self._build_context(documents)
             
-            # Encolar evaluación asíncrona (no bloquea la respuesta al usuario)
+            # Enqueue asynchronous evaluation (non-blocking response)
             evaluation_service.enqueue_evaluation(
                 session_id=session_id,
                 question=question,
