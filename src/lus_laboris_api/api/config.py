@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     api_qdrant_url: str = None
     api_qdrant_api_key: Optional[str] = None
     api_qdrant_collection_name: str = None
+    api_qdrant_grpc_port: int = 6334  # Puerto gRPC de Qdrant (default: 6334)
+    api_qdrant_prefer_grpc: bool = True  # Preferir gRPC sobre HTTP (más rápido)
     
     # GCP Configuration
     api_gcp_project_id: Optional[str] = None

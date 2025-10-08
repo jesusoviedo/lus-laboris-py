@@ -21,26 +21,65 @@ class QdrantService:
         self.client = None
         self.qdrant_url = settings.api_qdrant_url
         self.qdrant_api_key = settings.api_qdrant_api_key
+        self.prefer_grpc = settings.api_qdrant_prefer_grpc
+        self.grpc_port = settings.api_qdrant_grpc_port
         self._connect()
     
     def _connect(self):
-        """Connect to Qdrant"""
+        """Connect to Qdrant with optimized settings (gRPC preferred)"""
         try:
+            # Parse URL to check if it's local or remote
+            is_local = "localhost" in self.qdrant_url or "127.0.0.1" in self.qdrant_url
+            
+            # Configuración optimizada
             self.client = QdrantClient(
                 url=self.qdrant_url,
-                api_key=self.qdrant_api_key
+                api_key=self.qdrant_api_key,
+                timeout=10.0,              # Timeout explícito (10 segundos)
+                prefer_grpc=self.prefer_grpc,  # Usar gRPC cuando esté disponible (2-3x más rápido)
+                grpc_port=self.grpc_port,  # Puerto gRPC (default: 6334)
+                https=not is_local,        # HTTPS solo para conexiones remotas
             )
-            logger.info(f"Connected to Qdrant at {self.qdrant_url}")
+            
+            # Log tipo de conexión
+            connection_type = "gRPC" if self.client.grpc_client else "HTTP"
+            logger.info(f"Connected to Qdrant at {self.qdrant_url} using {connection_type}")
+            
+            if connection_type == "gRPC":
+                logger.info(f"gRPC port: {self.grpc_port} - Performance optimized (2-3x faster than HTTP)")
+            
         except Exception as e:
-            logger.error(f"Failed to connect to Qdrant: {str(e)}")
-            raise ConnectionError(f"Failed to connect to Qdrant: {str(e)}")
+            logger.error(f"Failed to connect to Qdrant with gRPC: {str(e)}")
+            logger.warning("Falling back to HTTP connection...")
+            
+            # Fallback: intentar sin gRPC
+            try:
+                self.client = QdrantClient(
+                    url=self.qdrant_url,
+                    api_key=self.qdrant_api_key,
+                    timeout=10.0,
+                    prefer_grpc=False,  # Forzar HTTP
+                )
+                logger.info(f"Connected to Qdrant at {self.qdrant_url} using HTTP (fallback)")
+                logger.warning("gRPC not available - using HTTP (slower). Check Qdrant gRPC port configuration.")
+            except Exception as e2:
+                logger.error(f"Failed to connect to Qdrant even with HTTP: {str(e2)}")
+                raise ConnectionError(f"Failed to connect to Qdrant: {str(e2)}")
     
     def health_check(self) -> Dict[str, str]:
         """Check Qdrant health status"""
         try:
             # Try to get collections info
             collections = self.client.get_collections()
-            return {"status": "connected", "collections_count": len(collections.collections)}
+            
+            # Detectar tipo de conexión
+            connection_type = "gRPC" if self.client.grpc_client else "HTTP"
+            
+            return {
+                "status": "connected",
+                "collections_count": len(collections.collections),
+                "connection_type": connection_type  # Info útil para debugging
+            }
         except Exception as e:
             logger.error(f"Qdrant health check failed: {str(e)}")
             return {"status": "disconnected", "error": str(e)}
