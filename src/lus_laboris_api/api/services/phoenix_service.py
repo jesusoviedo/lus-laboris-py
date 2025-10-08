@@ -19,11 +19,12 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.semconv.trace import SpanAttributes as OTelSpanAttributes
-
+from openinference.instrumentation.openai import OpenAIInstrumentor
 from ..config import settings
 
-logger = logging.getLogger(__name__)
+OPENAI_INSTRUMENTOR_AVAILABLE = True
 
+logger = logging.getLogger(__name__)
 
 class PhoenixMonitoringService:
     """Servicio de monitoreo con Phoenix para tracking de LLM y métricas"""
@@ -79,6 +80,9 @@ class PhoenixMonitoringService:
             # Get tracer
             self.tracer = trace.get_tracer(__name__)
             
+            # Initialize OpenInference instrumentors
+            self._initialize_openinference_instrumentors()
+            
             processor_type = "BatchSpanProcessor" if is_production else "SimpleSpanProcessor"
             logger.info(f"Phoenix monitoring initialized for project: {self.project_name}")
             logger.info(f"Using {processor_type} (environment: {settings.api_environment})")
@@ -104,6 +108,24 @@ class PhoenixMonitoringService:
             except Exception as e2:
                 logger.error(f"Failed to initialize Phoenix even with HTTP: {str(e2)}")
                 self.enabled = False
+    
+    def _initialize_openinference_instrumentors(self):
+        """Initialize OpenInference instrumentors for automatic LLM tracking"""
+        try:
+            # Instrument OpenAI
+            if OPENAI_INSTRUMENTOR_AVAILABLE:
+                OpenAIInstrumentor().instrument()
+                logger.info("✅ OpenInference: OpenAI instrumented successfully")
+            else:
+                logger.warning("⚠️ OpenInference: OpenAI instrumentor not available")
+            
+            # Note: google-genai (Gemini AI Studio) doesn't have OpenInference instrumentor yet
+            # Using manual instrumentation via track_llm_call() for Gemini
+            logger.info("ℹ️ OpenInference: Gemini uses manual instrumentation (google-genai not supported yet)")
+                
+        except Exception as e:
+            logger.error(f"Failed to initialize OpenInference instrumentors: {str(e)}")
+            logger.info("Continuing with manual instrumentation only")
     
     def create_session(self, user_id: Optional[str] = None) -> str:
         """Crear una nueva sesión de monitoreo"""
