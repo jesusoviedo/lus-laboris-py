@@ -24,6 +24,7 @@ This directory contains comprehensive guides and documentation for setting up an
 | [act_guide.md](act_guide.md) | Local GitHub Actions Testing | Local workflow testing with act for debugging and validation |
 | [fastapi_guide.md](fastapi_guide.md) | FastAPI Framework | Web API development with FastAPI, including concepts, patterns, and best practices |
 | [phoenix_guide.md](phoenix_guide.md) | Phoenix Observability | Real-time monitoring and evaluation for RAG systems using Phoenix |
+| [qdrant_guide.md](qdrant_guide.md) | Qdrant Vector Database | Complete guide for Qdrant setup, configuration, and usage in the RAG system |
 
 ### Quick Start
 
@@ -59,6 +60,7 @@ Este directorio contiene guías completas y documentación para configurar y usa
 | [act_guide.md](act_guide.md) | Pruebas Locales de GitHub Actions | Pruebas locales de workflows con act para depuración y validación |
 | [fastapi_guide.md](fastapi_guide.md) | Framework FastAPI | Desarrollo de APIs web con FastAPI, incluyendo conceptos, patrones y mejores prácticas |
 | [phoenix_guide.md](phoenix_guide.md) | Observabilidad Phoenix | Monitoreo en tiempo real y evaluación para sistemas RAG usando Phoenix |
+| [qdrant_guide.md](qdrant_guide.md) | Base de Datos Vectorial Qdrant | Guía completa para configuración, instalación y uso de Qdrant en el sistema RAG |
 
 ### Inicio Rápido
 
