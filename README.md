@@ -2,33 +2,36 @@
 
 # 🚀 Proyecto Py Labor Law RAG (lus-laboris-py)
 
-[![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://www.python.org/)
-[![uv](https://img.shields.io/badge/uv-0A9EDC?logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
-
-[![FastAPI](https://img.shields.io/badge/FastAPI-009485.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Phoenix](https://img.shields.io/badge/Phoenix-FF7100?logo=phoenixframework&logoColor=white)](#)
-[![OpenAI](https://img.shields.io/badge/OpenAI-412991?logoColor=white)](https://openai.com/)
-[![Gemini](https://img.shields.io/badge/Gemini-4285F4?logoColor=white)](https://ai.google/)
-[![Qdrant](https://img.shields.io/badge/Qdrant-FF6B35?logo=qdrant&logoColor=white)](https://qdrant.tech/)
-
-[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](https://www.docker.com/)
-[![Docker Compose](https://img.shields.io/badge/Docker--Compose-2496ED?logo=docker&logoColor=fff)](https://docs.docker.com/compose/)
-[![Terraform](https://img.shields.io/badge/Terraform-844FBA?logo=terraform&logoColor=fff)](https://developer.hashicorp.com/terraform)
-
-[![Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
-[![GCS](https://img.shields.io/badge/Google%20Cloud%20Storage-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/storage)
-[![Compute Engine](https://img.shields.io/badge/Google%20Compute%20Engine-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/compute)
-
-[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)](https://docs.github.com/en/actions)
-
-[![Licencia MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
+<!-- CI/CD Status -->
 [![Docker Processing](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-processing-build-publish.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-processing-build-publish.yml)
 [![Docker API](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml)
 [![Terraform Apply](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml)
 [![Deploy Qdrant](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/deploy-qdrant.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/deploy-qdrant.yml)
 
+<!-- Language & Package Manager -->
+[![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://www.python.org/)
+[![uv](https://img.shields.io/badge/uv-0A9EDC?logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
+
+<!-- Main Framework & AI Stack -->
+[![FastAPI](https://img.shields.io/badge/FastAPI-009485.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-412991?logoColor=white)](https://openai.com/)
+[![Gemini](https://img.shields.io/badge/Gemini-4285F4?logoColor=white)](https://ai.google/)
+[![Qdrant](https://img.shields.io/badge/Qdrant-FF6B35?logo=qdrant&logoColor=white)](https://qdrant.tech/)
+[![Phoenix](https://img.shields.io/badge/Phoenix-FF7100?logo=phoenixframework&logoColor=white)](https://phoenix.arize.com/)
+
+<!-- DevOps & Infrastructure -->
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](https://www.docker.com/)
+[![Terraform](https://img.shields.io/badge/Terraform-844FBA?logo=terraform&logoColor=fff)](https://developer.hashicorp.com/terraform)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)](https://docs.github.com/en/actions)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+
+<!-- Cloud Platform -->
+[![Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
+[![GCS](https://img.shields.io/badge/Google%20Cloud%20Storage-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/storage)
+[![Compute Engine](https://img.shields.io/badge/Google%20Compute%20Engine-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/compute)
+
+<!-- License -->
+[![Licencia MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 
 **Language / Idioma:**
