@@ -7,6 +7,7 @@ on:
       - 'src/lus_laboris_api/Dockerfile'
       - 'src/lus_laboris_api/pyproject.toml'
       - 'src/lus_laboris_api/uv.lock'
+      - 'src/lus_laboris_api/.python-version'
       - 'src/lus_laboris_api/api/**'
 
 jobs:

@@ -5,9 +5,10 @@ on:
   push:
     paths:
       - 'src/processing/Dockerfile'
-      - 'src/processing/extract_law_text.py'
       - 'src/processing/pyproject.toml'
+      - 'src/processing/uv.lock'
       - 'src/processing/.python-version'
+      - 'src/processing/extract_law_text.py'
 
 jobs:
   build-and-push-processing:

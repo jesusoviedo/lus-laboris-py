@@ -13,8 +13,16 @@ This folder contains images used in the project documentation.
 
 ## Contents
 
+### Banners
 - `lus-laboris-banner.png` - Main banner for README (1200x400px)
-- Other project-related images
+
+### Architecture Diagrams
+- `architecture-batch-pipeline.png` - Batch processing pipeline diagram (1200x800px)
+- `architecture-online-rag-pipeline.png` - Online RAG query pipeline diagram (1200x800px)
+- `architecture-complete-infrastructure.png` - Complete infrastructure diagram (1400x900px)
+
+### Other Images
+- Other project-related images and visual assets
 
 ## Banner Specifications
 
@@ -40,10 +48,13 @@ When adding new images:
 3. Use appropriate dimensions for their purpose
 4. Update this README with new image descriptions
 
-## Documentation
+## Architecture Diagrams Specifications
 
-For detailed instructions on creating the banner, see:
-- [Banner Creation Guide](BANNER_CREATION_GUIDE.md)
+### Diagrams
+- **Dimensions:** 1200 x 800 pixels (or 1400 x 900 for complex diagrams)
+- **Format:** PNG with transparent background
+- **Style:** Clean, professional, technical documentation style
+- **Purpose:** Visualize system architecture, data flows, and infrastructure
 
 ---
 
@@ -53,8 +64,16 @@ Esta carpeta contiene imágenes utilizadas en la documentación del proyecto.
 
 ## Contenidos
 
+### Banners
 - `lus-laboris-banner.png` - Banner principal para README (1200x400px)
-- Otras imágenes relacionadas con el proyecto
+
+### Diagramas de Arquitectura
+- `architecture-batch-pipeline.png` - Diagrama de pipeline de procesamiento batch (1200x800px)
+- `architecture-online-rag-pipeline.png` - Diagrama de pipeline RAG online (1200x800px)
+- `architecture-complete-infrastructure.png` - Diagrama de infraestructura completa (1400x900px)
+
+### Otras Imágenes
+- Otras imágenes y recursos visuales relacionados con el proyecto
 
 ## Especificaciones del Banner
 
@@ -80,8 +99,11 @@ Al agregar nuevas imágenes:
 3. Usa dimensiones apropiadas para su propósito
 4. Actualiza este README con descripciones de nuevas imágenes
 
-## Documentación
+## Especificaciones de Diagramas de Arquitectura
 
-Para instrucciones detalladas sobre cómo crear el banner, consulta:
-- [Guía de Creación de Banner](BANNER_CREATION_GUIDE.md)
+### Diagramas
+- **Dimensiones:** 1200 x 800 píxeles (o 1400 x 900 para diagramas complejos)
+- **Formato:** PNG con fondo transparente
+- **Estilo:** Limpio, profesional, estilo de documentación técnica
+- **Propósito:** Visualizar arquitectura del sistema, flujos de datos e infraestructura
 
