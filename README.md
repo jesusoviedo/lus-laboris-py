@@ -67,7 +67,8 @@
 | `services/` | External services (Qdrant, Phoenix) with management script |
 | `notebooks/` | Analysis, experimentation and offline RAG system performance evaluation |
 | `terraform/` | Infrastructure as Code for Google Cloud Platform |
-| `docs/` | Comprehensive project documentation |
+| `docs/` | Comprehensive project documentation and guides |
+| `docs/images/` | Project images, banners, and visual assets |
 | `utils/` | Utility scripts for automation and management |
 | `.github/workflows/` | CI/CD automation workflows |
 
@@ -191,7 +192,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | `services/` | Servicios externos (Qdrant, Phoenix) con script de gestión |
 | `notebooks/` | Análisis, experimentación y evaluación offline del rendimiento del sistema RAG |
 | `terraform/` | Infraestructura como Código para Google Cloud Platform |
-| `docs/` | Documentación completa del proyecto |
+| `docs/` | Documentación completa del proyecto y guías |
+| `docs/images/` | Imágenes del proyecto, banners y recursos visuales |
 | `utils/` | Scripts de utilidad para automatización y gestión |
 | `.github/workflows/` | Workflows de automatización CI/CD |
 
