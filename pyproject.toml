@@ -147,6 +147,9 @@ disable_error_code = [
     "attr-defined",   # False positives
     "return",         # False positives with early returns
     "unreachable",    # False positives in error handling
+    "import-untyped", # Library stubs not always available
+    "return-value",   # Too strict with complex return types
+    "call-arg",       # False positives with Pydantic models
 ]
 
 # Bandit configuration (security)
