@@ -96,48 +96,6 @@ async def ask_question(
 
 
 @router.get(
-    "/metrics",
-    summary="Get Phoenix monitoring metrics",
-    description="Get current Phoenix monitoring metrics and session statistics"
-)
-async def get_phoenix_metrics(
-    current_user: str = Depends(get_current_user)
-) -> Dict[str, Any]:
-    """Get Phoenix monitoring metrics"""
-    try:
-        # Get métricas del servicio Phoenix
-        active_sessions = len(phoenix_service.session_tracker)
-        
-        # Calcular métricas agregadas
-        total_actions = 0
-        total_llm_calls = 0
-        
-        for session_data in phoenix_service.session_tracker.values():
-            total_actions += len(session_data.get("actions", []))
-            total_llm_calls += len(session_data.get("llm_calls", []))
-        
-        return {
-            "success": True,
-            "message": "Phoenix metrics retrieved successfully",
-            "timestamp": datetime.now().isoformat(),
-            "phoenix_enabled": phoenix_service.enabled,
-            "active_sessions": active_sessions,
-            "total_actions": total_actions,
-            "total_llm_calls": total_llm_calls,
-            "project_name": phoenix_service.project_name
-        }
-        
-    except Exception as e:
-        logger.error(f"Failed to get Phoenix metrics: {str(e)}")
-        return {
-            "success": False,
-            "message": "Failed to get Phoenix metrics",
-            "timestamp": datetime.now().isoformat(),
-            "error": str(e)
-        }
-
-
-@router.get(
     "/evaluations/status",
     summary="Get evaluation service status",
     description="Get current status of the asynchronous evaluation service"

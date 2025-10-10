@@ -270,15 +270,20 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
   - Toxicity checking
   - Grounding verification
 
-**GET** `/api/rag/metrics`
-- Phoenix monitoring metrics and session statistics
-- **Requires JWT authentication** - protected endpoint
-- Returns active sessions, total actions, and LLM calls count
-
 **GET** `/api/rag/evaluations/status`
 - Evaluation service status and queue information
 - **Requires JWT authentication** - protected endpoint
 - Returns evaluation queue size and service health
+
+**Phoenix Metrics and Monitoring**
+- **Access Phoenix UI** to view detailed metrics, traces, and evaluations:
+  - Local: `http://localhost:6006`
+  - Cloud: Use your Phoenix cloud URL (e.g., `https://app.phoenix.arize.com`)
+- Phoenix UI provides:
+  - Real-time traces and spans
+  - LLM call monitoring
+  - Evaluation results and trends
+  - Performance metrics and analytics
 
 #### Health Check Examples
 
@@ -341,10 +346,6 @@ curl -X GET "http://localhost:8000/api/status" \
 curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
-
-# Phoenix metrics (requires JWT token)
-curl -X GET "http://localhost:8000/api/rag/metrics" \
-  -H "Authorization: Bearer your_jwt_token_here"
 
 # Evaluation service status (requires JWT token)
 curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
@@ -1193,15 +1194,20 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
   - Verificación de toxicidad
   - Verificación de grounding
 
-**GET** `/api/rag/metrics`
-- Métricas de monitoreo Phoenix y estadísticas de sesiones
-- **Requiere autenticación JWT** - endpoint protegido
-- Retorna sesiones activas, acciones totales y llamadas LLM
-
 **GET** `/api/rag/evaluations/status`
 - Estado del servicio de evaluación e información de la cola
 - **Requiere autenticación JWT** - endpoint protegido
 - Retorna tamaño de la cola de evaluaciones y salud del servicio
+
+**Métricas y Monitoreo con Phoenix**
+- **Acceder a la UI de Phoenix** para ver métricas detalladas, trazas y evaluaciones:
+  - Local: `http://localhost:6006`
+  - Cloud: Usar tu URL de Phoenix cloud (ej: `https://app.phoenix.arize.com`)
+- La UI de Phoenix proporciona:
+  - Trazas y spans en tiempo real
+  - Monitoreo de llamadas LLM
+  - Resultados de evaluaciones y tendencias
+  - Métricas de rendimiento y analíticas
 
 #### Ejemplos de Health Check
 
@@ -1248,10 +1254,6 @@ curl -X GET "http://localhost:8000/api/status" \
 curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
-
-# Métricas Phoenix (requiere token JWT)
-curl -X GET "http://localhost:8000/api/rag/metrics" \
-  -H "Authorization: Bearer tu_jwt_token_aqui"
 
 # Estado de evaluaciones (requiere token JWT)
 curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
