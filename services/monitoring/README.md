@@ -6,6 +6,7 @@
 </div>
 
 ---
+
 # Monitoring
 
 This folder contains the configuration and setup for Phoenix monitoring service, which provides real-time observability and evaluation capabilities for the RAG system.
@@ -20,22 +21,25 @@ This folder contains the configuration and setup for Phoenix monitoring service,
 ### Using Docker Compose
 
 1. Navigate to this directory:
+
    ```bash
    cd services/monitoring
    ```
 
 2. Start Phoenix:
+
    ```bash
    docker-compose up -d
    ```
 
 3. Verify Phoenix is running:
+
    ```bash
    curl http://localhost:6006/health
    ```
 
 4. Access the Phoenix UI:
-   - Open your browser and go to: http://localhost:6006
+   - Open your browser and go to: <http://localhost:6006>
 
 ### Configuration
 
@@ -61,18 +65,21 @@ PHOENIX_PROMETHEUS_PORT=9090
 ## Documentation
 
 For comprehensive monitoring and observability documentation, see:
+
 - [Phoenix Guide](../../docs/phoenix_guide.md) - Complete guide for setting up and using Phoenix
 - [Phoenix Documentation](https://arize.com/docs/phoenix/) - Official Phoenix documentation
 
 ## Production Deployment
 
 **Personal Projects**: Use [Phoenix Cloud](https://arize.com/phoenix) (recommended)
+
 - No infrastructure overhead
 - Cost-effective for personal use
 - Easy setup and management
 - Automatic scaling and updates
 
 **Enterprise**: Use self-hosted deployment
+
 - Full control over infrastructure
 - Enhanced security compliance
 - Custom configurations
@@ -89,6 +96,7 @@ For comprehensive monitoring and observability documentation, see:
 ## Integration
 
 The monitoring service is integrated with:
+
 - **RAG API**: Real-time instrumentation of question-answering endpoints
 - **LLM Providers**: OpenAI and Google Gemini usage tracking
 - **Vector Database**: Qdrant search performance monitoring
@@ -116,22 +124,25 @@ Esta carpeta contiene la configuración y setup del servicio de monitoreo Phoeni
 ### Usando Docker Compose
 
 1. Navegar a este directorio:
+
    ```bash
    cd services/monitoring
    ```
 
 2. Iniciar Phoenix:
+
    ```bash
    docker-compose up -d
    ```
 
 3. Verificar que Phoenix esté ejecutándose:
+
    ```bash
    curl http://localhost:6006/health
    ```
 
 4. Acceder a la UI de Phoenix:
-   - Abrir el navegador y ir a: http://localhost:6006
+   - Abrir el navegador y ir a: <http://localhost:6006>
 
 ### Configuración
 
@@ -157,18 +168,21 @@ PHOENIX_PROMETHEUS_PORT=9090
 ## Documentación
 
 Para documentación completa de monitoreo y observabilidad, consulta:
+
 - [Guía de Phoenix](../../docs/phoenix_guide.md) - Guía completa para configurar y usar Phoenix
 - [Documentación de Phoenix](https://arize.com/docs/phoenix/) - Documentación oficial de Phoenix
 
 ## Despliegue en Producción
 
 **Proyectos Personales**: Usa [Phoenix Cloud](https://arize.com/phoenix) (recomendado)
+
 - Sin sobrecarga de infraestructura
 - Costo-efectivo para uso personal
 - Configuración y gestión fáciles
 - Escalado y actualizaciones automáticas
 
 **Empresarial**: Usa despliegue auto-hospedado
+
 - Control total sobre la infraestructura
 - Cumplimiento de seguridad mejorado
 - Configuraciones personalizadas
@@ -185,6 +199,7 @@ Para documentación completa de monitoreo y observabilidad, consulta:
 ## Integración
 
 El servicio de monitoreo está integrado con:
+
 - **API RAG**: Instrumentación en tiempo real de endpoints de preguntas y respuestas
 - **Proveedores de LLM**: Seguimiento del uso de OpenAI y Google Gemini
 - **Base de Datos Vectorial**: Monitoreo del rendimiento de búsqueda de Qdrant

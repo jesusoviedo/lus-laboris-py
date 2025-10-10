@@ -19,7 +19,7 @@ module "cloud_run_job" {
 
 module "compute_engine" {
   source = "./modules/compute_engine"
-  
+
   vm_name      = var.qdrant_vm_name
   machine_type = var.qdrant_vm_machine_type
   zone        = var.qdrant_vm_zone
@@ -28,7 +28,7 @@ module "compute_engine" {
 
 module "cloud_run_service" {
   source = "./modules/cloud_run_service"
-  
+
   project_id                = var.project_id
   region                   = var.region
   service_name             = var.api_service_name
@@ -60,7 +60,7 @@ output "job_name" {
   value = module.cloud_run_job.job_name
 }
 
-output "scheduler_name" {	
+output "scheduler_name" {
   value = module.cloud_run_job.scheduler_name
 }
 

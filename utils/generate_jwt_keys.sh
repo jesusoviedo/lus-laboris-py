@@ -79,7 +79,7 @@ check_existing_files() {
     local private_path="$1"
     local public_path="$2"
     local force="$3"
-    
+
     if [[ -f "$private_path" && -f "$public_path" ]]; then
         if [[ "$force" == "true" ]]; then
             warning "Los archivos existentes serán sobrescritos"
@@ -101,40 +101,40 @@ generate_keys() {
     local private_key="$3"
     local public_key="$4"
     local force="$5"
-    
+
     local private_path="$output_dir/$private_key"
     local public_path="$output_dir/$public_key"
-    
+
     # Verificar si los archivos ya existen
     check_existing_files "$private_path" "$public_path" "$force"
-    
+
     # Crear directorio si no existe
     mkdir -p "$output_dir"
-    
+
     info "Generando clave privada RSA de $key_size bits..."
     openssl genrsa -out "$private_path" "$key_size"
-    
+
     if [[ $? -eq 0 ]]; then
         success "Clave privada generada: $private_path"
     else
         error "Error al generar la clave privada"
         exit 1
     fi
-    
+
     info "Generando clave pública RSA..."
     openssl rsa -pubout -in "$private_path" -out "$public_path"
-    
+
     if [[ $? -eq 0 ]]; then
         success "Clave pública generada: $public_path"
     else
         error "Error al generar la clave pública"
         exit 1
     fi
-    
+
     # Establecer permisos seguros
     chmod 600 "$private_path"  # Solo lectura para el propietario
     chmod 644 "$public_path"   # Lectura para todos
-    
+
     success "Permisos de archivos configurados correctamente"
 }
 
@@ -142,27 +142,27 @@ generate_keys() {
 show_key_info() {
     local private_path="$1"
     local public_path="$2"
-    
+
     echo ""
     echo -e "${BLUE}Información de las claves generadas:${NC}"
     echo "=================================="
-    
+
     # Información de la clave privada
     echo -e "${YELLOW}Clave Privada:${NC}"
     echo "  Archivo: $private_path"
     echo "  Tamaño: $(ls -lh "$private_path" | awk '{print $5}')"
     echo "  Permisos: $(ls -l "$private_path" | awk '{print $1}')"
     echo "  Fingerprint: $(openssl rsa -in "$private_path" -pubout -outform DER 2>/dev/null | openssl dgst -sha256 -binary | openssl enc -base64)"
-    
+
     echo ""
-    
+
     # Información de la clave pública
     echo -e "${YELLOW}Clave Pública:${NC}"
     echo "  Archivo: $public_path"
     echo "  Tamaño: $(ls -lh "$public_path" | awk '{print $5}')"
     echo "  Permisos: $(ls -l "$public_path" | awk '{print $1}')"
     echo "  Fingerprint: $(openssl rsa -in "$public_path" -pubin -outform DER 2>/dev/null | openssl dgst -sha256 -binary | openssl enc -base64)"
-    
+
     echo ""
     echo -e "${GREEN}¡Claves generadas exitosamente!${NC}"
     echo ""

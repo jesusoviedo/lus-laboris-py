@@ -11,7 +11,6 @@
 
 This directory contains scripts for extracting and processing text from Paraguay's Labor Code.
 
-
 | Script | Description | Status |
 |--------|-------------|--------|
 | `extract_law_text.py` | Main script for extracting and processing text from Paraguay's Labor Code from its official source | ✅ Active |
@@ -119,6 +118,7 @@ To use GCS mode, you need to configure authentication:
 ### **Quality Validation**
 
 The script automatically validates processed data quality by:
+
 - **Structure validation**: Checks required fields and valid article numbers (1-413)
 - **Completeness verification**: Ensures all 413 articles are present without duplicates
 - **Content analysis**: Analyzes article length, special characters, and content quality
@@ -205,6 +205,7 @@ You can upload the generated Docker image to Docker Hub manually or automaticall
 ##### **Manual Method**
 
 1. Load the environment variables from the `.env` file located at the project root (run this from the `src/processing` folder):
+
 ```bash
 set -o allexport
 source ../../.env
@@ -217,22 +218,26 @@ set +o allexport
    - `DOCKER_IMAGE_NAME_PROCESSING`
 
 3. Build the Docker image:
+
 ```bash
 docker build -t "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" .
 ```
 
 4. Log in to Docker Hub:
+
 ```bash
 echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
 ```
 
 5. Tag the image with the date:
+
 ```bash
 DATE_TAG=$(date +%Y%m%d)
 docker tag "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 ```
 
 6. Push both tags:
+
 ```bash
 docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest"
 docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
@@ -242,6 +247,7 @@ docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 > **Best practice:** In production, always use the date tag (`YYYYMMDD`) to avoid running unexpected versions that may be under the `latest` tag.
 
 For more details about Docker usage (including Compose and Hub), see the guide:
+
 - [docker_guide.md](../../docs/docker_guide.md)
 
 ##### **Automatic Method (recommended)**
@@ -253,6 +259,7 @@ bash docker_build_push.sh
 ```
 
 The script will validate the required variables, build the image, tag it, and push it to Docker Hub with both tags. For more information, see:
+
 - [docker_guide.md](../../docs/docker_guide.md)
 
 ### **Phoenix Monitoring**
@@ -290,24 +297,27 @@ uv run extract_law_text.py --phoenix-endpoint https://your-instance.phoenix.ariz
 #### **Usage**
 
 1. Start Phoenix (local):
+
    ```bash
    cd ../../services/monitoring
    docker-compose up -d
    ```
 
 2. Run the script normally (tracing is automatic):
+
    ```bash
    uv run extract_law_text.py --mode local
    ```
 
-3. View traces at: http://localhost:6006
+3. View traces at: <http://localhost:6006>
 
 #### **Logging System**
 
 The script implements a separate logging system that distinguishes between main process messages and Phoenix/debug messages:
 
 **Main Process Logs:**
-```
+
+```text
 10:30:15 [PROCESO] 🔄 Starting processing in mode: LOCAL
 10:30:15 [PROCESO] 🔄 Downloading from: https://example.com/ley
 10:30:16 [PROCESO] ✅ Page downloaded and saved to: data/raw/ley.html
@@ -318,7 +328,8 @@ The script implements a separate logging system that distinguishes between main 
 ```
 
 **Phoenix/Debug Logs:**
-```
+
+```text
 10:30:15 [PHOENIX] Phoenix tracing initialized correctly
 10:30:15 [PHOENIX] Session created: 550e8400-e29b-41d4-a716-446655440000
 10:30:15 [PHOENIX] Starting Phoenix span: download_law_page (kind: CLIENT) [Session: 550e8400]
@@ -343,6 +354,7 @@ uv run extract_law_text.py --phoenix-log-level ERROR
 ```
 
 **Benefits:**
+
 - **Clear separation**: Main process vs debugging/tracing
 - **Granular control**: Adjust Phoenix verbosity level
 - **Professional format**: Consistent timestamps and categorization
@@ -364,7 +376,6 @@ uv run extract_law_text.py --phoenix-log-level ERROR
 # **Procesamiento de Texto Legal**
 
 Este directorio contiene scripts para extraer y procesar texto del Código Laboral de Paraguay.
-
 
 | Script | Descripción | Estado |
 |--------|-------------|--------|
@@ -473,6 +484,7 @@ Para usar el modo GCS, necesitas configurar la autenticación:
 ### **Validación de Calidad**
 
 El script valida automáticamente la calidad de los datos procesados mediante:
+
 - **Validación de estructura**: Verifica campos requeridos y números de artículo válidos (1-413)
 - **Verificación de completitud**: Asegura que los 413 artículos estén presentes sin duplicados
 - **Análisis de contenido**: Analiza longitud de artículos, caracteres especiales y calidad del contenido
@@ -559,6 +571,7 @@ Puedes subir la imagen Docker generada a Docker Hub de forma manual o automátic
 ##### **Método Manual**
 
 1. Carga las variables de entorno desde el archivo `.env` ubicado en la raíz del proyecto (ejecuta esto desde la carpeta `src/processing`):
+
 ```bash
 set -o allexport
 source ../../.env
@@ -571,22 +584,26 @@ set +o allexport
    - `DOCKER_IMAGE_NAME_PROCESSING`
 
 3. Construye la imagen Docker:
+
 ```bash
 docker build -t "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" .
 ```
 
 4. Inicia sesión en Docker Hub:
+
 ```bash
 echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
 ```
 
 5. Etiqueta la imagen con la fecha:
+
 ```bash
 DATE_TAG=$(date +%Y%m%d)
 docker tag "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest" "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 ```
 
 6. Sube ambas etiquetas:
+
 ```bash
 docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:latest"
 docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
@@ -596,6 +613,7 @@ docker push "$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME_PROCESSING:$DATE_TAG"
 > **Buena práctica:** En producción, siempre utiliza el tag de fecha (`YYYYMMDD`) para evitar ejecutar versiones inesperadas que puedan estar bajo el tag `latest`.
 
 Para más detalles sobre el uso de Docker (incluyendo Compose y Hub), consulta la guía:
+
 - [docker_guide.md](../../docs/docker_guide.md)
 
 ##### **Método Automático (recomendado)**
@@ -607,6 +625,7 @@ bash docker_build_push.sh
 ```
 
 El script validará las variables necesarias, construirá la imagen, la etiquetará y la subirá a Docker Hub con los tags correspondientes. Para más información, revisa:
+
 - [docker_guide.md](../../docs/docker_guide.md)
 
 ### **Monitoreo Phoenix**
@@ -644,24 +663,27 @@ uv run extract_law_text.py --phoenix-endpoint https://tu-instancia.phoenix.arize
 #### **Uso**
 
 1. Iniciar Phoenix (local):
+
    ```bash
    cd ../../services/monitoring
    docker-compose up -d
    ```
 
 2. Ejecutar el script normalmente (el tracing es automático):
+
    ```bash
    uv run extract_law_text.py --mode local
    ```
 
-3. Ver las trazas en: http://localhost:6006
+3. Ver las trazas en: <http://localhost:6006>
 
 #### **Sistema de Logging**
 
 El script implementa un sistema de logging separado que distingue entre mensajes del proceso principal y mensajes de Phoenix/debug:
 
 **Logs del Proceso Principal:**
-```
+
+```text
 10:30:15 [PROCESO] 🔄 Iniciando procesamiento en modo: LOCAL
 10:30:15 [PROCESO] 🔄 Descargando desde: https://example.com/ley
 10:30:16 [PROCESO] ✅ Página descargada y guardada en: data/raw/ley.html
@@ -672,7 +694,8 @@ El script implementa un sistema de logging separado que distingue entre mensajes
 ```
 
 **Logs de Phoenix/Debug:**
-```
+
+```text
 10:30:15 [PHOENIX] Phoenix tracing inicializado correctamente
 10:30:15 [PHOENIX] Sesión creada: 550e8400-e29b-41d4-a716-446655440000
 10:30:15 [PHOENIX] Iniciando span Phoenix: download_law_page (kind: CLIENT) [Sesión: 550e8400]
@@ -697,6 +720,7 @@ uv run extract_law_text.py --phoenix-log-level ERROR
 ```
 
 **Beneficios:**
+
 - **Separación clara**: Proceso principal vs debugging/tracing
 - **Control granular**: Ajustar nivel de verbosidad de Phoenix
 - **Formato profesional**: Timestamps y categorización consistente

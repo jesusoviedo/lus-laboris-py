@@ -25,6 +25,7 @@ This directory contains comprehensive guides and documentation for setting up an
 | [fastapi_guide.md](fastapi_guide.md) | FastAPI Framework | Web API development with FastAPI, including concepts, patterns, and best practices |
 | [phoenix_guide.md](phoenix_guide.md) | Phoenix Observability | Real-time monitoring and evaluation for RAG systems using Phoenix |
 | [qdrant_guide.md](qdrant_guide.md) | Qdrant Vector Database | Complete guide for Qdrant setup, configuration, and usage in the RAG system |
+| [code_quality_guide.md](code_quality_guide.md) | Code Quality & Testing | Comprehensive guide for linting, testing, and quality assurance |
 | [images/](images/) | Project Images | Banners, diagrams, and visual assets for documentation |
 
 ### Quick Start
@@ -62,6 +63,7 @@ Este directorio contiene guías completas y documentación para configurar y usa
 | [fastapi_guide.md](fastapi_guide.md) | Framework FastAPI | Desarrollo de APIs web con FastAPI, incluyendo conceptos, patrones y mejores prácticas |
 | [phoenix_guide.md](phoenix_guide.md) | Observabilidad Phoenix | Monitoreo en tiempo real y evaluación para sistemas RAG usando Phoenix |
 | [qdrant_guide.md](qdrant_guide.md) | Base de Datos Vectorial Qdrant | Guía completa para configuración, instalación y uso de Qdrant en el sistema RAG |
+| [code_quality_guide.md](code_quality_guide.md) | Calidad de Código & Testing | Guía completa para linting, testing y aseguramiento de calidad |
 | [images/](images/) | Imágenes del Proyecto | Banners, diagramas y recursos visuales para documentación |
 
 ### Inicio Rápido

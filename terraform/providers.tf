@@ -11,7 +11,7 @@ terraform {
     bucket = "py-labor-law-rag-terraform-state"
     prefix = "terraform/state"
   }
-  
+
 }
 
 # Providers for Google Cloud

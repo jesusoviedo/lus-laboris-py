@@ -20,7 +20,9 @@
 ```bash
 sudo apt-get install act
 ```
+
 Or with Homebrew:
+
 ```bash
 brew install act
 ```
@@ -77,7 +79,7 @@ act pull_request
 
 1. **Create a secrets file** (can be your `.env` or a `.secrets` file):
 
-   ```
+   ```text
    SECRET_NAME=value
    ANOTHER_SECRET=value2
    ```
@@ -115,7 +117,7 @@ jobs:
 
 And your `.env` file:
 
-```
+```text
 MY_SECRET=supersecret
 MY_VARIABLE=value123
 ```
@@ -152,7 +154,9 @@ act --secret-file ../../.env --env-file ../../.env
 ```bash
 sudo apt-get install act
 ```
+
 O con Homebrew:
+
 ```bash
 brew install act
 ```
@@ -209,7 +213,7 @@ act pull_request
 
 1. **Crea un archivo de secrets** (puede ser tu `.env` o un archivo llamado `.secrets`):
 
-   ```
+   ```text
    NOMBRE_SECRETO=valor
    OTRO_SECRETO=valor2
    ```
@@ -247,7 +251,7 @@ jobs:
 
 Y tu archivo `.env`:
 
-```
+```text
 MI_SECRETO=supersecreto
 MI_VARIABLE=valor123
 ```

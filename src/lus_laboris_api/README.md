@@ -73,10 +73,11 @@ open http://localhost:8000/docs
 ## Available URLs
 
 Once the API is started:
-- **API**: http://localhost:8000
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **Health Check**: http://localhost:8000/api/health
+
+- **API**: <http://localhost:8000>
+- **Swagger UI**: <http://localhost:8000/docs>
+- **ReDoc**: <http://localhost:8000/redoc>
+- **Health Check**: <http://localhost:8000/api/health>
 
 ## 🔧 Configuration
 
@@ -158,6 +159,7 @@ The `API_GOOGLE_APPLICATION_CREDENTIALS` variable supports both absolute and rel
 - **Relative path**: `.gcpcredentials/service-account.json` - Resolved from project root
 
 **Examples:**
+
 ```env
 # Relative path (recommended)
 API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
@@ -174,6 +176,7 @@ The `API_JWT_PUBLIC_KEY_PATH` variable supports both absolute and relative paths
 - **Relative path**: `keys/public_key.pem` - Resolved from project root
 
 **Examples:**
+
 ```env
 # Relative path (recommended)
 API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
@@ -187,6 +190,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 ### Main Endpoints
 
 #### Authentication
+
 - **Type**: JWT with RSA public/private keys
 - **Header**: `Authorization: Bearer <token>`
 - **Generation**: Use scripts in `utils/`
@@ -194,6 +198,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 #### Health Check Endpoints
 
 **GET** `/api/health`
+
 - Comprehensive health check of API and dependencies
 - **No authentication required** - for monitoring systems
 - Returns service status, dependencies (basic status only), and uptime
@@ -201,6 +206,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 - Does NOT expose: model names, project IDs, collection counts, or other sensitive details
 
 **GET** `/api/health/ready`
+
 - Readiness check for load balancers and orchestrators
 - **No authentication required** - for deployment verification
 - Returns simple ready/not ready status
@@ -208,42 +214,49 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 **Service-Specific Health Checks (Optional Authentication with Info Filtering):**
 
 **GET** `/api/health/qdrant`
+
 - Qdrant-specific health check
 - **Optional authentication**: Works with or without token
 - **Without token**: Returns only `{"status": "connected"}` (basic info)
 - **With JWT token**: Returns full info including `collections_count`
 
 **GET** `/api/health/gcp`
+
 - GCP-specific health check
 - **Optional authentication**: Works with or without token
 - **Without token**: Returns only `{"status": "connected"}` (basic info)
 - **With JWT token**: Returns full info including `project_id`, `buckets_count` (⚠️ sensitive)
 
 **GET** `/api/health/embeddings`
+
 - Embedding service health check
 - **Optional authentication**: Works with or without token
 - **Without token**: Returns only `{"status": "healthy"}` (basic info)
 - **With JWT token**: Returns full info including `loaded_models`, `device`, `model_dimensions`
 
 **GET** `/api/health/reranking`
+
 - Reranking service health check
 - **Optional authentication**: Works with or without token
 - **Without token**: Returns only `{"status": "healthy"}` (basic info)
 - **With JWT token**: Returns full info including `model_name`, `device`
 
 **GET** `/api/health/rag`
+
 - RAG service health check
 - **Optional authentication**: Works with or without token
 - **Without token**: Returns only `{"status": "healthy"}` (basic info)
 - **With JWT token**: Returns full info including `provider`, `model`, `embedding_model`
 
 **GET** `/api/health/phoenix`
+
 - Phoenix monitoring service health check
 - **Optional authentication**: Works with or without token
 - **Without token**: Returns only `{"status": "healthy"}` (basic info)
 - **With JWT token**: Returns full info including `project_name`, `active_sessions`, `phoenix_connection` status, and performs active connection test to Phoenix collector
 
 **GET** `/api/status`
+
 - **Comprehensive status of ALL services** (aggregated diagnostic endpoint)
 - **Optional authentication**: Works with or without token
 - **Without token**: Returns only basic status for each service `{"status": "connected/healthy"}`
@@ -252,7 +265,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
   - GCP (with project_id and buckets count)
   - Embedding service (with loaded models and device)
   - RAG service (with provider, model, embedding model)
-- **Use case**: 
+- **Use case**:
   - Public monitoring tools can check service health
   - Authenticated admins get full diagnostic information
 - **Security**: Smart filtering - no sensitive info exposed without authentication
@@ -260,6 +273,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 #### RAG (Question Answering)
 
 **POST** `/api/rag/ask`
+
 - Ask questions about Paraguayan labor law using RAG
 - **No authentication required** - public endpoint with rate limiting
 - Rate limit: 10 requests per minute per IP address
@@ -271,6 +285,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
   - Grounding verification
 
 **Phoenix Metrics and Monitoring**
+
 - **Access Phoenix UI** to view detailed metrics, traces, and evaluations:
   - Local: `http://localhost:6006`
   - Cloud: Use your Phoenix cloud URL (e.g., `https://app.phoenix.arize.com`)
@@ -283,6 +298,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
 #### Health Check Examples
 
 **Public endpoints (no token required):**
+
 ```bash
 # General health check (basic status only)
 curl -X GET "http://localhost:8000/api/health/"
@@ -312,6 +328,7 @@ curl -X GET "http://localhost:8000/api/status"
 ```
 
 **Optional authentication endpoints (basic info without token, detailed info with token):**
+
 ```bash
 # Without token - Returns only basic status
 curl -X GET "http://localhost:8000/api/health/gcp"
@@ -336,6 +353,7 @@ curl -X GET "http://localhost:8000/api/status" \
 ```
 
 **RAG endpoints:**
+
 ```bash
 # Ask a question (public, no token required)
 curl -X POST "http://localhost:8000/api/rag/ask" \
@@ -346,6 +364,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 #### Vectorstore (Qdrant)
 
 **POST** `/api/data/load-to-vectorstore-local`
+
 - **Asynchronous** loading of JSON data from local files to Qdrant
 - Returns immediately with job information (HTTP 202 Accepted)
 - Processing happens in background (embeddings, vector insertion)
@@ -353,6 +372,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 - **Response includes**: `job_id` for tracking
 
 **POST** `/api/data/load-to-vectorstore-gcp`
+
 - **Asynchronous** loading of JSON data from Google Cloud Storage to Qdrant
 - Returns immediately with job information (HTTP 202 Accepted)
 - Processing happens in background (embeddings, vector insertion)
@@ -360,44 +380,53 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 - **Response includes**: `job_id` for tracking
 
 **GET** `/api/data/jobs`
+
 - List all background processing jobs
 - Shows job status: `queued`, `processing`, `completed`, `failed`
 - Includes timestamps in ISO 8601 format
 - Requires JWT authentication
 
 **GET** `/api/data/collections`
+
 - List all collections
 - Requires JWT authentication
 
 **GET** `/api/data/collections/{collection_name}`
+
 - Detailed information about a collection
 - Requires JWT authentication
 
 **DELETE** `/api/data/collections/{collection_name}`
+
 - Delete a collection
 - Requires JWT authentication
 
 #### Health Checks
 
 **GET** `/api/health/`
+
 - Complete system health check
 - No authentication required
 
 **GET** `/api/health/qdrant`
+
 - Qdrant status
 - Optional authentication (works with or without token)
 
 **GET** `/api/health/gcp`
+
 - Google Cloud status
 - Optional authentication (works with or without token)
 
 **GET** `/api/health/embeddings`
+
 - Embedding service status
 - Optional authentication (works with or without token)
 
 ### Data Models
 
 #### LoadToVectorstoreLocalRequest
+
 ```json
 {
   "filename": "codigo_trabajo_articulos.json",
@@ -407,6 +436,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### LoadToVectorstoreGCPRequest
+
 ```json
 {
   "filename": "codigo_trabajo_articulos.json",
@@ -417,6 +447,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### LoadToVectorstoreResponse
+
 ```json
 {
   "success": true,
@@ -433,6 +464,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### JobsListResponse
+
 ```json
 {
   "success": true,
@@ -474,6 +506,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### QuestionRequest
+
 ```json
 {
   "question": "¿Cuáles son los derechos del trabajador en caso de despido?"
@@ -481,6 +514,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### QuestionResponse
+
 ```json
 {
   "success": true,
@@ -554,6 +588,7 @@ Each article is stored in Qdrant with the following payload:
 ### Text for Embedding
 
 The text used to generate embeddings combines:
+
 - **Format**: `{capitulo_descripcion}: {articulo}`
 - **Example**: `"del objeto y aplicación del código: este código tiene por objeto establecer normas..."`
 
@@ -575,12 +610,14 @@ Health check endpoints implement **smart information filtering** based on authen
 | `/api/health/phoenix` | `{"status": "healthy"}` | `{"status": "healthy", "project_name": "...", "phoenix_connection": "verified"}` |
 
 **Security Benefits:**
+
 - ✅ **Prevents reconnaissance attacks**: Attackers cannot map your infrastructure
 - ✅ **Protects sensitive data**: Project IDs, model names, device info hidden from public
 - ✅ **Maintains monitoring capability**: External tools can still check service status
 - ✅ **Flexible access**: Authenticated users get full diagnostic information
 
 **Implementation:**
+
 ```python
 # Automatic sanitization based on authentication
 def _sanitize_health_response(status, is_authenticated):
@@ -618,6 +655,7 @@ The API validates the following claims:
 | **`sub`** | Subject (username) | ℹ️ Informational | - |
 
 **Configuration:**
+
 ```env
 API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
 API_JWT_AUD=lus-laboris-client
@@ -625,6 +663,7 @@ API_JWT_ISS=lus-laboris-api
 ```
 
 **Security Benefits:**
+
 - ✅ Prevents token reuse across different systems
 - ✅ Validates token origin (issuer)
 - ✅ Validates token destination (audience)
@@ -641,6 +680,7 @@ API_JWT_ISS=lus-laboris-api
 The API implements several performance optimizations for production use:
 
 ### 1. Qdrant gRPC Connection (2-3x faster)
+
 - **Protocol**: Prefers gRPC over HTTP for vector operations
 - **Port**: 6334 (configurable via `API_QDRANT_GRPC_PORT`)
 - **Fallback**: Automatic fallback to HTTP if gRPC unavailable
@@ -652,6 +692,7 @@ The API implements several performance optimizations for production use:
   - Lower CPU usage
 
 ### 2. Health Check Caching (430x faster)
+
 - **TTL**: 5 seconds (prevents redundant service checks)
 - **Scope**: All health check endpoints
 - **Impact**: Response time from ~430ms to <1ms on cache hit
@@ -661,17 +702,20 @@ The API implements several performance optimizations for production use:
   - Lower CPU and network usage
 
 ### 3. Parallel Health Check Execution (2.15x faster)
+
 - **Method**: `asyncio.gather()` for concurrent execution
 - **Endpoints**: `/api/health/` main health check
 - **Impact**: Latency from ~430ms to ~200ms
 
 ### 4. Async LLM Calls (1.39x faster)
+
 - **Library**: `AsyncOpenAI` client for non-blocking LLM calls
 - **Impact**: Response time from ~2.5s to ~1.8s
 - **Benefit**: Better resource utilization, handles concurrent requests efficiently
 - **Retry**: Uses `AsyncRetrying` from tenacity for robust error handling
 
 ### 5. Parallel Phoenix Evals (3x faster)
+
 - **Method**: `asyncio.gather()` for concurrent evaluation execution
 - **Evaluations**: Relevance, Hallucination, Toxicity run in parallel
 - **Impact**: Evaluation time from ~6s to ~2s
@@ -706,6 +750,7 @@ API_QDRANT_GRPC_PORT=6334
 ## Services
 
 ### QdrantService
+
 - **gRPC Optimization**: Uses gRPC for 2-3x faster queries than HTTP
 - **Automatic Fallback**: Falls back to HTTP if gRPC is unavailable
 - **Connection Pooling**: Maintains persistent connections
@@ -716,12 +761,14 @@ API_QDRANT_GRPC_PORT=6334
 - Health checks with connection type reporting (gRPC/HTTP)
 
 ### GCPService
+
 - Google Cloud Storage operations
 - JSON file loading from GCS
 - Automatic authentication (Cloud Run) or with credentials
 - Health checks
 
 ### EmbeddingService
+
 - Embedding generation with Sentence Transformers
 - Multiple supported models
 - Batch processing
@@ -730,6 +777,7 @@ API_QDRANT_GRPC_PORT=6334
 - **Centralized configuration**: Model and batch size from config
 
 ### RerankingService
+
 - Document reranking using cross-encoder models
 - Improves relevance of retrieved documents
 - Optional service (can be disabled via configuration)
@@ -738,6 +786,7 @@ API_QDRANT_GRPC_PORT=6334
 - **Fallback behavior**: Returns original documents if reranking fails
 
 ### RAGService
+
 - RAG (Retrieval-Augmented Generation) for question answering
 - **Async LLM Calls**: Uses `AsyncOpenAI` for non-blocking responses (1.39x faster)
 - Support for OpenAI and Google Gemini LLMs
@@ -748,6 +797,7 @@ API_QDRANT_GRPC_PORT=6334
 - Comprehensive response with metadata and reranking information
 
 ### PhoenixMonitoringService
+
 - **LLM Monitoring**: Complete tracking of OpenAI and Gemini API calls
 - **Session Management**: Groups all actions within execution sessions
 - **Quality Metrics**: Automatic evaluation of response coherence, relevance, and completeness
@@ -759,6 +809,7 @@ API_QDRANT_GRPC_PORT=6334
 ### EvaluationService
 
 **NEW**: Asynchronous evaluation service using Phoenix Evals (LLM-as-a-Judge):
+
 - **Asynchronous Processing**: Evaluations run in background without blocking user responses
 - **Phoenix Evals Integration**: Uses proven evaluation templates from Arize Phoenix
 - **Evaluation Metrics**:
@@ -775,12 +826,14 @@ API_QDRANT_GRPC_PORT=6334
 ## Troubleshooting
 
 ### Error: "uv is not installed"
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source ~/.bashrc
 ```
 
 ### Error: "api/main.py not found"
+
 ```bash
 # Make sure you run from src/lus_laboris_api/
 cd src/lus_laboris_api/
@@ -789,11 +842,13 @@ pwd
 ```
 
 ### Error: "Qdrant connection failed"
+
 - Verify Qdrant is running
 - Check URL and API key in configuration
 - Review logs for specific details
 
 ### Error: "JWT public key not found"
+
 - Generate keys with `utils/setup_jwt_token.sh`
 - Verify path in `JWT_PUBLIC_KEY_PATH`
 - Ensure file exists
@@ -801,6 +856,7 @@ pwd
 ### Docker Common Issues
 
 #### Error: "Qdrant connection failed" in Docker
+
 ```bash
 # Configuration depends on how Qdrant is running:
 
@@ -823,6 +879,7 @@ API_QDRANT_URL=http://qdrant-container:6333
 ```
 
 #### Error: "JWT public key not found" in Docker
+
 ```bash
 # Verify the key file is mounted correctly
 docker exec -it legal-rag-api ls -la /app/api/keys/
@@ -835,6 +892,7 @@ API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
 ```
 
 #### Error: "IsADirectoryError: [Errno 21] Is a directory: '/app/keys'"
+
 ```bash
 # Problem: Mounting directory instead of file
 # Wrong:
@@ -845,6 +903,7 @@ API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
 ```
 
 #### Error: "ModuleNotFoundError: No module named 'api'"
+
 ```bash
 # Problem: Incorrect ENTRYPOINT in Dockerfile
 # Check Dockerfile has correct WORKDIR and ENTRYPOINT
@@ -853,6 +912,7 @@ ENTRYPOINT ["uv", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port
 ```
 
 #### Error: "Container exits immediately"
+
 ```bash
 # Check container logs
 docker logs legal-rag-api
@@ -945,10 +1005,11 @@ open http://localhost:8000/docs
 ## URLs Disponibles
 
 Una vez iniciada la API:
-- **API**: http://localhost:8000
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **Health Check**: http://localhost:8000/api/health
+
+- **API**: <http://localhost:8000>
+- **Swagger UI**: <http://localhost:8000/docs>
+- **ReDoc**: <http://localhost:8000/redoc>
+- **Health Check**: <http://localhost:8000/api/health>
 
 ## Configuración
 
@@ -1030,6 +1091,7 @@ La variable `API_GOOGLE_APPLICATION_CREDENTIALS` soporta tanto rutas absolutas c
 - **Ruta relativa**: `.gcpcredentials/service-account.json` - Se resuelve desde la raíz del proyecto
 
 **Ejemplos:**
+
 ```env
 # Ruta relativa (recomendado)
 API_GOOGLE_APPLICATION_CREDENTIALS=.gcpcredentials/service-account.json
@@ -1046,6 +1108,7 @@ La variable `API_JWT_PUBLIC_KEY_PATH` soporta tanto rutas absolutas como relativ
 - **Ruta relativa**: `keys/public_key.pem` - Se resuelve desde la raíz del proyecto
 
 **Ejemplos:**
+
 ```env
 # Ruta relativa (recomendado)
 API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
@@ -1059,6 +1122,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 ### Endpoints Principales
 
 #### Autenticación
+
 - **Tipo**: JWT con claves RSA pública/privada
 - **Header**: `Authorization: Bearer <token>`
 - **Generación**: Usar scripts en `utils/`
@@ -1066,6 +1130,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 #### Vectorstore (Qdrant)
 
 **POST** `/api/data/load-to-vectorstore-local`
+
 - Carga **asíncrona** de datos JSON desde archivos locales a Qdrant
 - Retorna inmediatamente con información del job (HTTP 202 Accepted)
 - El procesamiento ocurre en background (embeddings, inserción vectorial)
@@ -1077,6 +1142,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
   - Métricas detalladas de tiempo y contadores por etapa
 
 **POST** `/api/data/load-to-vectorstore-gcp`
+
 - Carga **asíncrona** de datos JSON desde Google Cloud Storage a Qdrant
 - Retorna inmediatamente con información del job (HTTP 202 Accepted)
 - El procesamiento ocurre en background (embeddings, inserción vectorial)
@@ -1088,20 +1154,24 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
   - Métricas detalladas de tiempo y contadores por etapa
 
 **GET** `/api/data/jobs`
+
 - Listar todos los jobs de procesamiento en background
 - Muestra el estado del job: `queued`, `processing`, `completed`, `failed`
 - Incluye timestamps en formato ISO 8601
 - Requiere autenticación JWT
 
 **GET** `/api/data/collections`
+
 - Listar todas las colecciones
 - Requiere autenticación JWT
 
 **GET** `/api/data/collections/{collection_name}`
+
 - Información detallada de una colección
 - Requiere autenticación JWT
 
 **DELETE** `/api/data/collections/{collection_name}`
+
 - Eliminar una colección
 - Requiere autenticación JWT
 - **Phoenix Tracking**: Tracking de operación con información del usuario
@@ -1109,6 +1179,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 #### Health Checks
 
 **GET** `/api/health`
+
 - Health check completo del sistema y dependencias
 - **Sin autenticación requerida** - para sistemas de monitoreo
 - Retorna estado del servicio, dependencias (solo status básico) y tiempo de actividad
@@ -1116,6 +1187,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 - NO expone: nombres de modelos, IDs de proyecto, conteo de colecciones, u otros detalles sensibles
 
 **GET** `/api/health/ready`
+
 - Verificación de disponibilidad para balanceadores de carga y orquestadores
 - **Sin autenticación requerida** - para verificación de despliegues
 - Retorna estado simple de listo/no listo
@@ -1123,42 +1195,49 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 **Health Checks de Servicios Específicos (Autenticación Opcional con Filtrado de Información):**
 
 **GET** `/api/health/qdrant`
+
 - Health check específico de Qdrant
 - **Autenticación opcional**: Funciona con o sin token
 - **Sin token**: Retorna solo `{"status": "connected"}` (info básica)
 - **Con token JWT**: Retorna info completa incluyendo `collections_count`
 
 **GET** `/api/health/gcp`
+
 - Health check específico de GCP
 - **Autenticación opcional**: Funciona con o sin token
 - **Sin token**: Retorna solo `{"status": "connected"}` (info básica)
 - **Con token JWT**: Retorna info completa incluyendo `project_id`, `buckets_count` (⚠️ sensible)
 
 **GET** `/api/health/embeddings`
+
 - Health check del servicio de embeddings
 - **Autenticación opcional**: Funciona con o sin token
 - **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
 - **Con token JWT**: Retorna info completa incluyendo `loaded_models`, `device`, `model_dimensions`
 
 **GET** `/api/health/reranking`
+
 - Health check del servicio de reranking
 - **Autenticación opcional**: Funciona con o sin token
 - **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
 - **Con token JWT**: Retorna info completa incluyendo `model_name`, `device`
 
 **GET** `/api/health/rag`
+
 - Health check del servicio RAG
 - **Autenticación opcional**: Funciona con o sin token
 - **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
 - **Con token JWT**: Retorna info completa incluyendo `provider`, `model`, `embedding_model`
 
 **GET** `/api/health/phoenix`
+
 - Health check del servicio de monitoreo Phoenix
 - **Autenticación opcional**: Funciona con o sin token
 - **Sin token**: Retorna solo `{"status": "healthy"}` (info básica)
 - **Con token JWT**: Retorna info completa incluyendo `project_name`, `active_sessions`, estado de `phoenix_connection`, y realiza test activo de conexión al collector de Phoenix
 
 **GET** `/api/status`
+
 - **Estado completo de TODOS los servicios** (endpoint de diagnóstico agregado)
 - **Autenticación opcional**: Funciona con o sin token
 - **Sin token**: Retorna solo estado básico de cada servicio `{"status": "connected/healthy"}`
@@ -1167,7 +1246,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
   - GCP (con project_id y conteo de buckets)
   - Servicio de embeddings (con modelos cargados y dispositivo)
   - Servicio RAG (con proveedor, modelo, modelo de embedding)
-- **Caso de uso**: 
+- **Caso de uso**:
   - Herramientas públicas de monitoreo pueden verificar salud de servicios
   - Administradores autenticados obtienen información completa de diagnóstico
 - **Seguridad**: Filtrado inteligente - no se expone info sensible sin autenticación
@@ -1175,6 +1254,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 #### RAG (Preguntas y Respuestas)
 
 **POST** `/api/rag/ask`
+
 - Hacer preguntas sobre derecho laboral paraguayo usando RAG
 - **Sin autenticación requerida** - endpoint público con control de límites
 - Límite de velocidad: 10 solicitudes por minuto por IP
@@ -1186,6 +1266,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
   - Verificación de grounding
 
 **Métricas y Monitoreo con Phoenix**
+
 - **Acceder a la UI de Phoenix** para ver métricas detalladas, trazas y evaluaciones:
   - Local: `http://localhost:6006`
   - Cloud: Usar tu URL de Phoenix cloud (ej: `https://app.phoenix.arize.com`)
@@ -1198,6 +1279,7 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 #### Ejemplos de Health Check
 
 **Endpoints públicos (sin token requerido):**
+
 ```bash
 # Health check general
 curl -X GET "http://localhost:8000/api/health/"
@@ -1211,6 +1293,7 @@ curl -X GET "http://localhost:8000/api/status"
 ```
 
 **Endpoints con autenticación opcional (info básica sin token, info detallada con token):**
+
 ```bash
 # Sin token - Retorna solo estado básico
 curl -X GET "http://localhost:8000/api/health/gcp"
@@ -1235,6 +1318,7 @@ curl -X GET "http://localhost:8000/api/status" \
 ```
 
 **Endpoints RAG:**
+
 ```bash
 # Hacer una pregunta (público, sin token requerido)
 curl -X POST "http://localhost:8000/api/rag/ask" \
@@ -1245,6 +1329,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ### Modelos de Datos
 
 #### LoadToVectorstoreLocalRequest
+
 ```json
 {
   "filename": "codigo_trabajo_articulos.json",
@@ -1254,6 +1339,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### LoadToVectorstoreGCPRequest
+
 ```json
 {
   "filename": "codigo_trabajo_articulos.json",
@@ -1264,6 +1350,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### LoadToVectorstoreResponse
+
 ```json
 {
   "success": true,
@@ -1280,6 +1367,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### JobsListResponse
+
 ```json
 {
   "success": true,
@@ -1321,6 +1409,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### QuestionRequest
+
 ```json
 {
   "question": "¿Cuáles son los derechos del trabajador en caso de despido?"
@@ -1328,6 +1417,7 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
 ```
 
 #### QuestionResponse
+
 ```json
 {
   "success": true,
@@ -1401,6 +1491,7 @@ Cada artículo se almacena en Qdrant con el siguiente payload:
 ### Texto para Embedding
 
 El texto que se usa para generar embeddings combina:
+
 - **Formato**: `{capitulo_descripcion}: {articulo}`
 - **Ejemplo**: `"del objeto y aplicación del código: este código tiene por objeto establecer normas..."`
 
@@ -1422,12 +1513,14 @@ Los endpoints de health check implementan **filtrado inteligente de información
 | `/api/health/phoenix` | `{"status": "healthy"}` | `{"status": "healthy", "project_name": "...", "phoenix_connection": "verified"}` |
 
 **Beneficios de Seguridad:**
+
 - ✅ **Previene ataques de reconocimiento**: Los atacantes no pueden mapear tu infraestructura
 - ✅ **Protege datos sensibles**: IDs de proyecto, nombres de modelos, info de hardware oculta del público
 - ✅ **Mantiene capacidad de monitoreo**: Herramientas externas pueden verificar el estado del servicio
 - ✅ **Acceso flexible**: Usuarios autenticados obtienen información completa de diagnóstico
 
 **Implementación:**
+
 ```python
 # Sanitización automática basada en autenticación
 def _sanitize_health_response(status, is_authenticated):
@@ -1465,6 +1558,7 @@ La API valida los siguientes claims:
 | **`sub`** | Sujeto (username) | ℹ️ Informativo | - |
 
 **Configuración:**
+
 ```env
 API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
 API_JWT_AUD=lus-laboris-client
@@ -1472,6 +1566,7 @@ API_JWT_ISS=lus-laboris-api
 ```
 
 **Beneficios de Seguridad:**
+
 - ✅ Previene reutilización de tokens entre sistemas diferentes
 - ✅ Valida el origen del token (issuer)
 - ✅ Valida el destino del token (audience)
@@ -1488,6 +1583,7 @@ API_JWT_ISS=lus-laboris-api
 La API implementa varias optimizaciones de rendimiento para uso en producción:
 
 ### 1. Conexión gRPC con Qdrant (2-3x más rápido)
+
 - **Protocolo**: Prefiere gRPC sobre HTTP para operaciones vectoriales
 - **Puerto**: 6334 (configurable vía `API_QDRANT_GRPC_PORT`)
 - **Fallback**: Recurre automáticamente a HTTP si gRPC no está disponible
@@ -1499,6 +1595,7 @@ La API implementa varias optimizaciones de rendimiento para uso en producción:
   - Menor uso de CPU
 
 ### 2. Cache de Health Checks (430x más rápido)
+
 - **TTL**: 5 segundos (previene verificaciones redundantes de servicios)
 - **Alcance**: Todos los endpoints de health check
 - **Impacto**: Tiempo de respuesta de ~430ms a <1ms en cache hit
@@ -1508,6 +1605,7 @@ La API implementa varias optimizaciones de rendimiento para uso en producción:
   - Menor uso de CPU y red
 
 ### 3. Ejecución Paralela de Health Checks (2.15x más rápido)
+
 - **Método**: `asyncio.gather()` para ejecución concurrente
 - **Endpoints**: `/api/health/` principal
 - **Impacto**: Latencia de ~430ms a ~200ms
@@ -1517,12 +1615,14 @@ La API implementa varias optimizaciones de rendimiento para uso en producción:
   - Mejor utilización de recursos
 
 ### 4. Llamadas Asíncronas a LLM (1.39x más rápido)
+
 - **Librería**: Cliente `AsyncOpenAI` para llamadas no bloqueantes
 - **Impacto**: Tiempo de respuesta de ~2.5s a ~1.8s
 - **Beneficio**: Mejor utilización de recursos, maneja peticiones concurrentes eficientemente
 - **Retry**: Usa `AsyncRetrying` de tenacity para manejo robusto de errores
 
 ### 5. Evaluaciones Phoenix en Paralelo (3x más rápido)
+
 - **Método**: `asyncio.gather()` para ejecución concurrente de evaluaciones
 - **Evaluaciones**: Relevancia, Alucinación, Toxicidad se ejecutan en paralelo
 - **Impacto**: Tiempo de evaluación de ~6s a ~2s
@@ -1553,6 +1653,7 @@ API_QDRANT_GRPC_PORT=6334
 ## Servicios
 
 ### QdrantService
+
 - **Optimización gRPC**: Usa gRPC para consultas 2-3x más rápidas que HTTP
 - **Fallback Automático**: Recurre a HTTP si gRPC no está disponible
 - **Connection Pooling**: Mantiene conexiones persistentes
@@ -1563,12 +1664,14 @@ API_QDRANT_GRPC_PORT=6334
 - Health checks con reporte de tipo de conexión (gRPC/HTTP)
 
 ### GCPService
+
 - Operaciones con Google Cloud Storage
 - Carga de archivos JSON desde GCS
 - Autenticación automática (Cloud Run) o con credenciales
 - Health checks
 
 ### EmbeddingService
+
 - Generación de embeddings con Sentence Transformers
 - Múltiples modelos soportados
 - Procesamiento por lotes
@@ -1577,6 +1680,7 @@ API_QDRANT_GRPC_PORT=6334
 - **Configuración centralizada**: Modelo y tamaño de lote desde config
 
 ### RerankingService
+
 - Reranking de documentos usando modelos cross-encoder
 - Mejora la relevancia de los documentos recuperados
 - Servicio opcional (puede deshabilitarse vía configuración)
@@ -1585,6 +1689,7 @@ API_QDRANT_GRPC_PORT=6334
 - **Comportamiento de respaldo**: Retorna documentos originales si el reranking falla
 
 ### RAGService
+
 - RAG (Retrieval-Augmented Generation) para preguntas y respuestas
 - **Llamadas Async a LLM**: Usa `AsyncOpenAI` para respuestas no bloqueantes (1.39x más rápido)
 - Soporte para LLMs de OpenAI y Google Gemini
@@ -1595,6 +1700,7 @@ API_QDRANT_GRPC_PORT=6334
 - Respuesta comprensiva con metadatos e información de reranking
 
 ### PhoenixMonitoringService
+
 - **Monitoreo de LLM**: Tracking completo de llamadas a APIs de OpenAI y Gemini
 - **Gestión de Sesiones**: Agrupa todas las acciones dentro de sesiones de ejecución
 - **Métricas de Calidad**: Evaluación automática de coherencia, relevancia y completitud de respuestas
@@ -1606,6 +1712,7 @@ API_QDRANT_GRPC_PORT=6334
 ### EvaluationService
 
 **NUEVO**: Servicio de evaluación asíncrona usando Phoenix Evals (LLM-as-a-Judge):
+
 - **Procesamiento Asíncrono**: Las evaluaciones se ejecutan en background sin bloquear las respuestas al usuario
 - **Integración Phoenix Evals**: Usa templates de evaluación probados de Arize Phoenix
 - **Evaluaciones en Paralelo (3x más rápido)**: Las 3 evaluaciones (Relevancia, Alucinación, Toxicidad) se ejecutan simultáneamente usando `asyncio.gather()`, reduciendo el tiempo de ~6s a ~2s
@@ -1623,12 +1730,14 @@ API_QDRANT_GRPC_PORT=6334
 ## Solución de Problemas
 
 ### Error: "uv no está instalado"
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source ~/.bashrc
 ```
 
 ### Error: "No se encontró api/main.py"
+
 ```bash
 # Asegúrate de ejecutar desde src/lus_laboris_api/
 cd src/lus_laboris_api/
@@ -1637,11 +1746,13 @@ pwd
 ```
 
 ### Error: "Qdrant connection failed"
+
 - Verificar que Qdrant esté ejecutándose
 - Verificar URL y API key en configuración
 - Revisar logs para detalles específicos
 
 ### Error: "JWT public key not found"
+
 - Generar claves con `utils/setup_jwt_token.sh`
 - Verificar ruta en `JWT_PUBLIC_KEY_PATH`
 - Asegurar que el archivo existe
@@ -1649,6 +1760,7 @@ pwd
 ### Problemas Comunes de Docker
 
 #### Error: "Qdrant connection failed" en Docker
+
 ```bash
 # La configuración depende de cómo esté ejecutándose Qdrant:
 
@@ -1671,6 +1783,7 @@ API_QDRANT_URL=http://qdrant-container:6333
 ```
 
 #### Error: "JWT public key not found" en Docker
+
 ```bash
 # Verificar que el archivo de clave esté montado correctamente
 docker exec -it legal-rag-api ls -la /app/api/keys/
@@ -1683,6 +1796,7 @@ API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
 ```
 
 #### Error: "IsADirectoryError: [Errno 21] Is a directory: '/app/keys'"
+
 ```bash
 # Problema: Montando directorio en lugar de archivo
 # Incorrecto:
@@ -1693,6 +1807,7 @@ API_JWT_PUBLIC_KEY_PATH=keys/public_key.pem
 ```
 
 #### Error: "ModuleNotFoundError: No module named 'api'"
+
 ```bash
 # Problema: ENTRYPOINT incorrecto en Dockerfile
 # Verificar que Dockerfile tenga WORKDIR y ENTRYPOINT correctos
@@ -1701,6 +1816,7 @@ ENTRYPOINT ["uv", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port
 ```
 
 #### Error: "Container exits immediately"
+
 ```bash
 # Verificar logs del contenedor
 docker logs legal-rag-api
@@ -1723,7 +1839,7 @@ Phoenix Evals es un sistema de evaluación de calidad para sistemas RAG que usa 
 
 ### Arquitectura de Evaluación
 
-```
+```text
 Usuario hace pregunta
     ↓
 RAG genera respuesta (2-3s)

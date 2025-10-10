@@ -1,0 +1,26 @@
+# Markdownlint configuration for bilingual documentation
+# Minimal config - only enforce critical rules
+
+# Default state for all rules
+default: true
+
+# Disable rules that conflict with bilingual documentation style
+MD013: false  # Line length - badges and URLs are naturally long
+MD029: false  # List numbering - allow flexible numbering
+MD024: false  # Duplicate headings - needed for bilingual sections
+MD036: false  # Emphasis as heading - allow bold section headers
+MD001: false  # Heading increment - allow skipping levels
+MD025: false  # Multiple H1 - needed for bilingual docs
+MD041: false  # First line heading - we have language selector first
+MD051: false  # Link fragments - issues with accented links
+
+# Keep important formatting rules enabled
+MD002: true   # First heading should be level 1
+MD003: true   # Heading style consistency
+MD004: true   # Unordered list style
+MD005: true   # List indentation
+MD040: true  # Code language - allow generic code blocks
+
+# Allow specific HTML elements
+MD033:
+  allowed_elements: [div, br, img, a, span]

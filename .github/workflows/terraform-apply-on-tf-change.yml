@@ -3,7 +3,7 @@ name: Terraform Apply on .tf Change
 on:
   push:
     paths:
-      - 'terraform/**/*.tf'
+    - terraform/**/*.tf
 
 jobs:
   terraform:
@@ -40,74 +40,74 @@ jobs:
       GCP_CLOUD_RUN_API_MAX_INSTANCES: ${{ vars.GCP_CLOUD_RUN_API_MAX_INSTANCES }}
       GCP_CLOUD_RUN_API_TIMEOUT: ${{ vars.GCP_CLOUD_RUN_API_TIMEOUT }}
     steps:
-      - id: checkout
-        name: Checkout code
-        uses: actions/checkout@v5
+    - id: checkout
+      name: Checkout code
+      uses: actions/checkout@v5
 
-      - id: setup_gcloud
-        name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v3
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GSA_KEY }}
-          export_default_credentials: true
+    - id: setup_gcloud
+      name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v3
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GSA_KEY }}
+        export_default_credentials: true
 
-      - id: setup_terraform
-        name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+    - id: setup_terraform
+      name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
 
-      - id: generate_env
-        name: Generate .env file
-        run: |
-          cat <<EOF > .env
-          GCP_PROJECT_ID=${GCP_PROJECT_ID}
-          GCP_REGION=${GCP_REGION}
-          GCP_BUCKET_NAME=${GCP_BUCKET_NAME}
-          GCP_CLOUD_RUN_BATCH_JOB_NAME=${GCP_CLOUD_RUN_BATCH_JOB_NAME}
-          GCP_CLOUD_RUN_BATCH_SCHEDULE=${GCP_CLOUD_RUN_BATCH_SCHEDULE}
-          GCP_CLOUD_RUN_BATCH_IMAGE=${GCP_CLOUD_RUN_BATCH_IMAGE}
-          GCP_CLOUD_RUN_BATCH_ARGS=${GCP_CLOUD_RUN_BATCH_ARGS}
-          GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=${GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL}
-          QDRANT_VM_NAME=${QDRANT_VM_NAME}
-          QDRANT_VM_MACHINE_TYPE=${QDRANT_VM_MACHINE_TYPE}
-          QDRANT_VM_ZONE=${QDRANT_VM_ZONE}
-          QDRANT_VM_DISK_SIZE=${QDRANT_VM_DISK_SIZE}
-          GCP_CLOUD_RUN_API_SERVICE_NAME=${GCP_CLOUD_RUN_API_SERVICE_NAME}
-          GCP_CLOUD_RUN_API_IMAGE=${GCP_CLOUD_RUN_API_IMAGE}
-          GCP_CLOUD_RUN_API_CONTAINER_PORT=${GCP_CLOUD_RUN_API_CONTAINER_PORT}
-          GCP_CLOUD_RUN_API_LOG_LEVEL=${GCP_CLOUD_RUN_API_LOG_LEVEL}
-          GCP_CLOUD_RUN_API_QDRANT_URL=${GCP_CLOUD_RUN_API_QDRANT_URL}
-          GCP_CLOUD_RUN_API_QDRANT_API_KEY=${GCP_CLOUD_RUN_API_QDRANT_API_KEY}
-          GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=${GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME}
-          GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=${GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH}
-          GCP_CLOUD_RUN_API_EMBEDDING_MODEL=${GCP_CLOUD_RUN_API_EMBEDDING_MODEL}
-          GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=${GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE}
-          GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=${GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH}
-          GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=${GCP_CLOUD_RUN_API_ALLOWED_ORIGINS}
-          GCP_CLOUD_RUN_API_ALLOWED_HOSTS=${GCP_CLOUD_RUN_API_ALLOWED_HOSTS}
-          GCP_CLOUD_RUN_API_CPU=${GCP_CLOUD_RUN_API_CPU}
-          GCP_CLOUD_RUN_API_MEMORY=${GCP_CLOUD_RUN_API_MEMORY}
-          GCP_CLOUD_RUN_API_MIN_INSTANCES=${GCP_CLOUD_RUN_API_MIN_INSTANCES}
-          GCP_CLOUD_RUN_API_MAX_INSTANCES=${GCP_CLOUD_RUN_API_MAX_INSTANCES}
-          GCP_CLOUD_RUN_API_TIMEOUT=${GCP_CLOUD_RUN_API_TIMEOUT}
-          EOF
+    - id: generate_env
+      name: Generate .env file
+      run: |
+        cat <<EOF > .env
+        GCP_PROJECT_ID=${GCP_PROJECT_ID}
+        GCP_REGION=${GCP_REGION}
+        GCP_BUCKET_NAME=${GCP_BUCKET_NAME}
+        GCP_CLOUD_RUN_BATCH_JOB_NAME=${GCP_CLOUD_RUN_BATCH_JOB_NAME}
+        GCP_CLOUD_RUN_BATCH_SCHEDULE=${GCP_CLOUD_RUN_BATCH_SCHEDULE}
+        GCP_CLOUD_RUN_BATCH_IMAGE=${GCP_CLOUD_RUN_BATCH_IMAGE}
+        GCP_CLOUD_RUN_BATCH_ARGS=${GCP_CLOUD_RUN_BATCH_ARGS}
+        GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=${GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL}
+        QDRANT_VM_NAME=${QDRANT_VM_NAME}
+        QDRANT_VM_MACHINE_TYPE=${QDRANT_VM_MACHINE_TYPE}
+        QDRANT_VM_ZONE=${QDRANT_VM_ZONE}
+        QDRANT_VM_DISK_SIZE=${QDRANT_VM_DISK_SIZE}
+        GCP_CLOUD_RUN_API_SERVICE_NAME=${GCP_CLOUD_RUN_API_SERVICE_NAME}
+        GCP_CLOUD_RUN_API_IMAGE=${GCP_CLOUD_RUN_API_IMAGE}
+        GCP_CLOUD_RUN_API_CONTAINER_PORT=${GCP_CLOUD_RUN_API_CONTAINER_PORT}
+        GCP_CLOUD_RUN_API_LOG_LEVEL=${GCP_CLOUD_RUN_API_LOG_LEVEL}
+        GCP_CLOUD_RUN_API_QDRANT_URL=${GCP_CLOUD_RUN_API_QDRANT_URL}
+        GCP_CLOUD_RUN_API_QDRANT_API_KEY=${GCP_CLOUD_RUN_API_QDRANT_API_KEY}
+        GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=${GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME}
+        GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=${GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH}
+        GCP_CLOUD_RUN_API_EMBEDDING_MODEL=${GCP_CLOUD_RUN_API_EMBEDDING_MODEL}
+        GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=${GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE}
+        GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=${GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH}
+        GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=${GCP_CLOUD_RUN_API_ALLOWED_ORIGINS}
+        GCP_CLOUD_RUN_API_ALLOWED_HOSTS=${GCP_CLOUD_RUN_API_ALLOWED_HOSTS}
+        GCP_CLOUD_RUN_API_CPU=${GCP_CLOUD_RUN_API_CPU}
+        GCP_CLOUD_RUN_API_MEMORY=${GCP_CLOUD_RUN_API_MEMORY}
+        GCP_CLOUD_RUN_API_MIN_INSTANCES=${GCP_CLOUD_RUN_API_MIN_INSTANCES}
+        GCP_CLOUD_RUN_API_MAX_INSTANCES=${GCP_CLOUD_RUN_API_MAX_INSTANCES}
+        GCP_CLOUD_RUN_API_TIMEOUT=${GCP_CLOUD_RUN_API_TIMEOUT}
+        EOF
 
-      - id: terraform_init
-        name: Terraform Init
-        working-directory: ./terraform
-        run: terraform init
+    - id: terraform_init
+      name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init
 
-      - id: create_tfvars
-        name: Crear archivo terraform.tfvars
-        working-directory: ./terraform
-        run: bash tf_menu.sh 2
+    - id: create_tfvars
+      name: Crear archivo terraform.tfvars
+      working-directory: ./terraform
+      run: bash tf_menu.sh 2
 
-      - id: terraform_plan
-        name: Terraform Plan
-        working-directory: ./terraform
-        run: terraform plan
+    - id: terraform_plan
+      name: Terraform Plan
+      working-directory: ./terraform
+      run: terraform plan
 
-      - id: terraform_apply
-        name: Terraform Apply
-        working-directory: ./terraform
-        run: terraform apply -auto-approve
+    - id: terraform_apply
+      name: Terraform Apply
+      working-directory: ./terraform
+      run: terraform apply -auto-approve

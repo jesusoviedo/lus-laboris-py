@@ -110,4 +110,3 @@ variable "timeout" {
   type        = string
   default     = "300s"
 }
-

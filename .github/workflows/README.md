@@ -15,7 +15,7 @@ A **workflow** is an automated process defined as code, which runs on GitHub's i
 
 ## Local Development Scripts
 
-- **act_menu.sh**: 
+- **act_menu.sh**:
 Interactive script to run GitHub Actions workflows locally using `act`.
   - Must be executed from `.github/workflows/` directory.
   - Reads environment variables from the project root `.env` file.
@@ -27,14 +27,14 @@ Interactive script to run GitHub Actions workflows locally using `act`.
 
 ## Existing Workflows
 
-- **docker-processing-build-publish.yml**: 
+- **docker-processing-build-publish.yml**:
 Automates the build and publishing of the Docker image for the legal text processing service (`src/processing` folder).
   - Triggers manually or when key files change (`Dockerfile`, `extract_law_text.py`, `pyproject.toml`, `.python-version`).
   - Uses repository secrets for Docker Hub credentials and the image name.
   - Tags the image with both `latest` and the current date (`YYYYMMDD`).
   - Pushes both tags to Docker Hub.
 
-- **docker-api-build-publish.yml**: 
+- **docker-api-build-publish.yml**:
 Automates the build and publishing of the Docker image for the FastAPI service (`src/lus_laboris_api` folder).
   - Triggers manually or when key files change (`Dockerfile`, `pyproject.toml`, `uv.lock`, `api/**`).
   - Uses repository secrets for Docker Hub credentials and the image name.
@@ -69,9 +69,11 @@ bash act_menu.sh
 ```
 
 For detailed information about act installation and usage, see:
+
 - [docs/act_guide.md](../../docs/act_guide.md)
 
 For a detailed explanation of how GitHub Actions work in this project, see the guide:
+
 - [docs/github_actions_guide.md](../../docs/github_actions_guide.md)
 
 ---
@@ -84,7 +86,7 @@ Un **workflow** es un proceso automatizado definido como código, que se ejecuta
 
 ## Scripts de desarrollo local
 
-- **act_menu.sh**: 
+- **act_menu.sh**:
 Script interactivo para ejecutar workflows de GitHub Actions localmente usando `act`.
   - Debe ejecutarse desde el directorio `.github/workflows/`.
   - Lee las variables de entorno desde el archivo `.env` en la raíz del proyecto.
@@ -96,14 +98,14 @@ Script interactivo para ejecutar workflows de GitHub Actions localmente usando `
 
 ## Workflows existentes
 
-- **docker-processing-build-publish.yml**: 
+- **docker-processing-build-publish.yml**:
 Automatiza la construcción y publicación de la imagen Docker para el procesamiento de texto legal (carpeta `src/processing`).
   - Se ejecuta manualmente o cuando se modifican archivos clave (`Dockerfile`, `extract_law_text.py`, `pyproject.toml`, `.python-version`).
   - Usa secrets del repositorio para las credenciales de Docker Hub y el nombre de la imagen.
   - Etiqueta la imagen con `latest` y con la fecha (`YYYYMMDD`).
   - Sube ambas etiquetas a Docker Hub.
 
-- **docker-api-build-publish.yml**: 
+- **docker-api-build-publish.yml**:
 Automatiza la construcción y publicación de la imagen Docker para el servicio FastAPI (carpeta `src/lus_laboris_api`).
   - Se ejecuta manualmente o cuando se modifican archivos clave (`Dockerfile`, `pyproject.toml`, `uv.lock`, `api/**`).
   - Usa secrets del repositorio para las credenciales de Docker Hub y el nombre de la imagen.
@@ -138,8 +140,9 @@ bash act_menu.sh
 ```
 
 Para información detallada sobre la instalación y uso de act, consulta:
+
 - [docs/act_guide.md](../../docs/act_guide.md)
 
 Para una explicación detallada sobre el uso de GitHub Actions en este proyecto, consulta la guía:
-- [docs/github_actions_guide.md](../../docs/github_actions_guide.md)
 
+- [docs/github_actions_guide.md](../../docs/github_actions_guide.md)

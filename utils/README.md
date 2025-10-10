@@ -39,6 +39,7 @@ The `gcp_utils.py` script provides utilities for managing Google Cloud Storage b
 ### Installation
 
 1. **Set up environment variables**:
+
 ```bash
 # Copy the example file and customize it
 cp .env_example .env
@@ -55,6 +56,7 @@ cp .env_example .env
 ```
 
 2. Install dependencies:
+
 ```bash
 cd utils
 uv sync
@@ -72,6 +74,7 @@ uv run gcp_utils.py [command] [options]
 ```
 
 **Why use `uv run`?**
+
 - Ensures the correct Python environment with all required dependencies
 - Uses the project's `pyproject.toml` configuration
 - Avoids conflicts with system Python packages
@@ -108,6 +111,7 @@ uv run gcp_utils.py gcs-delete py-labor-law-rag-terraform-state
 ### Configuration
 
 The script uses the following default settings:
+
 - **Location**: `southamerica-east1` (Paraguay region)
 - **Versioning**: Enabled automatically for Terraform state buckets
 - **Credentials**: Automatically searches for JSON files in `.gcpcredentials/` folder
@@ -115,6 +119,7 @@ The script uses the following default settings:
 #### Automatic Credentials Setup
 
 The script automatically searches for GCP credential files in the following locations:
+
 1. `.gcpcredentials/` (current directory)
 2. `../.gcpcredentials/` (parent directory)
 3. `../../.gcpcredentials/` (grandparent directory)
@@ -124,6 +129,7 @@ If multiple JSON files are found, it prioritizes files with "service-account" in
 ### Error Handling
 
 The script provides clear error messages and suggestions for common issues:
+
 - Missing credentials
 - Missing project ID (400 POST error)
 - Bucket already exists
@@ -135,6 +141,7 @@ The script provides clear error messages and suggestions for common issues:
 If you get this error, the script cannot determine your GCP project ID from the credentials file. Solutions:
 
 1. **Specify project ID explicitly**:
+
    ```bash
    uv run gcp_utils.py gcs-create my-bucket --project-id your-project-id
    ```
@@ -158,11 +165,12 @@ The `setup_gcp_project.sh` script automates the complete setup of a Google Cloud
 ### Prerequisites
 
 1. **Google Cloud CLI**: Must be installed and configured
+
    ```bash
    # Install gcloud CLI
    curl https://sdk.cloud.google.com | bash
    exec -l $SHELL
-   
+
    # Authenticate
    gcloud auth login
    ```
@@ -422,7 +430,7 @@ The script generates:
 
 #### Generated Files
 
-```
+```text
 keys/
 ├── private_key.pem    # Private key (permissions: 600)
 └── public_key.pem     # Public key (permissions: 644)
@@ -459,24 +467,27 @@ The generated keys are compatible with the Lus Laboris API:
 #### Common Issues
 
 1. **"OpenSSL not installed"**
+
    ```bash
    # Ubuntu/Debian
    sudo apt-get install openssl
-   
+
    # CentOS/RHEL
    sudo yum install openssl
-   
+
    # macOS
    brew install openssl
    ```
 
 2. **"Files already exist"**
+
    ```bash
    # Use --force to overwrite
    ./generate_jwt_keys.sh -f
    ```
 
 3. **"Permission denied"**
+
    ```bash
    # Make script executable
    chmod +x generate_jwt_keys.sh
@@ -545,6 +556,7 @@ The script requires `uv` to be installed and uses it for running Python scripts,
 - **Reliable Execution**: Always uses the same environment regardless of system configuration
 
 **Behavior**:
+
 - Changes to project root directory and uses `uv run generate_jwt_token.py`
 - Project root detection ensures `uv run` works correctly with the project's virtual environment
 - Shows clear error message with installation instructions if `uv` is not available
@@ -576,26 +588,31 @@ For detailed UV usage and configuration, see the [UV Guide](../docs/uv_guide.md)
 #### Examples
 
 **Basic usage with default values:**
+
 ```bash
 ./setup_jwt_token.sh
 ```
 
 **Generate token for specific user with custom expiry:**
+
 ```bash
 ./setup_jwt_token.sh -u myuser -e 120
 ```
 
 **Save token to file:**
+
 ```bash
 ./setup_jwt_token.sh -u admin -o my_token.txt
 ```
 
 **Force overwrite existing keys:**
+
 ```bash
 ./setup_jwt_token.sh --force
 ```
 
 **Generate 4096-bit keys:**
+
 ```bash
 ./setup_jwt_token.sh -k 4096 --force
 ```
@@ -603,6 +620,7 @@ For detailed UV usage and configuration, see the [UV Guide](../docs/uv_guide.md)
 #### How This Script Facilitates the Task
 
 **Without this script (manual process):**
+
 ```bash
 # Step 1: Generate RSA keys
 ./generate_jwt_keys.sh --size 2048
@@ -620,12 +638,14 @@ uv run generate_jwt_token.py --validate --token "eyJ..."
 ```
 
 **With this script (streamlined process):**
+
 ```bash
 # Single command does everything
 ./setup_jwt_token.sh -u admin -e 60
 ```
 
 **Benefits:**
+
 - **3-4 commands reduced to 1**: Eliminates manual coordination
 - **No environment variable setup**: Handles paths automatically
 - **Automatic validation**: Ensures token works correctly
@@ -635,6 +655,7 @@ uv run generate_jwt_token.py --validate --token "eyJ..."
 #### Output
 
 The script provides:
+
 - **Colored output** for better readability
 - **Progress indicators** for each step
 - **Token validation** to ensure correctness
@@ -664,6 +685,7 @@ The script automatically resolves relative paths relative to the project root di
 - **Works from anywhere**: The script can be executed from any directory and will find the correct key files
 
 **Example**:
+
 ```bash
 # From any directory, this will work:
 cd /tmp
@@ -684,12 +706,14 @@ python3 /path/to/project/utils/generate_jwt_token.py --username admin
 ### Installation
 
 1. Install dependencies:
+
 ```bash
 cd utils
 uv sync
 ```
 
 2. Set up environment variables in your `.env` file:
+
 ```env
 JWT_PRIVATE_KEY_PATH=keys/private_key.pem
 JWT_PUBLIC_KEY_PATH=keys/public_key.pem
@@ -846,12 +870,14 @@ The script provides clear error messages for common issues:
 #### Common Issues
 
 1. **"Private key file not found"**
+
    ```bash
    # Generate keys first
    ./generate_jwt_keys.sh
    ```
 
 2. **"Module not found" errors**
+
    ```bash
    # Install dependencies
    uv sync
@@ -863,6 +889,7 @@ The script provides clear error messages for common issues:
    - Ensure public key is available
 
 4. **Environment variable issues**
+
    ```bash
    # Check environment variables
    echo $JWT_PRIVATE_KEY_PATH
@@ -936,6 +963,7 @@ El script `gcp_utils.py` proporciona utilidades para gestionar buckets de Google
 ### Instalación
 
 1. **Configurar variables de entorno**:
+
 ```bash
 # Copiar el archivo de ejemplo y personalizarlo
 cp .env_example .env
@@ -952,6 +980,7 @@ cp .env_example .env
 ```
 
 2. Instalar dependencias:
+
 ```bash
 cd utils
 uv sync
@@ -969,6 +998,7 @@ uv run gcp_utils.py [comando] [opciones]
 ```
 
 **¿Por qué usar `uv run`?**
+
 - Asegura el entorno Python correcto con todas las dependencias requeridas
 - Usa la configuración del `pyproject.toml` del proyecto
 - Evita conflictos con paquetes Python del sistema
@@ -1005,6 +1035,7 @@ uv run gcp_utils.py gcs-delete py-labor-law-rag-terraform-state
 ### Configuración
 
 El script utiliza las siguientes configuraciones por defecto:
+
 - **Ubicación**: `southamerica-east1` (región de Paraguay)
 - **Versionado**: Habilitado automáticamente para buckets de estado de Terraform
 - **Credenciales**: Busca automáticamente archivos JSON en la carpeta `.gcpcredentials/`
@@ -1012,6 +1043,7 @@ El script utiliza las siguientes configuraciones por defecto:
 #### Configuración Automática de Credenciales
 
 El script busca automáticamente archivos de credenciales GCP en las siguientes ubicaciones:
+
 1. `.gcpcredentials/` (directorio actual)
 2. `../.gcpcredentials/` (directorio padre)
 3. `../../.gcpcredentials/` (directorio abuelo)
@@ -1021,6 +1053,7 @@ Si se encuentran múltiples archivos JSON, prioriza los archivos que contengan "
 ### Manejo de Errores
 
 El script proporciona mensajes de error claros y sugerencias para problemas comunes:
+
 - Credenciales faltantes
 - ID de proyecto faltante (error 400 POST)
 - Bucket ya existe
@@ -1032,6 +1065,7 @@ El script proporciona mensajes de error claros y sugerencias para problemas comu
 Si obtienes este error, el script no puede determinar tu ID de proyecto GCP desde el archivo de credenciales. Soluciones:
 
 1. **Especificar ID de proyecto explícitamente**:
+
    ```bash
    uv run gcp_utils.py gcs-create my-bucket --project-id tu-project-id
    ```
@@ -1055,11 +1089,12 @@ El script `setup_gcp_project.sh` automatiza la configuración completa de un pro
 ### Prerrequisitos
 
 1. **Google Cloud CLI**: Debe estar instalado y configurado
+
    ```bash
    # Instalar gcloud CLI
    curl https://sdk.cloud.google.com | bash
    exec -l $SHELL
-   
+
    # Autenticar
    gcloud auth login
    ```
@@ -1275,26 +1310,31 @@ Este script **facilita y acelera** la tarea de configuración JWT al:
 #### Ejemplos
 
 **Uso básico con valores por defecto:**
+
 ```bash
 ./setup_jwt_token.sh
 ```
 
 **Generar token para usuario específico con expiración personalizada:**
+
 ```bash
 ./setup_jwt_token.sh -u miusuario -e 120
 ```
 
 **Guardar token en archivo:**
+
 ```bash
 ./setup_jwt_token.sh -u admin -o mi_token.txt
 ```
 
 **Forzar sobrescritura de claves existentes:**
+
 ```bash
 ./setup_jwt_token.sh --force
 ```
 
 **Generar claves de 4096 bits:**
+
 ```bash
 ./setup_jwt_token.sh -k 4096 --force
 ```
@@ -1302,6 +1342,7 @@ Este script **facilita y acelera** la tarea de configuración JWT al:
 #### Cómo Este Script Facilita la Tarea
 
 **Sin este script (proceso manual):**
+
 ```bash
 # Paso 1: Generar claves RSA
 ./generate_jwt_keys.sh --size 2048
@@ -1319,12 +1360,14 @@ uv run generate_jwt_token.py --validate --token "eyJ..."
 ```
 
 **Con este script (proceso simplificado):**
+
 ```bash
 # Un solo comando hace todo
 ./setup_jwt_token.sh -u admin -e 60
 ```
 
 **Beneficios:**
+
 - **3-4 comandos reducidos a 1**: Elimina la coordinación manual
 - **Sin configuración de variables de entorno**: Maneja las rutas automáticamente
 - **Validación automática**: Asegura que el token funcione correctamente
@@ -1334,6 +1377,7 @@ uv run generate_jwt_token.py --validate --token "eyJ..."
 #### Salida
 
 El script proporciona:
+
 - **Salida coloreada** para mejor legibilidad
 - **Indicadores de progreso** para cada paso
 - **Validación de tokens** para asegurar corrección
@@ -1442,7 +1486,7 @@ El script genera:
 
 #### Archivos Generados
 
-```
+```text
 keys/
 ├── private_key.pem    # Clave privada (permisos: 600)
 └── public_key.pem     # Clave pública (permisos: 644)
@@ -1479,24 +1523,27 @@ Las claves generadas son compatibles con la API Lus Laboris:
 #### Problemas Comunes
 
 1. **"OpenSSL no instalado"**
+
    ```bash
    # Ubuntu/Debian
    sudo apt-get install openssl
-   
+
    # CentOS/RHEL
    sudo yum install openssl
-   
+
    # macOS
    brew install openssl
    ```
 
 2. **"Los archivos ya existen"**
+
    ```bash
    # Usar --force para sobrescribir
    ./generate_jwt_keys.sh -f
    ```
 
 3. **"Permiso denegado"**
+
    ```bash
    # Hacer el script ejecutable
    chmod +x generate_jwt_keys.sh
@@ -1539,6 +1586,7 @@ El script resuelve automáticamente las rutas relativas respecto al directorio r
 - **Funciona desde cualquier lugar**: El script puede ejecutarse desde cualquier directorio y encontrará los archivos de claves correctos
 
 **Ejemplo**:
+
 ```bash
 # Desde cualquier directorio, esto funcionará:
 cd /tmp
@@ -1559,6 +1607,7 @@ El script requiere que `uv` esté instalado y lo usa para ejecutar scripts de Py
 - **Ejecución Confiable**: Siempre usa el mismo entorno independientemente de la configuración del sistema
 
 **Comportamiento**:
+
 - Cambia al directorio raíz del proyecto y usa `uv run generate_jwt_token.py`
 - La detección de la raíz del proyecto asegura que `uv run` funcione correctamente con el entorno virtual del proyecto
 - Muestra mensaje de error claro con instrucciones de instalación si `uv` no está disponible
@@ -1577,12 +1626,14 @@ Para uso detallado y configuración de UV, consulta la [Guía de UV](../docs/uv_
 ### Instalación
 
 1. Instalar dependencias:
+
 ```bash
 cd utils
 uv sync
 ```
 
 2. Configurar variables de entorno en tu archivo `.env`:
+
 ```env
 JWT_PRIVATE_KEY_PATH=keys/private_key.pem
 JWT_PUBLIC_KEY_PATH=keys/public_key.pem
@@ -1739,12 +1790,14 @@ El script proporciona mensajes de error claros para problemas comunes:
 #### Problemas Comunes
 
 1. **"Archivo de clave privada no encontrado"**
+
    ```bash
    # Generar claves primero
    ./generate_jwt_keys.sh
    ```
 
 2. **Errores "Módulo no encontrado"**
+
    ```bash
    # Instalar dependencias
    uv sync
@@ -1756,6 +1809,7 @@ El script proporciona mensajes de error claros para problemas comunes:
    - Asegurar que la clave pública esté disponible
 
 4. **Problemas con variables de entorno**
+
    ```bash
    # Verificar variables de entorno
    echo $JWT_PRIVATE_KEY_PATH

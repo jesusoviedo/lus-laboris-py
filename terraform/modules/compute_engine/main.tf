@@ -23,7 +23,7 @@ resource "google_compute_instance" "qdrant_vm" {
   scheduling {
     preemptible       = true
     automatic_restart = false
-    provisioning_model = "SPOT" 
+    provisioning_model = "SPOT"
   }
 }
 

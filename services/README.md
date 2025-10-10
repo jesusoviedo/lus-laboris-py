@@ -6,6 +6,7 @@
 </div>
 
 ---
+
 # Services
 
 This directory contains the external services required by the RAG system, each managed independently with Docker Compose for easy local development and testing.
@@ -22,11 +23,13 @@ This directory contains the external services required by the RAG system, each m
 ### Using the Management Script (Recommended)
 
 1. Navigate to the services directory:
+
    ```bash
    cd services
    ```
 
 2. Run the management script:
+
    ```bash
    ./manage_services.sh
    ```
@@ -36,12 +39,14 @@ This directory contains the external services required by the RAG system, each m
 ### Manual Service Management
 
 #### Start Qdrant
+
 ```bash
 cd vectordb
 docker-compose up -d
 ```
 
 #### Start Phoenix
+
 ```bash
 cd monitoring
 docker-compose up -d
@@ -54,9 +59,10 @@ docker-compose up -d
 **Location**: `vectordb/`
 **Purpose**: Vector database for semantic search and document retrieval
 **Ports**: 6333 (HTTP), 6334 (gRPC)
-**UI**: http://localhost:6333/dashboard
+**UI**: <http://localhost:6333/dashboard>
 
 **Features**:
+
 - Semantic search using vector embeddings
 - Metadata filtering capabilities
 - REST API for integration
@@ -69,9 +75,10 @@ docker-compose up -d
 **Location**: `monitoring/`
 **Purpose**: Real-time monitoring and evaluation for RAG system
 **Ports**: 6006 (UI), 4317 (gRPC), 9090 (Prometheus)
-**UI**: http://localhost:6006
+**UI**: <http://localhost:6006>
 
 **Features**:
+
 - Real-time trace analysis
 - Performance metrics tracking
 - LLM monitoring (OpenAI, Gemini)
@@ -131,6 +138,7 @@ PHOENIX_GRPC_ENDPOINT=localhost:4317
 ### Docker Compose
 
 Each service has its own `docker-compose.yml` file:
+
 - **vectordb/docker-compose.yml**: Qdrant configuration
 - **monitoring/docker-compose.yml**: Phoenix configuration
 
@@ -154,6 +162,7 @@ Both services are integrated with the main RAG API:
 ### Common Issues
 
 #### Services Won't Start
+
 ```bash
 # Check Docker status
 docker info
@@ -164,12 +173,14 @@ netstat -tulpn | grep :6006  # Phoenix
 ```
 
 #### Permission Issues
+
 ```bash
 # Make script executable
 chmod +x manage_services.sh
 ```
 
 #### Service Not Responding
+
 ```bash
 # Check service logs
 ./manage_services.sh
@@ -214,11 +225,13 @@ Este directorio contiene los servicios externos requeridos por el sistema RAG, c
 ### Usando el Script de Gestión (Recomendado)
 
 1. Navegar al directorio de servicios:
+
    ```bash
    cd services
    ```
 
 2. Ejecutar el script de gestión:
+
    ```bash
    ./manage_services.sh
    ```
@@ -228,12 +241,14 @@ Este directorio contiene los servicios externos requeridos por el sistema RAG, c
 ### Gestión Manual de Servicios
 
 #### Iniciar Qdrant
+
 ```bash
 cd vectordb
 docker-compose up -d
 ```
 
 #### Iniciar Phoenix
+
 ```bash
 cd monitoring
 docker-compose up -d
@@ -246,9 +261,10 @@ docker-compose up -d
 **Ubicación**: `vectordb/`
 **Propósito**: Base de datos vectorial para búsqueda semántica y recuperación de documentos
 **Puertos**: 6333 (HTTP), 6334 (gRPC)
-**UI**: http://localhost:6333/dashboard
+**UI**: <http://localhost:6333/dashboard>
 
 **Características**:
+
 - Búsqueda semántica usando embeddings vectoriales
 - Capacidades de filtrado de metadatos
 - API REST para integración
@@ -261,9 +277,10 @@ docker-compose up -d
 **Ubicación**: `monitoring/`
 **Propósito**: Monitoreo en tiempo real y evaluación para el sistema RAG
 **Puertos**: 6006 (UI), 4317 (gRPC), 9090 (Prometheus)
-**UI**: http://localhost:6006
+**UI**: <http://localhost:6006>
 
 **Características**:
+
 - Análisis de trazas en tiempo real
 - Seguimiento de métricas de rendimiento
 - Monitoreo de LLM (OpenAI, Gemini)
@@ -323,6 +340,7 @@ PHOENIX_GRPC_ENDPOINT=localhost:4317
 ### Docker Compose
 
 Cada servicio tiene su propio archivo `docker-compose.yml`:
+
 - **vectordb/docker-compose.yml**: Configuración de Qdrant
 - **monitoring/docker-compose.yml**: Configuración de Phoenix
 
@@ -346,6 +364,7 @@ Ambos servicios están integrados con la API RAG principal:
 ### Problemas Comunes
 
 #### Los Servicios No Inician
+
 ```bash
 # Verificar estado de Docker
 docker info
@@ -356,12 +375,14 @@ netstat -tulpn | grep :6006  # Phoenix
 ```
 
 #### Problemas de Permisos
+
 ```bash
 # Hacer el script ejecutable
 chmod +x manage_services.sh
 ```
 
 #### Servicio No Responde
+
 ```bash
 # Verificar logs del servicio
 ./manage_services.sh

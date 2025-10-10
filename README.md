@@ -8,6 +8,7 @@
 # 🚀 Proyecto Py Labor Law RAG (lus-laboris-py)
 
 <!-- CI/CD Status -->
+[![Code Quality](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/code-quality.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/code-quality.yml)
 [![Docker Processing](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-processing-build-publish.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-processing-build-publish.yml)
 [![Docker API](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml)
 [![Terraform Apply](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml)
@@ -38,7 +39,6 @@
 <!-- License -->
 [![Licencia MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-
 **Language / Idioma:**
 [🇺🇸 English](#Introduction) | [🇪🇸 Español](#Introducción)
 
@@ -51,6 +51,7 @@
 **lus-laboris-py** is a RAG (Retrieval-Augmented Generation) application that provides intelligent access to Paraguay's Labor Code (Law Nº 213). The system enables users to query legal information through natural language using advanced AI technologies.
 
 ### Key Workflow
+
 - **Data Processing**: Extract, clean, and structure legal text
 - **Vector Storage**: Index processed data in Qdrant vector database
 - **Intelligent Querying**: Use OpenAI and Google Gemini with specialized prompts for accurate responses
@@ -82,12 +83,14 @@
 ## 🚀 Getting Started
 
 ### 1. Clone and Setup
+
 ```bash
 git clone https://github.com/jesusoviedo/lus-laboris-py.git
 cd lus-laboris-py
 ```
 
 ### 2. Environment Configuration
+
 Create a `.env` file at the project root with required variables:
 
 ```bash
@@ -97,6 +100,7 @@ cp .env_example .env
 ```
 
 The `.env_example` file contains all required variables organized by category:
+
 - **Docker Configuration**: DockerHub credentials and image names
 - **GCP Configuration**: Project, region, and bucket settings
 - **Cloud Run Services**: Batch jobs and API service configuration
@@ -109,6 +113,7 @@ The `.env_example` file contains all required variables organized by category:
 See [docs/setup_gcp_project.md](docs/setup_gcp_project.md) for detailed configuration instructions.
 
 ### 3. Infrastructure Setup
+
 ```bash
 # Automated GCP project setup
 bash utils/setup_gcp_project.sh
@@ -119,6 +124,7 @@ bash tf_menu.sh
 ```
 
 ### 4. Local Development
+
 ```bash
 # Test workflows locally
 cd .github/workflows/
@@ -176,6 +182,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **lus-laboris-py** es una aplicación RAG (Retrieval-Augmented Generation) que proporciona acceso inteligente al Código del Trabajo de Paraguay (Ley Nº 213). El sistema permite a los usuarios consultar información legal a través de lenguaje natural utilizando tecnologías avanzadas de IA.
 
 ### Flujo Principal
+
 - **Procesamiento de Datos**: Extracción, limpieza y estructuración del texto legal
 - **Almacenamiento Vectorial**: Indexación de datos procesados en base de datos vectorial Qdrant
 - **Consultas Inteligentes**: Uso de OpenAI y Google Gemini con prompts especializados para respuestas precisas
@@ -207,12 +214,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🚀 Cómo Empezar
 
 ### 1. Clonar y Configurar
+
 ```bash
 git clone https://github.com/jesusoviedo/lus-laboris-py.git
 cd lus-laboris-py
 ```
 
 ### 2. Configuración del Entorno
+
 Crear un archivo `.env` en la raíz del proyecto con las variables requeridas:
 
 ```bash
@@ -222,6 +231,7 @@ cp .env_example .env
 ```
 
 El archivo `.env_example` contiene todas las variables requeridas organizadas por categoría:
+
 - **Configuración Docker**: Credenciales de DockerHub y nombres de imágenes
 - **Configuración GCP**: Configuraciones de proyecto, región y bucket
 - **Servicios Cloud Run**: Configuración de trabajos batch y servicio API
@@ -234,6 +244,7 @@ El archivo `.env_example` contiene todas las variables requeridas organizadas po
 Ver [docs/setup_gcp_project.md](docs/setup_gcp_project.md) para instrucciones detalladas de configuración.
 
 ### 3. Configuración de Infraestructura
+
 ```bash
 # Configuración automatizada del proyecto GCP
 bash utils/setup_gcp_project.sh
@@ -244,6 +255,7 @@ bash tf_menu.sh
 ```
 
 ### 4. Desarrollo Local
+
 ```bash
 # Probar workflows localmente
 cd .github/workflows/

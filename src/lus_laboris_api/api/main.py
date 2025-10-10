@@ -1,28 +1,28 @@
 """
 FastAPI main application for Lus Laboris API
 """
-import os
+
 import logging
-from typing import Dict, Any
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, status, Depends
+
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi import status as http_status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-import uvicorn
 
-from .endpoints import vectorstore, health, rag, status
-from .services.qdrant_service import qdrant_service
-from .services.gcp_service import gcp_service
-from .services.embedding_service import embedding_service
-from .services.rag_service import rag_service
-from .services.evaluation_service import evaluation_service
 from .config import settings
+from .endpoints import health, rag, status, vectorstore
+from .services.embedding_service import embedding_service
+from .services.evaluation_service import evaluation_service
+from .services.gcp_service import gcp_service
+from .services.qdrant_service import qdrant_service
+from .services.rag_service import rag_service
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,51 +32,51 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
     logger.info("Starting Lus Laboris API...")
-    
+
     try:
         # Initialize services
         logger.info("Initializing services...")
-        
+
         # Check Qdrant connection
         qdrant_status = qdrant_service.health_check()
         if qdrant_status.get("status") != "connected":
-            logger.warning(f"Qdrant connection issue: {qdrant_status}")
-        
+            logger.warning("Qdrant connection issue: {qdrant_status}")
+
         # Check GCP connection
         gcp_status = gcp_service.health_check()
         if gcp_status.get("status") != "connected":
-            logger.warning(f"GCP connection issue: {gcp_status}")
-        
+            logger.warning("GCP connection issue: {gcp_status}")
+
         # Initialize embedding service
         embedding_status = embedding_service.health_check()
         if embedding_status.get("status") != "healthy":
-            logger.warning(f"Embedding service issue: {embedding_status}")
-        
+            logger.warning("Embedding service issue: {embedding_status}")
+
         # Initialize RAG service
         rag_status = rag_service.health_check()
         if rag_status.get("status") != "healthy":
-            logger.warning(f"RAG service issue: {rag_status}")
-        
+            logger.warning("RAG service issue: {rag_status}")
+
         # Initialize evaluation service
         eval_status = evaluation_service.health_check()
-        logger.info(f"Evaluation service status: {eval_status.get('status')}")
-        
+        logger.info("Evaluation service status: {eval_status.get('status')}")
+
         logger.info("All services initialized successfully")
-        
+
     except Exception as e:
-        logger.error(f"Failed to initialize services: {str(e)}")
-    
+        logger.exception("Failed to initialize services")
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down Lus Laboris API...")
-    
+
     # Shutdown evaluation service gracefully
     try:
         evaluation_service.shutdown()
         logger.info("Evaluation service shut down successfully")
     except Exception as e:
-        logger.error(f"Error shutting down evaluation service: {e}")
+        logger.exception("Error shutting down evaluation service")
 
 
 # Create FastAPI application
@@ -87,7 +87,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -100,10 +100,7 @@ app.add_middleware(
 )
 
 # Add trusted host middleware
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=settings.api_allowed_hosts
-)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.api_allowed_hosts)
 
 
 # Global exception handlers
@@ -112,25 +109,21 @@ async def http_exception_handler(request, exc):
     """Handle HTTP exceptions"""
     return JSONResponse(
         status_code=exc.status_code,
-        content={
-            "success": False,
-            "message": exc.detail,
-            "error_code": exc.status_code
-        }
+        content={"success": False, "message": exc.detail, "error_code": exc.status_code},
     )
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     """Handle general exceptions"""
-    logger.error(f"Unhandled exception: {str(exc)}")
+    logger.error("Unhandled exception: {exc!s}")
     return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "success": False,
             "message": "Internal server error",
-            "error_code": "INTERNAL_ERROR"
-        }
+            "error_code": "INTERNAL_ERROR",
+        },
     )
 
 
@@ -146,15 +139,9 @@ if __name__ == "__main__":
     port = settings.api_port
     reload = settings.api_reload
     log_level = settings.api_log_level
-    
-    logger.info(f"Starting API server on {host}:{port}")
-    logger.info(f"Reload mode: {reload}")
-    logger.info(f"Log level: {log_level}")
-    
-    uvicorn.run(
-        "main:app",
-        host=host,
-        port=port,
-        reload=reload,
-        log_level=log_level
-    )
+
+    logger.info("Starting API server on {host}:{port}")
+    logger.info("Reload mode: {reload}")
+    logger.info("Log level: {log_level}")
+
+    uvicorn.run("main:app", host=host, port=port, reload=reload, log_level=log_level)

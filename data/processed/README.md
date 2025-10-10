@@ -20,10 +20,10 @@ For information about data processing and usage, see the main [Data README](../R
 ## Generation
 
 To generate processed data, run:
+
 ```bash
 python ../../src/processing/extract_law_text.py
 ```
-
 
 ---
 
@@ -42,6 +42,7 @@ Para información sobre el procesamiento y uso de datos, consulta el [README pri
 ## Generación
 
 Para generar los datos procesados, ejecuta:
+
 ```bash
 python ../../src/processing/extract_law_text.py
 ```

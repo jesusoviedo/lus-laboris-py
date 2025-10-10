@@ -1,7 +1,7 @@
 <div align="center">
 
 **Language / Idioma:**
-[🇺🇸 English](#Table-of-Contents) | [🇪🇸 Español](#Tabla-de-Contenidos)
+[🇺🇸 English](#table-of-contents) | [🇪🇸 Español](#tabla-de-contenidos)
 
 </div>
 
@@ -31,7 +31,9 @@ Docker is a platform for containerizing applications, Docker Compose helps orche
 ## Installation
 
 ### Docker
+
 - Ubuntu/Debian:
+
 ```bash
 sudo apt update
 sudo apt install docker.io
@@ -39,23 +41,30 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
 ```
+
 - macOS:
+
 ```bash
 brew install --cask docker
 ```
+
 - Windows:  
   Download Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop)
 
 ### Docker Compose
+
 - Linux:
+
 ```bash
   sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   sudo chmod +x /usr/local/bin/docker-compose
   docker-compose --version
 ```
+
 - Included in Docker Desktop for Windows/macOS.
 
 ### Docker Hub
+
 - Go to [hub.docker.com](https://hub.docker.com), sign up, and verify your email.
 
 ## Basic Concepts
@@ -114,6 +123,7 @@ brew install --cask docker
 
 Use GitHub Actions to build and push images to Docker Hub.
 Example:
+
   ```yaml
   name: Build and Push
   on:
@@ -216,7 +226,9 @@ Docker es una plataforma para contenerizar aplicaciones, Docker Compose ayuda a 
 ## Instalación
 
 ### Docker
+
 - Ubuntu/Debian:
+
 ```bash
 sudo apt update
 sudo apt install docker.io
@@ -224,23 +236,30 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
 ```
+
 - macOS:
+
 ```bash
 brew install --cask docker
 ```
+
 - Windows:  
   Descarga Docker Desktop desde [docker.com](https://www.docker.com/products/docker-desktop)
 
 ### Docker Compose
+
 - Linux:
+
 ```bash
   sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   sudo chmod +x /usr/local/bin/docker-compose
   docker-compose --version
 ```
+
 - Incluido en Docker Desktop para Windows/macOS.
 
 ### Docker Hub
+
 - Ve a [hub.docker.com](https://hub.docker.com), regístrate y verifica tu email.
 
 ## Conceptos Básicos
@@ -299,6 +318,7 @@ brew install --cask docker
 
 Usa GitHub Actions para construir y subir imágenes a Docker Hub.
 Ejemplo:
+
 ```yaml
 name: Build and Push
 on:

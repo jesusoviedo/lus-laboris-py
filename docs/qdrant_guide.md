@@ -193,7 +193,7 @@ def batch_insert_documents(documents, embeddings, batch_size=100):
     for i in range(0, len(documents), batch_size):
         batch_docs = documents[i:i + batch_size]
         batch_embeddings = embeddings[i:i + batch_size]
-        
+
         points = [
             PointStruct(
                 id=j,
@@ -202,7 +202,7 @@ def batch_insert_documents(documents, embeddings, batch_size=100):
             )
             for j, (doc, embedding) in enumerate(zip(batch_docs, batch_embeddings))
         ]
-        
+
         client.upsert(
             collection_name="labor_law_articles",
             points=points
@@ -488,6 +488,7 @@ def get_qdrant_client():
 ### Migration from Local to Cloud
 
 1. **Export data** from local Qdrant:
+
    ```bash
    # Create snapshot
    docker exec qdrant_container qdrant-cli snapshot create \
@@ -496,6 +497,7 @@ def get_qdrant_client():
    ```
 
 2. **Import to Qdrant Cloud**:
+
    ```python
    # Upload to cloud
    client.upload_collection(
@@ -507,6 +509,7 @@ def get_qdrant_client():
    ```
 
 3. **Update configuration**:
+
    ```env
    # Switch to cloud configuration
    QDRANT_URL=https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333
@@ -516,11 +519,13 @@ def get_qdrant_client():
 ### Cost Considerations
 
 #### Qdrant Cloud Pricing
+
 - **Free Tier**: 1GB storage, 1M vectors
 - **Pay-as-you-go**: Based on storage and compute usage
 - **Enterprise**: Custom pricing for large deployments
 
 #### Self-Hosted Costs
+
 - **Infrastructure**: Server costs, storage, networking
 - **Maintenance**: DevOps time, monitoring, backups
 - **Scaling**: Manual scaling vs automatic
@@ -528,12 +533,14 @@ def get_qdrant_client():
 ### Security Considerations
 
 #### Qdrant Cloud Security
+
 - **Encryption**: Data encrypted in transit and at rest
 - **Access Control**: API key-based authentication
 - **Network Security**: VPC and private endpoints
 - **Compliance**: SOC 2, GDPR compliant
 
 #### Self-Hosted Security
+
 - **Network Security**: Firewall rules, VPN access
 - **Authentication**: API keys, RBAC
 - **Encryption**: TLS for data in transit
@@ -544,15 +551,17 @@ def get_qdrant_client():
 ### Common Issues
 
 1. **Connection Refused**
+
    ```bash
    # Check if Qdrant is running
    docker ps | grep qdrant
-   
+
    # Check logs
    docker logs qdrant_container_name
    ```
 
 2. **Out of Memory**
+
    ```python
    # Use on_disk storage for large collections
    vectors_config=VectorParams(
@@ -808,7 +817,7 @@ def batch_insert_documents(documents, embeddings, batch_size=100):
     for i in range(0, len(documents), batch_size):
         batch_docs = documents[i:i + batch_size]
         batch_embeddings = embeddings[i:i + batch_size]
-        
+
         points = [
             PointStruct(
                 id=j,
@@ -817,7 +826,7 @@ def batch_insert_documents(documents, embeddings, batch_size=100):
             )
             for j, (doc, embedding) in enumerate(zip(batch_docs, batch_embeddings))
         ]
-        
+
         client.upsert(
             collection_name="labor_law_articles",
             points=points
@@ -1103,6 +1112,7 @@ def get_qdrant_client():
 ### Migración de Local a Nube
 
 1. **Exportar datos** desde Qdrant local:
+
    ```bash
    # Crear snapshot
    docker exec qdrant_container qdrant-cli snapshot create \
@@ -1111,6 +1121,7 @@ def get_qdrant_client():
    ```
 
 2. **Importar a Qdrant Cloud**:
+
    ```python
    # Subir a la nube
    client.upload_collection(
@@ -1122,6 +1133,7 @@ def get_qdrant_client():
    ```
 
 3. **Actualizar configuración**:
+
    ```env
    # Cambiar a configuración de nube
    QDRANT_URL=https://your-cluster-id.eu-central.aws.cloud.qdrant.io:6333
@@ -1131,11 +1143,13 @@ def get_qdrant_client():
 ### Consideraciones de Costo
 
 #### Precios de Qdrant Cloud
+
 - **Nivel Gratuito**: 1GB de almacenamiento, 1M vectores
 - **Pago por uso**: Basado en almacenamiento y uso de cómputo
 - **Empresarial**: Precios personalizados para despliegues grandes
 
 #### Costos Auto-hospedados
+
 - **Infraestructura**: Costos de servidor, almacenamiento, red
 - **Mantenimiento**: Tiempo de DevOps, monitoreo, respaldos
 - **Escalado**: Escalado manual vs automático
@@ -1143,12 +1157,14 @@ def get_qdrant_client():
 ### Consideraciones de Seguridad
 
 #### Seguridad de Qdrant Cloud
+
 - **Encriptación**: Datos encriptados en tránsito y en reposo
 - **Control de Acceso**: Autenticación basada en clave API
 - **Seguridad de Red**: VPC y endpoints privados
 - **Cumplimiento**: Compatible con SOC 2, GDPR
 
 #### Seguridad Auto-hospedada
+
 - **Seguridad de Red**: Reglas de firewall, acceso VPN
 - **Autenticación**: Claves API, RBAC
 - **Encriptación**: TLS para datos en tránsito
@@ -1159,15 +1175,17 @@ def get_qdrant_client():
 ### Problemas Comunes
 
 1. **Conexión Rechazada**
+
    ```bash
    # Verificar si Qdrant está ejecutándose
    docker ps | grep qdrant
-   
+
    # Verificar logs
    docker logs nombre_contenedor_qdrant
    ```
 
 2. **Memoria Insuficiente**
+
    ```python
    # Usar almacenamiento en disco para colecciones grandes
    vectors_config=VectorParams(

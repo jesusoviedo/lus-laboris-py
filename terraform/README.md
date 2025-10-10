@@ -15,7 +15,7 @@ Terraform is an Infrastructure as Code (IaC) tool developed by HashiCorp that al
 
 ## Folder Structure
 
-```
+```text
 project-root/
 ├── .env                      # Environment variables for Terraform and tf_menu.sh
 ├── terraform/
@@ -31,7 +31,7 @@ project-root/
 └── ...
 ```
 
-### Purpose of each file:
+### Purpose of each file
 
 - **`.env`**: Stores required environment variables for Terraform and the interactive script
 - **`main.tf`**: Defines main modules and their configurations
@@ -106,6 +106,7 @@ GCP_CLOUD_RUN_API_TIMEOUT=300s
 ```
 
 These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically:
+
 - **Basic GCP Configuration**: Core project settings
 - **Cloud Run Job Configuration**: Variables for the scheduled batch job
 - **Compute Engine VM Configuration**: Variables for creating the Qdrant VM
@@ -114,10 +115,12 @@ These variables are required for the interactive script and for generating the `
 ### Important Format Notes for List Variables
 
 The following variables must be formatted as Terraform lists (without outer quotes):
+
 - `GCP_CLOUD_RUN_API_ALLOWED_ORIGINS`: List of allowed CORS origins
 - `GCP_CLOUD_RUN_API_ALLOWED_HOSTS`: List of allowed hosts
 
 **Correct format examples:**
+
 ```env
 # Single wildcard (most common)
 GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
@@ -132,6 +135,7 @@ GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://example.com", "*"]
 ```
 
 **Incorrect formats (will cause Terraform errors):**
+
 ```env
 # ❌ Wrong: Single quotes around the entire list
 GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
@@ -160,8 +164,6 @@ uv run gcp_utils.py gcs-create py-labor-law-rag-terraform-state
 cd ../terraform
 ```
 
-
-
 ### Step 2: Configure Environment Variables
 
 Set the Google Cloud credentials environment variable:
@@ -173,42 +175,53 @@ export GOOGLE_APPLICATION_CREDENTIALS="../.gcpcredentials/lus-laboris-py-service
 **Important**: This environment variable must be set before running any Terraform commands.
 
 ### Step 3: Initialize Terraform
+
 ```bash
 terraform init
 ```
+
 This command downloads necessary providers and initializes the working directory.
 
 ### Step 4: Validate Configuration
+
 ```bash
 terraform validate
 ```
+
 Verifies that the configuration files syntax is correct.
 
 ### Step 5: Plan and Apply Changes
+
 ```bash
 # Plan changes
 terraform plan
 ```
+
 Shows an execution plan of resources that will be created, modified, or destroyed.
 
 ```bash
 # Apply changes
 terraform apply
 ```
+
 Executes the plan and creates/modifies infrastructure according to the configuration.
 
 ### Additional Commands
 
 #### View current state
+
 ```bash
 terraform show
 ```
+
 Shows the current state of deployed infrastructure.
 
 #### Destroy infrastructure
+
 ```bash
 terraform destroy
 ```
+
 ⚠️ **WARNING**: This command removes all resources created by Terraform.
 
 ### Variable Configuration
@@ -239,7 +252,7 @@ qdrant_vm_disk_size   = 50
 
 This project uses a service account JSON credentials file. The file should be located at:
 
-```
+```text
 .gcpcredentials/lus-laboris-py-service-account.json
 ```
 
@@ -271,6 +284,7 @@ bash ./tf_menu.sh
 ```
 
 This script will:
+
 - Automatically search for a `.json` credentials file in the `.gcpcredentials` folder at the project root (two levels up)
 - Export the `GOOGLE_APPLICATION_CREDENTIALS` variable if not already set
 - Read the `.env` file at the project root, extract all required variables, and generate the `terraform.tfvars` file automatically
@@ -279,26 +293,30 @@ This script will:
 
 **Note:** You must run this script from the `terraform` directory. The `.env` file must exist at the project root.
 > ⚠️ **Warning:** The script `tf_menu.sh` requires that all the following variables are defined in your `.env` file:
-> 
+>
 > **Basic GCP Configuration:**
+>
 > - GCP_PROJECT_ID
 > - GCP_REGION
 > - GCP_BUCKET_NAME
-> 
+>
 > **Cloud Run Job Configuration:**
+>
 > - GCP_CLOUD_RUN_BATCH_JOB_NAME
 > - GCP_CLOUD_RUN_BATCH_SCHEDULE
 > - GCP_CLOUD_RUN_BATCH_IMAGE
 > - GCP_CLOUD_RUN_BATCH_ARGS
 > - GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL
-> 
+>
 > **Compute Engine VM Configuration:**
+>
 > - GCP_COMPUTE_ENGINE_VM_NAME
 > - GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE
 > - GCP_COMPUTE_ENGINE_VM_ZONE
 > - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 >
 > **Cloud Run API Service Configuration:**
+>
 > - GCP_CLOUD_RUN_API_SERVICE_NAME
 > - GCP_CLOUD_RUN_API_IMAGE
 > - GCP_CLOUD_RUN_API_QDRANT_URL
@@ -316,14 +334,14 @@ Terraform es una herramienta de infraestructura como código (IaC) desarrollada 
 
 ## Estructura de Carpetas
 
-```
+```text
 raiz-del-proyecto/
 ├── .env                      # Variables de entorno para Terraform y tf_menu.sh
 ├── terraform/
 │   ├── main.tf               # Archivo principal que define los módulos a usar
 │   ├── variables.tf          # Definición de variables de entrada
 │   ├── providers.tf          # Configuración de proveedores (Google Cloud)
-│   ├── terraform.tfvars      # Valores específicos de las variables 
+│   ├── terraform.tfvars      # Valores específicos de las variables
 │   ├── tf_menu.sh            # Script de menú interactivo para Terraform
 │   └── modules/              # Módulos reutilizables
 │       ├── gcs/              # Módulo para Google Cloud Storage
@@ -332,13 +350,13 @@ raiz-del-proyecto/
 └── ...
 ```
 
-### Propósito de cada archivo:
+### Propósito de cada archivo
 
 - **`.env`**: Almacena las variables de entorno requeridas para Terraform y el script interactivo
 - **`main.tf`**: Define los módulos principales y sus configuraciones
 - **`variables.tf`**: Declara las variables que se pueden personalizar
 - **`providers.tf`**: Configura el proveedor de Google Cloud Platform con credenciales JSON
-- **`terraform.tfvars`**: Contiene los valores específicos para las variables 
+- **`terraform.tfvars`**: Contiene los valores específicos para las variables
 - **`tf_menu.sh`**: Script de menú interactivo para operaciones comunes de Terraform
 - **`modules/gcs/`**: Módulo reutilizable para crear buckets de Google Cloud Storage
 - **`modules/cloud_run_job/`**: Módulo para desplegar un Cloud Run Job (batch) programado usando una imagen de Docker Hub
@@ -407,6 +425,7 @@ GCP_CLOUD_RUN_API_TIMEOUT=300s
 ```
 
 Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`:
+
 - **Configuración básica de GCP**: Configuraciones principales del proyecto
 - **Configuración de Cloud Run Job**: Variables para el job batch programado
 - **Configuración de Compute Engine VM**: Variables para crear la VM de Qdrant
@@ -415,10 +434,12 @@ Estas variables son requeridas por el script interactivo y para la generación a
 ### Notas Importantes sobre el Formato de Variables de Lista
 
 Las siguientes variables deben tener formato de lista de Terraform (sin comillas externas):
+
 - `GCP_CLOUD_RUN_API_ALLOWED_ORIGINS`: Lista de orígenes CORS permitidos
 - `GCP_CLOUD_RUN_API_ALLOWED_HOSTS`: Lista de hosts permitidos
 
 **Ejemplos de formato correcto:**
+
 ```env
 # Comodín único (más común)
 GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
@@ -433,6 +454,7 @@ GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://ejemplo.com", "*"]
 ```
 
 **Formatos incorrectos (causarán errores de Terraform):**
+
 ```env
 # ❌ Incorrecto: Comillas simples alrededor de toda la lista
 GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
@@ -474,42 +496,53 @@ export GOOGLE_APPLICATION_CREDENTIALS="../.gcpcredentials/lus-laboris-py-service
 **Importante**: Esta variable de entorno debe configurarse antes de ejecutar cualquier comando de Terraform.
 
 ### Paso 3: Inicializar Terraform
+
 ```bash
 terraform init
 ```
+
 Este comando descarga los proveedores necesarios e inicializa el directorio de trabajo.
 
 ### Paso 4: Validar la Configuración
+
 ```bash
 terraform validate
 ```
+
 Verifica que la sintaxis de los archivos de configuración sea correcta.
 
 ### Paso 5: Planificar y Aplicar Cambios
+
 ```bash
 # Planificar los cambios
 terraform plan
 ```
+
 Muestra un plan de ejecución de los recursos que se van a crear, modificar o eliminar.
 
 ```bash
 # Aplicar los cambios
 terraform apply
 ```
+
 Ejecuta el plan y crea/modifica la infraestructura según la configuración.
 
 ### Comandos Adicionales
 
 #### Ver el estado actual
+
 ```bash
 terraform show
 ```
+
 Muestra el estado actual de la infraestructura desplegada.
 
 #### Destruir la infraestructura
+
 ```bash
 terraform destroy
 ```
+
 ⚠️ **CUIDADO**: Este comando elimina todos los recursos creados por Terraform.
 
 ### Configuración de Variables
@@ -540,7 +573,7 @@ qdrant_vm_disk_size   = 50
 
 Este proyecto utiliza un archivo JSON de credenciales de cuenta de servicio. El archivo debe estar ubicado en:
 
-```
+```text
 .gcpcredentials/lus-laboris-py-service-account.json
 ```
 
@@ -572,6 +605,7 @@ bash ./tf_menu.sh
 ```
 
 Este script:
+
 - Busca automáticamente un archivo `.json` de credenciales en la carpeta `.gcpcredentials` en la raíz del proyecto (dos niveles arriba)
 - Exporta la variable `GOOGLE_APPLICATION_CREDENTIALS` si no está seteada
 - Lee el archivo `.env` en la raíz del proyecto, extrae todas las variables requeridas, y genera automáticamente el archivo `terraform.tfvars`
@@ -582,11 +616,13 @@ Este script:
 > ⚠️ **Advertencia:** El script `tf_menu.sh` requiere que todas las siguientes variables estén definidas en tu archivo `.env`:
 >
 > **Configuración básica de GCP:**
+>
 > - GCP_PROJECT_ID
 > - GCP_REGION
 > - GCP_BUCKET_NAME
 >
 > **Configuración de Cloud Run Job:**
+>
 > - GCP_CLOUD_RUN_BATCH_JOB_NAME
 > - GCP_CLOUD_RUN_BATCH_SCHEDULE
 > - GCP_CLOUD_RUN_BATCH_IMAGE
@@ -594,12 +630,14 @@ Este script:
 > - GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL
 >
 > **Configuración de Compute Engine VM:**
+>
 > - GCP_COMPUTE_ENGINE_VM_NAME
 > - GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE
 > - GCP_COMPUTE_ENGINE_VM_ZONE
 > - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 >
 > **Configuración de Cloud Run API Service:**
+>
 > - GCP_CLOUD_RUN_API_SERVICE_NAME
 > - GCP_CLOUD_RUN_API_IMAGE
 > - GCP_CLOUD_RUN_API_QDRANT_URL

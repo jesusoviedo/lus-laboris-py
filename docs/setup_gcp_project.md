@@ -22,6 +22,7 @@ This guide will help you set up a Google Cloud Platform project with a service a
 Before proceeding with the project setup, you need to authenticate with Google Cloud:
 
 1. **Install Google Cloud CLI** (if not already installed):
+
    ```bash
    # Install gcloud CLI
    curl https://sdk.cloud.google.com | bash
@@ -29,16 +30,18 @@ Before proceeding with the project setup, you need to authenticate with Google C
    ```
 
 2. **Authenticate with your Google account**:
+
    ```bash
    # Interactive login (opens browser)
    gcloud auth login
    ```
 
 3. **Verify authentication**:
+
    ```bash
    # Check active authentication
    gcloud auth list
-   
+
    # Check current project
    gcloud config list project
    ```
@@ -50,11 +53,13 @@ After completing the authentication setup above, you can use our automated scrip
 ### Using the Setup Script
 
 1. **Navigate to the utils directory**:
+
    ```bash
    cd utils/
    ```
 
 2. **Run the automated setup script**:
+
    ```bash
    ./setup_gcp_project.sh
    ```
@@ -282,32 +287,39 @@ gcloud auth activate-service-account \
 ## Assigned Roles
 
 ### Storage Admin (`roles/storage.admin`)
+
 - Allows managing Cloud Storage buckets and objects
 - Includes permissions to create, modify, and delete buckets
 - Allows configuring access policies and versioning
 
 ### Storage Object Admin (`roles/storage.objectAdmin`)
+
 - Allows managing objects within buckets
 - Includes permissions to upload, download, modify, and delete objects
 - Allows configuring object metadata and ACLs
 
 ### Cloud Run Admin (`roles/run.admin`)
+
 - Allows managing Cloud Run resources (services, jobs)
 - Includes permissions to create, update, delete, and invoke Cloud Run jobs
 
 ### Service Account User (`roles/iam.serviceAccountUser`)
+
 - Allows the service account to act as other service accounts (required for Cloud Run jobs)
 
 ### Cloud Scheduler Admin (`roles/cloudscheduler.admin`)
+
 - Allows managing Cloud Scheduler jobs
 - Includes permissions to create, update, and delete scheduler jobs
 
 ### Compute Instance Admin (`roles/compute.instanceAdmin`)
+
 - Allows managing Compute Engine instances
 - Includes permissions to create, update, delete, and configure VM instances
 - Allows managing instance metadata, tags, and startup scripts
 
 ### Compute Network Admin (`roles/compute.networkAdmin`)
+
 - Allows managing Compute Engine networking resources
 - Includes permissions to create, update, and delete firewall rules
 - Allows configuring network interfaces and access controls
@@ -334,15 +346,18 @@ gcloud auth activate-service-account \
 ## Troubleshooting
 
 ### Error: "Permission denied"
+
 - Verify the service account has the correct roles
 - Make sure the JSON file is in the correct path
 - Verify the Project ID is correct
 
 ### Error: "API not enabled"
+
 - Enable the required APIs in the GCP console
 - Wait a few minutes for changes to propagate
 
 ### Error: "Invalid credentials"
+
 - Verify the JSON file is not corrupted
 - Regenerate the JSON key if necessary
 - Verify the service account is active
@@ -352,7 +367,6 @@ gcloud auth activate-service-account \
 - [Google Cloud Storage Documentation](https://cloud.google.com/storage/docs)
 - [IAM Guide for Storage](https://cloud.google.com/storage/docs/access-control/iam)
 - [Security Best Practices](https://cloud.google.com/security/best-practices)
-
 
 ---
 
@@ -371,6 +385,7 @@ Esta guía te ayudará a configurar un proyecto de Google Cloud Platform con una
 Antes de proceder con la configuración del proyecto, necesitas autenticarte con Google Cloud:
 
 1. **Instalar Google Cloud CLI** (si no está instalado):
+
    ```bash
    # Instalar gcloud CLI
    curl https://sdk.cloud.google.com | bash
@@ -378,16 +393,18 @@ Antes de proceder con la configuración del proyecto, necesitas autenticarte con
    ```
 
 2. **Autenticarse con tu cuenta de Google**:
+
    ```bash
    # Login interactivo (abre el navegador)
    gcloud auth login
    ```
 
 3. **Verificar autenticación**:
+
    ```bash
    # Verificar autenticación activa
    gcloud auth list
-   
+
    # Verificar proyecto actual
    gcloud config list project
    ```
@@ -399,11 +416,13 @@ Después de completar la configuración de autenticación anterior, puedes usar 
 ### Usando el Script de Configuración
 
 1. **Navegar al directorio utils**:
+
    ```bash
    cd utils/
    ```
 
 2. **Ejecutar el script de configuración automatizada**:
+
    ```bash
    ./setup_gcp_project.sh
    ```
@@ -631,32 +650,39 @@ gcloud auth activate-service-account \
 ## Roles Asignados
 
 ### Administrador de almacenamiento (`roles/storage.admin`)
+
 - Permite gestionar buckets y objetos de Cloud Storage
 - Incluye permisos para crear, modificar y eliminar buckets
 - Permite configurar políticas de acceso y versionado
 
 ### Administrador de objetos de Storage (`roles/storage.objectAdmin`)
+
 - Permite gestionar objetos dentro de buckets
 - Incluye permisos para subir, descargar, modificar y eliminar objetos
 - Permite configurar metadatos y ACLs de objetos
 
 ### Administrador de Cloud Run (`roles/run.admin`)
+
 - Permite gestionar recursos de Cloud Run (servicios, jobs)
 - Incluye permisos para crear, actualizar, eliminar e invocar jobs de Cloud Run
 
 ### Usuario de cuentas de servicio (`roles/iam.serviceAccountUser`)
+
 - Permite que la cuenta de servicio actúe como otras cuentas de servicio (requerido para jobs de Cloud Run)
 
 ### Administrador de Cloud Scheduler (`roles/cloudscheduler.admin`)
+
 - Permite gestionar jobs de Cloud Scheduler
 - Incluye permisos para crear, actualizar y eliminar jobs de scheduler
 
 ### Administrador de instancias de Compute (`roles/compute.instanceAdmin`)
+
 - Permite gestionar instancias de Compute Engine
 - Incluye permisos para crear, actualizar, eliminar y configurar instancias de VM
 - Permite gestionar metadatos de instancias, tags y scripts de inicio
 
 ### Administrador de red de Compute (`roles/compute.networkAdmin`)
+
 - Permite gestionar recursos de red de Compute Engine
 - Incluye permisos para crear, actualizar y eliminar reglas de firewall
 - Permite configurar interfaces de red y controles de acceso
@@ -683,15 +709,18 @@ gcloud auth activate-service-account \
 ## Solución de Problemas
 
 ### Error: "Permission denied"
+
 - Verifica que la cuenta de servicio tenga los roles correctos
 - Asegúrate de que el archivo JSON esté en la ruta correcta
 - Verifica que el Project ID sea correcto
 
 ### Error: "API not enabled"
+
 - Habilita las APIs necesarias en la consola de GCP
 - Espera unos minutos para que los cambios se propaguen
 
 ### Error: "Invalid credentials"
+
 - Verifica que el archivo JSON no esté corrupto
 - Regenera la clave JSON si es necesario
 - Verifica que la cuenta de servicio esté activa

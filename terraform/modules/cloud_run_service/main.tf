@@ -7,7 +7,7 @@ resource "google_cloud_run_v2_service" "api_service" {
   template {
     containers {
       image = var.image
-      
+
       ports {
         container_port = var.container_port
       }

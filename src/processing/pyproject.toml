@@ -1,7 +1,7 @@
 [project]
 name = "processing"
 version = "0.1.0"
-description = "Add your description here"
+description = "Legal text extraction and processing scripts"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -14,4 +14,15 @@ dependencies = [
     "opentelemetry-instrumentation-requests>=0.58b0",
     "opentelemetry-sdk>=1.37.0",
     "requests>=2.32.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.4",
+    "mypy>=1.14.0",
+    "bandit[toml]>=1.8.0",
+    "types-requests>=2.32.0",
+    "types-beautifulsoup4>=4.12.0",
 ]

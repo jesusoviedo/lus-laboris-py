@@ -36,7 +36,7 @@ create_tfvars() {
     set -a  # automatically export all variables
     source "$ENV_FILE"
     set +a  # stop automatically exporting
-    
+
     # Read existing variables (ignore comments and handle whitespace)
     GCP_PROJECT_ID=$(read_env_var "GCP_PROJECT_ID" "$ENV_FILE")
     GCP_REGION=$(read_env_var "GCP_REGION" "$ENV_FILE")
@@ -46,13 +46,13 @@ create_tfvars() {
     GCP_CLOUD_RUN_BATCH_ARGS=$(read_env_var "GCP_CLOUD_RUN_BATCH_ARGS" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_BATCH_SCHEDULE=$(read_env_var "GCP_CLOUD_RUN_BATCH_SCHEDULE" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL=$(read_env_var "GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL" "$ENV_FILE")
-    
+
     # Expand environment variables in GCP_CLOUD_RUN_BATCH_ARGS
     # This allows using ${VARIABLE_NAME} syntax in the args string
     if [ -n "$GCP_CLOUD_RUN_BATCH_ARGS" ]; then
         GCP_CLOUD_RUN_BATCH_ARGS=$(envsubst <<< "$GCP_CLOUD_RUN_BATCH_ARGS")
     fi
-    
+
     # Read new Qdrant VM variables
     GCP_COMPUTE_ENGINE_VM_NAME=$(read_env_var "GCP_COMPUTE_ENGINE_VM_NAME" "$ENV_FILE")
     GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=$(read_env_var "GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE" "$ENV_FILE")
@@ -80,7 +80,7 @@ create_tfvars() {
     GCP_CLOUD_RUN_API_TIMEOUT=$(read_env_var "GCP_CLOUD_RUN_API_TIMEOUT" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     # Validate that all required variables exist
     MISSING_VARS=()
-    
+
     # Check existing variables
     [[ -z "$GCP_PROJECT_ID" ]] && MISSING_VARS+=("GCP_PROJECT_ID")
     [[ -z "$GCP_REGION" ]] && MISSING_VARS+=("GCP_REGION")
@@ -94,7 +94,7 @@ create_tfvars() {
     [[ -z "$GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE")
     [[ -z "$GCP_COMPUTE_ENGINE_VM_ZONE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_ZONE")
     [[ -z "$GCP_COMPUTE_ENGINE_VM_DISK_SIZE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_DISK_SIZE")
-    
+
     # Check Cloud Run API variables
     [[ -z "$GCP_CLOUD_RUN_API_SERVICE_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_SERVICE_NAME")
     [[ -z "$GCP_CLOUD_RUN_API_IMAGE" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_IMAGE")
@@ -160,7 +160,7 @@ EOF
     done
     ARGS_LIST=$(IFS=', '; echo "${ARGS_ARRAY[*]}")
     echo "args         = [$ARGS_LIST]" >> "$TFVARS_FILE"
-    
+
     # Handle allowed_origins and allowed_hosts as lists
     if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" ]; then
         # Remove outer quotes if they exist and convert single quotes to double quotes
@@ -169,7 +169,7 @@ EOF
     else
         echo "api_allowed_origins = [\"*\"]" >> "$TFVARS_FILE"
     fi
-    
+
     if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_HOSTS" ]; then
         # Remove outer quotes if they exist and convert single quotes to double quotes
         HOSTS_CLEAN=$(echo "$GCP_CLOUD_RUN_API_ALLOWED_HOSTS" | sed 's/^"//' | sed 's/"$//' | sed "s/'/\"/g")
@@ -177,7 +177,7 @@ EOF
     else
         echo "api_allowed_hosts = [\"*\"]" >> "$TFVARS_FILE"
     fi
-    
+
     echo "✅ Archivo terraform.tfvars generado correctamente"
   else
     echo "⚠️  No se encontró el archivo .env en $PROJECT_ROOT. No se generó terraform.tfvars."

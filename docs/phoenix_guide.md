@@ -150,16 +150,16 @@ from phoenix.trace import trace, set_attributes
 def retrieve_documents(self, query: str):
     with trace("embedding_generation"):
         embedding = self.embedding_service.generate_embedding(query)
-    
+
     with trace("vector_search"):
         results = self.qdrant_service.search(embedding)
-    
+
     set_attributes({
         "query_length": len(query),
         "results_count": len(results),
         "search_time": time.time() - start_time
     })
-    
+
     return results
 ```
 
@@ -197,7 +197,7 @@ The system implements automatic session management to group all spans from a sin
 
 ### Session Structure
 
-```
+```text
 execution_session (SERVER) 🔵 [ROOT SESSION]
 ├── session.id: "550e8400-e29b-41d4-a716-446655440000"
 ├── session.start_time: "2024-01-15T10:30:00.123456"
@@ -221,11 +221,13 @@ execution_session (SERVER) 🔵 [ROOT SESSION]
 ### Using Sessions in Phoenix
 
 **Filter by Session:**
-```
+
+```text
 session.id = "550e8400-e29b-41d4-a716-446655440000"
 ```
 
 **View Session Duration:**
+
 - The root `execution_session` span shows total execution time
 - Compare durations across different executions
 
@@ -236,22 +238,30 @@ The system uses OpenTelemetry Span Kinds for better visualization and categoriza
 ### Span Kind Types
 
 #### 🔵 **SpanKind.SERVER**
+
 **Purpose**: Main operations that coordinate other operations
+
 - `main_process` - Main application process
 - `process_law_local` - Complete local processing
 - `process_law_gcs` - Complete GCS processing
 
 #### 🟢 **SpanKind.CLIENT**
+
 **Purpose**: Operations that make external calls
+
 - `download_law_page` - Download from external URL
 
 #### 🟡 **SpanKind.PRODUCER**
+
 **Purpose**: Operations that send data to external systems
+
 - `save_parsed_json_gcs` - Save to Google Cloud Storage
 - `upload_file_to_gcs` - Upload files to GCS
 
 #### ⚪ **SpanKind.INTERNAL**
+
 **Purpose**: Internal data processing operations
+
 - `extract_metadata` - Extract law metadata
 - `extract_articles` - Segment articles
 - `parse_law_text` - Process complete text
@@ -268,7 +278,7 @@ The system uses OpenTelemetry Span Kinds for better visualization and categoriza
 
 ### Span Hierarchy
 
-```
+```text
 main_process (SERVER) 🔵
 ├── process_law_local/process_law_gcs (SERVER) 🔵
     ├── download_law_page (CLIENT) 🟢
@@ -284,21 +294,25 @@ main_process (SERVER) 🔵
 ### Attributes by Span Type
 
 **CLIENT Spans:**
+
 - `url` - External call URL
 - `output_path` - Local output path
 
 **PRODUCER Spans:**
+
 - `bucket_name` - GCS bucket name
 - `filename` - File name
 - `articles_count` - Number of processed articles
 
 **INTERNAL Spans:**
+
 - `lines_count` - Number of processed lines
 - `text_length` - Text length
 - `html_path` - HTML file path
 - `articles_count` - Number of extracted articles
 
 **SERVER Spans:**
+
 - `mode` - Operation mode (local/gcs)
 - `url` - Law URL
 - `bucket_name` - Bucket name (GCS mode only)
@@ -312,6 +326,7 @@ main_process (SERVER) 🔵
 ### 1. Trace Analysis
 
 Phoenix provides detailed traces showing:
+
 - Request flow through the RAG pipeline
 - Time spent in each component
 - Token usage and costs
@@ -320,6 +335,7 @@ Phoenix provides detailed traces showing:
 ### 2. Performance Metrics
 
 Track key performance indicators:
+
 - **Response Time**: End-to-end request processing time
 - **Token Usage**: Tokens consumed per request
 - **Throughput**: Requests per minute
@@ -328,6 +344,7 @@ Track key performance indicators:
 ### 3. LLM Monitoring
 
 Monitor LLM providers:
+
 - **OpenAI**: API calls, token usage, costs
 - **Google Gemini**: API calls, token usage, costs
 - **Model Performance**: Response quality and consistency
@@ -335,6 +352,7 @@ Monitor LLM providers:
 ### 4. Evaluation Metrics
 
 Track RAG system quality:
+
 - **Retrieval Accuracy**: Relevance of retrieved documents
 - **Generation Quality**: Response accuracy and coherence
 - **Reranking Effectiveness**: Impact of reranking on results
@@ -379,17 +397,20 @@ docker-compose up -d
 #### No Traces Appearing
 
 1. **Check environment variables**:
+
    ```bash
    echo $PHOENIX_COLLECTOR_ENDPOINT
    ```
 
 2. **Verify instrumentation**:
+
    ```python
    import phoenix as px
    print(px.get_tracer())
    ```
 
 3. **Check network connectivity**:
+
    ```bash
    curl http://localhost:6006/health
    ```
@@ -571,16 +592,16 @@ from phoenix.trace import trace, set_attributes
 def retrieve_documents(self, query: str):
     with trace("embedding_generation"):
         embedding = self.embedding_service.generate_embedding(query)
-    
+
     with trace("vector_search"):
         results = self.qdrant_service.search(embedding)
-    
+
     set_attributes({
         "query_length": len(query),
         "results_count": len(results),
         "search_time": time.time() - start_time
     })
-    
+
     return results
 ```
 
@@ -618,7 +639,7 @@ El sistema implementa gestión automática de sesiones para agrupar todos los sp
 
 ### Estructura de Sesión
 
-```
+```text
 execution_session (SERVER) 🔵 [SESIÓN RAÍZ]
 ├── session.id: "550e8400-e29b-41d4-a716-446655440000"
 ├── session.start_time: "2024-01-15T10:30:00.123456"
@@ -642,11 +663,13 @@ execution_session (SERVER) 🔵 [SESIÓN RAÍZ]
 ### Usando Sesiones en Phoenix
 
 **Filtrar por Sesión:**
-```
+
+```text
 session.id = "550e8400-e29b-41d4-a716-446655440000"
 ```
 
 **Ver Duración de Sesión:**
+
 - El span raíz `execution_session` muestra el tiempo total de ejecución
 - Comparar duraciones entre diferentes ejecuciones
 
@@ -657,22 +680,30 @@ El sistema usa Span Kinds de OpenTelemetry para mejor visualización y categoriz
 ### Tipos de Span Kind
 
 #### 🔵 **SpanKind.SERVER**
+
 **Propósito**: Operaciones principales que coordinan otras operaciones
+
 - `main_process` - Proceso principal de la aplicación
 - `process_law_local` - Procesamiento local completo
 - `process_law_gcs` - Procesamiento GCS completo
 
 #### 🟢 **SpanKind.CLIENT**
+
 **Propósito**: Operaciones que realizan llamadas externas
+
 - `download_law_page` - Descarga desde URL externa
 
 #### 🟡 **SpanKind.PRODUCER**
+
 **Propósito**: Operaciones que envían datos a sistemas externos
+
 - `save_parsed_json_gcs` - Guardar en Google Cloud Storage
 - `upload_file_to_gcs` - Subir archivos a GCS
 
 #### ⚪ **SpanKind.INTERNAL**
+
 **Propósito**: Operaciones de procesamiento interno de datos
+
 - `extract_metadata` - Extraer metadatos de la ley
 - `extract_articles` - Segmentar artículos
 - `parse_law_text` - Procesar texto completo
@@ -689,7 +720,7 @@ El sistema usa Span Kinds de OpenTelemetry para mejor visualización y categoriz
 
 ### Jerarquía de Spans
 
-```
+```text
 main_process (SERVER) 🔵
 ├── process_law_local/process_law_gcs (SERVER) 🔵
     ├── download_law_page (CLIENT) 🟢
@@ -705,21 +736,25 @@ main_process (SERVER) 🔵
 ### Atributos por Tipo de Span
 
 **Spans CLIENT:**
+
 - `url` - URL de llamada externa
 - `output_path` - Ruta de salida local
 
 **Spans PRODUCER:**
+
 - `bucket_name` - Nombre del bucket de GCS
 - `filename` - Nombre del archivo
 - `articles_count` - Número de artículos procesados
 
 **Spans INTERNAL:**
+
 - `lines_count` - Número de líneas procesadas
 - `text_length` - Longitud del texto
 - `html_path` - Ruta del archivo HTML
 - `articles_count` - Número de artículos extraídos
 
 **Spans SERVER:**
+
 - `mode` - Modo de operación (local/gcs)
 - `url` - URL de la ley
 - `bucket_name` - Nombre del bucket (solo modo GCS)
@@ -733,6 +768,7 @@ main_process (SERVER) 🔵
 ### 1. Análisis de Trazas
 
 Phoenix proporciona trazas detalladas mostrando:
+
 - Flujo de solicitudes a través del pipeline RAG
 - Tiempo gastado en cada componente
 - Uso de tokens y costos
@@ -741,6 +777,7 @@ Phoenix proporciona trazas detalladas mostrando:
 ### 2. Métricas de Rendimiento
 
 Rastrea indicadores clave de rendimiento:
+
 - **Tiempo de Respuesta**: Tiempo de procesamiento de solicitudes de extremo a extremo
 - **Uso de Tokens**: Tokens consumidos por solicitud
 - **Throughput**: Solicitudes por minuto
@@ -749,6 +786,7 @@ Rastrea indicadores clave de rendimiento:
 ### 3. Monitoreo de LLM
 
 Monitorea proveedores de LLM:
+
 - **OpenAI**: Llamadas API, uso de tokens, costos
 - **Google Gemini**: Llamadas API, uso de tokens, costos
 - **Rendimiento del Modelo**: Calidad y consistencia de respuestas
@@ -756,6 +794,7 @@ Monitorea proveedores de LLM:
 ### 4. Métricas de Evaluación
 
 Rastrea la calidad del sistema RAG:
+
 - **Precisión de Recuperación**: Relevancia de documentos recuperados
 - **Calidad de Generación**: Precisión y coherencia de respuestas
 - **Efectividad de Reranking**: Impacto del reranking en resultados
@@ -800,17 +839,20 @@ docker-compose up -d
 #### No Aparecen Trazas
 
 1. **Verificar variables de entorno**:
+
    ```bash
    echo $PHOENIX_COLLECTOR_ENDPOINT
    ```
 
 2. **Verificar instrumentación**:
+
    ```python
    import phoenix as px
    print(px.get_tracer())
    ```
 
 3. **Verificar conectividad de red**:
+
    ```bash
    curl http://localhost:6006/health
    ```

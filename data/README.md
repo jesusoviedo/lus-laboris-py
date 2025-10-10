@@ -31,14 +31,19 @@ This folder contains all data used in the project, organized into three main sub
 ## Data Processing
 
 ### Manual Process
+
 For a detailed step-by-step guide on how the data is downloaded and processed, see:
+
 - **[Notebook: Extract Law Text](../notebooks/01_extract_law_text.ipynb)** - Interactive notebook showing the complete data extraction and processing pipeline
 
 ### Automated Process
+
 For automated data processing, use the provided Python script:
+
 - **[Script: extract_law_text.py](../src/processing/extract_law_text.py)** - Automated script that downloads and processes the law text
 
 ### Usage
+
 ```bash
 # Run the automated processing script
 python src/processing/extract_law_text.py
@@ -47,6 +52,7 @@ python src/processing/extract_law_text.py
 ## Data Organization
 
 Keep data organized for reproducibility and collaboration. The processing pipeline ensures:
+
 - Raw data preservation for audit trails
 - Consistent data structure across processed files
 - Clear separation between source and processed data
@@ -75,14 +81,19 @@ Esta carpeta contiene todos los datos utilizados en el proyecto, organizados en 
 ## Procesamiento de Datos
 
 ### Proceso Manual
+
 Para una guía detallada paso a paso sobre cómo se descargan y procesan los datos, consulta:
+
 - **[Notebook: Extract Law Text](../notebooks/01_extract_law_text.ipynb)** - Notebook interactivo que muestra el pipeline completo de extracción y procesamiento de datos
 
 ### Proceso Automatizado
+
 Para el procesamiento automatizado de datos, usa el script de Python proporcionado:
+
 - **[Script: extract_law_text.py](../src/processing/extract_law_text.py)** - Script automatizado que descarga y procesa el texto de la ley
 
 ### Uso
+
 ```bash
 # Ejecutar el script de procesamiento automatizado
 python src/processing/extract_law_text.py
@@ -91,6 +102,7 @@ python src/processing/extract_law_text.py
 ## Organización de Datos
 
 Mantén los datos organizados para facilitar la reproducibilidad y la colaboración. El pipeline de procesamiento asegura:
+
 - Preservación de datos crudos para auditorías
 - Estructura de datos consistente en archivos procesados
 - Separación clara entre datos fuente y procesados

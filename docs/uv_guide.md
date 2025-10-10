@@ -14,6 +14,7 @@ UV is a fast Python package installer and resolver, written in Rust. It's design
 ## Installation
 
 ### Install UV
+
 ```bash
 # Install UV using the official installer
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -26,6 +27,7 @@ pipx install uv
 ```
 
 ### Verify Installation
+
 ```bash
 uv --version
 ```
@@ -33,6 +35,7 @@ uv --version
 ## Basic Usage
 
 ### Project Initialization
+
 ```bash
 # Create a new Python project
 uv init my-project
@@ -43,6 +46,7 @@ uv init
 ```
 
 ### Dependency Management
+
 ```bash
 # Add a dependency
 uv add requests
@@ -61,6 +65,7 @@ uv remove requests
 ```
 
 ### Running Commands
+
 ```bash
 # Run a Python script
 uv run script.py
@@ -76,6 +81,7 @@ uv run jupyter notebook
 ```
 
 ### Virtual Environment Management
+
 ```bash
 # Create virtual environment
 uv venv
@@ -89,6 +95,7 @@ deactivate
 ```
 
 ### Sync Dependencies
+
 ```bash
 # Install all dependencies from pyproject.toml
 uv sync
@@ -103,6 +110,7 @@ uv sync --frozen
 ## Project Configuration
 
 ### pyproject.toml Structure
+
 ```toml
 [project]
 name = "my-project"
@@ -127,11 +135,13 @@ build-backend = "hatchling.build"
 ```
 
 ### Lock File
+
 UV automatically generates a `uv.lock` file that pins exact versions of all dependencies for reproducible builds.
 
 ## Advanced Usage
 
 ### Workspace Management
+
 ```bash
 # Create a workspace with multiple packages
 uv init --workspace
@@ -139,6 +149,7 @@ uv add --package my-package requests
 ```
 
 ### Caching
+
 ```bash
 # Clear cache
 uv cache clean
@@ -148,6 +159,7 @@ uv cache dir
 ```
 
 ### Python Version Management
+
 ```bash
 # Install specific Python version
 uv python install 3.11
@@ -162,6 +174,7 @@ uv python pin 3.11
 ## Migration from pip
 
 ### From requirements.txt
+
 ```bash
 # Convert requirements.txt to pyproject.toml
 uv init
@@ -169,6 +182,7 @@ uv add -r requirements.txt
 ```
 
 ### From pip-tools
+
 ```bash
 # Replace pip-compile
 uv add --dev package-name
@@ -188,6 +202,7 @@ uv sync
 ## Troubleshooting
 
 ### Common Issues
+
 ```bash
 # Clear cache if having issues
 uv cache clean
@@ -201,6 +216,7 @@ uv tree
 ```
 
 ### Performance Tips
+
 - UV is much faster than pip, but you can still use `--no-cache` if needed
 - Use `uv sync --frozen` in CI/CD for faster builds
 - Consider using `uv add --no-sync` for multiple additions
@@ -214,6 +230,7 @@ UV es un instalador y resolvedor de paquetes Python rápido, escrito en Rust. Es
 ## Instalación
 
 ### Instalar UV
+
 ```bash
 # Instalar UV usando el instalador oficial
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -226,6 +243,7 @@ pipx install uv
 ```
 
 ### Verificar Instalación
+
 ```bash
 uv --version
 ```
@@ -233,6 +251,7 @@ uv --version
 ## Uso Básico
 
 ### Inicialización de Proyecto
+
 ```bash
 # Crear un nuevo proyecto Python
 uv init mi-proyecto
@@ -243,6 +262,7 @@ uv init
 ```
 
 ### Gestión de Dependencias
+
 ```bash
 # Agregar una dependencia
 uv add requests
@@ -261,6 +281,7 @@ uv remove requests
 ```
 
 ### Ejecutar Comandos
+
 ```bash
 # Ejecutar un script Python
 uv run script.py
@@ -276,6 +297,7 @@ uv run jupyter notebook
 ```
 
 ### Gestión de Entorno Virtual
+
 ```bash
 # Crear entorno virtual
 uv venv
@@ -289,6 +311,7 @@ deactivate
 ```
 
 ### Sincronizar Dependencias
+
 ```bash
 # Instalar todas las dependencias desde pyproject.toml
 uv sync
@@ -303,6 +326,7 @@ uv sync --frozen
 ## Configuración del Proyecto
 
 ### Estructura de pyproject.toml
+
 ```toml
 [project]
 name = "mi-proyecto"
@@ -327,11 +351,13 @@ build-backend = "hatchling.build"
 ```
 
 ### Archivo Lock
+
 UV genera automáticamente un archivo `uv.lock` que fija las versiones exactas de todas las dependencias para builds reproducibles.
 
 ## Uso Avanzado
 
 ### Gestión de Workspace
+
 ```bash
 # Crear un workspace con múltiples paquetes
 uv init --workspace
@@ -339,6 +365,7 @@ uv add --package mi-paquete requests
 ```
 
 ### Caché
+
 ```bash
 # Limpiar caché
 uv cache clean
@@ -348,6 +375,7 @@ uv cache dir
 ```
 
 ### Gestión de Versiones de Python
+
 ```bash
 # Instalar versión específica de Python
 uv python install 3.11
@@ -362,6 +390,7 @@ uv python pin 3.11
 ## Migración desde pip
 
 ### Desde requirements.txt
+
 ```bash
 # Convertir requirements.txt a pyproject.toml
 uv init
@@ -369,6 +398,7 @@ uv add -r requirements.txt
 ```
 
 ### Desde pip-tools
+
 ```bash
 # Reemplazar pip-compile
 uv add --dev nombre-paquete
@@ -388,6 +418,7 @@ uv sync
 ## Solución de Problemas
 
 ### Problemas Comunes
+
 ```bash
 # Limpiar caché si hay problemas
 uv cache clean
@@ -401,6 +432,7 @@ uv tree
 ```
 
 ### Consejos de Rendimiento
+
 - UV es mucho más rápido que pip, pero puedes usar `--no-cache` si es necesario
 - Usar `uv sync --frozen` en CI/CD para builds más rápidos
 - Considerar usar `uv add --no-sync` para múltiples adiciones

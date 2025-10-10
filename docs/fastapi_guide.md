@@ -114,7 +114,7 @@ def read_item(item_id: int):
 
 A well-organized FastAPI project typically follows this structure:
 
-```
+```text
 src/api/
 ├── main.py              # FastAPI application entry point
 ├── models/              # Pydantic models for request/response
@@ -207,7 +207,7 @@ class Settings(BaseSettings):
     debug: bool = False
     database_url: str = "sqlite:///./app.db"
     secret_key: str = "your-secret-key"
-    
+
     class Config:
         env_file = ".env"
 
@@ -413,7 +413,7 @@ def read_item(item_id: int):
 
 Un proyecto FastAPI bien organizado típicamente sigue esta estructura:
 
-```
+```text
 src/api/
 ├── main.py              # Punto de entrada de la aplicación FastAPI
 ├── models/              # Modelos Pydantic para request/response
@@ -506,7 +506,7 @@ class Settings(BaseSettings):
     debug: bool = False
     database_url: str = "sqlite:///./app.db"
     secret_key: str = "tu-clave-secreta"
-    
+
     class Config:
         env_file = ".env"
 

@@ -14,6 +14,7 @@ GitHub Actions is a CI/CD platform that allows you to automate workflows directl
 ## Getting Started
 
 ### Workflow Structure
+
 ```yaml
 # .github/workflows/example.yml
 name: Example Workflow
@@ -27,19 +28,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-    
+
     - name: Run tests
       run: |
         pytest
@@ -48,22 +49,23 @@ jobs:
 ## Triggers and Events
 
 ### Common Triggers
+
 ```yaml
 on:
   # Push to specific branches
   push:
     branches: [ main, develop ]
     paths: [ 'src/**', 'tests/**' ]
-  
+
   # Pull requests
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
-  
+
   # Scheduled runs
   schedule:
     - cron: '0 2 * * 1'  # Every Monday at 2 AM
-  
+
   # Manual trigger
   workflow_dispatch:
     inputs:
@@ -75,13 +77,14 @@ on:
         options:
         - staging
         - production
-  
+
   # Release creation
   release:
     types: [ published ]
 ```
 
 ### Path Filters
+
 ```yaml
 on:
   push:
@@ -99,6 +102,7 @@ on:
 ## Jobs and Steps
 
 ### Basic Job Structure
+
 ```yaml
 jobs:
   test:
@@ -106,25 +110,25 @@ jobs:
     strategy:
       matrix:
         python-version: [3.9, 3.10, 3.11]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+
     - name: Run tests
       run: |
         pytest --cov=src tests/
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -132,6 +136,7 @@ jobs:
 ```
 
 ### Job Dependencies
+
 ```yaml
 jobs:
   test:
@@ -139,14 +144,14 @@ jobs:
     steps:
       - name: Run tests
         run: pytest
-  
+
   build:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Build application
         run: docker build -t myapp .
-  
+
   deploy:
     needs: [test, build]
     runs-on: ubuntu-latest
@@ -159,6 +164,7 @@ jobs:
 ## Common Actions
 
 ### Checkout Code
+
 ```yaml
 - name: Checkout code
   uses: actions/checkout@v3
@@ -168,6 +174,7 @@ jobs:
 ```
 
 ### Setup Python
+
 ```yaml
 - name: Setup Python
   uses: actions/setup-python@v4
@@ -177,6 +184,7 @@ jobs:
 ```
 
 ### Setup Node.js
+
 ```yaml
 - name: Setup Node.js
   uses: actions/setup-node@v3
@@ -186,6 +194,7 @@ jobs:
 ```
 
 ### Docker Actions
+
 ```yaml
 - name: Build Docker image
   uses: docker/build-push-action@v4
@@ -198,6 +207,7 @@ jobs:
 ```
 
 ### AWS Actions
+
 ```yaml
 - name: Configure AWS credentials
   uses: aws-actions/configure-aws-credentials@v2
@@ -214,6 +224,7 @@ jobs:
 ## Environment Variables and Secrets
 
 ### Environment Variables
+
 ```yaml
 env:
   NODE_ENV: production
@@ -232,6 +243,7 @@ jobs:
 ```
 
 ### Secrets Management
+
 ```yaml
 steps:
   - name: Use secret
@@ -244,6 +256,7 @@ steps:
 ## Matrix Strategy
 
 ### Python Matrix
+
 ```yaml
 strategy:
   matrix:
@@ -259,6 +272,7 @@ strategy:
 ```
 
 ### Node.js Matrix
+
 ```yaml
 strategy:
   matrix:
@@ -271,26 +285,28 @@ strategy:
 ## Conditional Execution
 
 ### Step Conditions
+
 ```yaml
 steps:
   - name: Run on main branch
     if: github.ref == 'refs/heads/main'
     run: echo "Running on main"
-  
+
   - name: Run on pull request
     if: github.event_name == 'pull_request'
     run: echo "Running on PR"
-  
+
   - name: Run if previous step succeeded
     if: success()
     run: echo "Previous step succeeded"
-  
+
   - name: Run if previous step failed
     if: failure()
     run: echo "Previous step failed"
 ```
 
 ### Job Conditions
+
 ```yaml
 jobs:
   deploy:
@@ -304,6 +320,7 @@ jobs:
 ## Caching
 
 ### Python Caching
+
 ```yaml
 - name: Cache pip dependencies
   uses: actions/cache@v3
@@ -315,6 +332,7 @@ jobs:
 ```
 
 ### Node.js Caching
+
 ```yaml
 - name: Cache node modules
   uses: actions/cache@v3
@@ -328,6 +346,7 @@ jobs:
 ## Artifacts and Uploads
 
 ### Upload Artifacts
+
 ```yaml
 - name: Build application
   run: |
@@ -343,6 +362,7 @@ jobs:
 ```
 
 ### Download Artifacts
+
 ```yaml
 - name: Download build artifacts
   uses: actions/download-artifact@v3
@@ -354,6 +374,7 @@ jobs:
 ## Notifications
 
 ### Slack Notification
+
 ```yaml
 - name: Notify Slack
   uses: 8398a7/action-slack@v3
@@ -365,6 +386,7 @@ jobs:
 ```
 
 ### Email Notification
+
 ```yaml
 - name: Send email
   uses: dawidd6/action-send-mail@v3
@@ -382,6 +404,7 @@ jobs:
 ## Best Practices
 
 ### Workflow Organization
+
 ```yaml
 # Separate workflows for different purposes
 # .github/workflows/ci.yml - Continuous Integration
@@ -390,6 +413,7 @@ jobs:
 ```
 
 ### Security Best Practices
+
 ```yaml
 # Use specific action versions
 - uses: actions/checkout@v3  # Not @v1
@@ -406,6 +430,7 @@ permissions:
 ```
 
 ### Performance Optimization
+
 ```yaml
 # Use matrix for parallel jobs
 strategy:
@@ -425,6 +450,7 @@ runs-on: ubuntu-latest  # Fastest for most cases
 ## Troubleshooting
 
 ### Common Issues
+
 ```yaml
 # Debug workflow
 - name: Debug information
@@ -436,6 +462,7 @@ runs-on: ubuntu-latest  # Fastest for most cases
 ```
 
 ### Workflow Debugging
+
 ```yaml
 # Enable debug logging
 env:
@@ -452,6 +479,7 @@ GitHub Actions es una plataforma CI/CD que te permite automatizar flujos de trab
 ## Comenzar
 
 ### Estructura del Workflow
+
 ```yaml
 # .github/workflows/ejemplo.yml
 name: Ejemplo de Workflow
@@ -465,19 +493,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Configurar Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Instalar dependencias
       run: |
         pip install -r requirements.txt
-    
+
     - name: Ejecutar pruebas
       run: |
         pytest
@@ -486,22 +514,23 @@ jobs:
 ## Triggers y Eventos
 
 ### Triggers Comunes
+
 ```yaml
 on:
   # Push a ramas específicas
   push:
     branches: [ main, develop ]
     paths: [ 'src/**', 'tests/**' ]
-  
+
   # Pull requests
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
-  
+
   # Ejecuciones programadas
   schedule:
     - cron: '0 2 * * 1'  # Cada lunes a las 2 AM
-  
+
   # Trigger manual
   workflow_dispatch:
     inputs:
@@ -513,13 +542,14 @@ on:
         options:
         - staging
         - production
-  
+
   # Creación de release
   release:
     types: [ published ]
 ```
 
 ### Filtros de Ruta
+
 ```yaml
 on:
   push:
@@ -537,6 +567,7 @@ on:
 ## Jobs y Steps
 
 ### Estructura Básica de Job
+
 ```yaml
 jobs:
   test:
@@ -544,25 +575,25 @@ jobs:
     strategy:
       matrix:
         python-version: [3.9, 3.10, 3.11]
-    
+
     steps:
     - name: Checkout código
       uses: actions/checkout@v3
-    
+
     - name: Configurar Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Instalar dependencias
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+
     - name: Ejecutar pruebas
       run: |
         pytest --cov=src tests/
-    
+
     - name: Subir cobertura
       uses: codecov/codecov-action@v3
       with:
@@ -570,6 +601,7 @@ jobs:
 ```
 
 ### Dependencias de Jobs
+
 ```yaml
 jobs:
   test:
@@ -577,14 +609,14 @@ jobs:
     steps:
       - name: Ejecutar pruebas
         run: pytest
-  
+
   build:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Construir aplicación
         run: docker build -t myapp .
-  
+
   deploy:
     needs: [test, build]
     runs-on: ubuntu-latest
@@ -597,6 +629,7 @@ jobs:
 ## Acciones Comunes
 
 ### Checkout de Código
+
 ```yaml
 - name: Checkout código
   uses: actions/checkout@v3
@@ -606,6 +639,7 @@ jobs:
 ```
 
 ### Configurar Python
+
 ```yaml
 - name: Configurar Python
   uses: actions/setup-python@v4
@@ -615,6 +649,7 @@ jobs:
 ```
 
 ### Configurar Node.js
+
 ```yaml
 - name: Configurar Node.js
   uses: actions/setup-node@v3
@@ -624,6 +659,7 @@ jobs:
 ```
 
 ### Acciones de Docker
+
 ```yaml
 - name: Construir imagen Docker
   uses: docker/build-push-action@v4
@@ -636,6 +672,7 @@ jobs:
 ```
 
 ### Acciones de AWS
+
 ```yaml
 - name: Configurar credenciales AWS
   uses: aws-actions/configure-aws-credentials@v2
@@ -652,6 +689,7 @@ jobs:
 ## Variables de Entorno y Secretos
 
 ### Variables de Entorno
+
 ```yaml
 env:
   NODE_ENV: production
@@ -670,6 +708,7 @@ jobs:
 ```
 
 ### Gestión de Secretos
+
 ```yaml
 steps:
   - name: Usar secreto
@@ -682,6 +721,7 @@ steps:
 ## Estrategia Matrix
 
 ### Matrix de Python
+
 ```yaml
 strategy:
   matrix:
@@ -697,6 +737,7 @@ strategy:
 ```
 
 ### Matrix de Node.js
+
 ```yaml
 strategy:
   matrix:
@@ -709,26 +750,28 @@ strategy:
 ## Ejecución Condicional
 
 ### Condiciones de Steps
+
 ```yaml
 steps:
   - name: Ejecutar en rama main
     if: github.ref == 'refs/heads/main'
     run: echo "Ejecutando en main"
-  
+
   - name: Ejecutar en pull request
     if: github.event_name == 'pull_request'
     run: echo "Ejecutando en PR"
-  
+
   - name: Ejecutar si step anterior tuvo éxito
     if: success()
     run: echo "Step anterior tuvo éxito"
-  
+
   - name: Ejecutar si step anterior falló
     if: failure()
     run: echo "Step anterior falló"
 ```
 
 ### Condiciones de Jobs
+
 ```yaml
 jobs:
   deploy:
@@ -742,6 +785,7 @@ jobs:
 ## Caché
 
 ### Caché de Python
+
 ```yaml
 - name: Cachear dependencias pip
   uses: actions/cache@v3
@@ -753,6 +797,7 @@ jobs:
 ```
 
 ### Caché de Node.js
+
 ```yaml
 - name: Cachear node modules
   uses: actions/cache@v3
@@ -766,6 +811,7 @@ jobs:
 ## Artifacts y Subidas
 
 ### Subir Artifacts
+
 ```yaml
 - name: Construir aplicación
   run: |
@@ -781,6 +827,7 @@ jobs:
 ```
 
 ### Descargar Artifacts
+
 ```yaml
 - name: Descargar artifacts de build
   uses: actions/download-artifact@v3
@@ -792,6 +839,7 @@ jobs:
 ## Notificaciones
 
 ### Notificación de Slack
+
 ```yaml
 - name: Notificar Slack
   uses: 8398a7/action-slack@v3
@@ -803,6 +851,7 @@ jobs:
 ```
 
 ### Notificación por Email
+
 ```yaml
 - name: Enviar email
   uses: dawidd6/action-send-mail@v3
@@ -820,6 +869,7 @@ jobs:
 ## Mejores Prácticas
 
 ### Organización de Workflows
+
 ```yaml
 # Separar workflows para diferentes propósitos
 # .github/workflows/ci.yml - Integración Continua
@@ -828,6 +878,7 @@ jobs:
 ```
 
 ### Mejores Prácticas de Seguridad
+
 ```yaml
 # Usar versiones específicas de acciones
 - uses: actions/checkout@v3  # No @v1
@@ -844,6 +895,7 @@ permissions:
 ```
 
 ### Optimización de Rendimiento
+
 ```yaml
 # Usar matrix para jobs paralelos
 strategy:
@@ -863,6 +915,7 @@ runs-on: ubuntu-latest  # Más rápido para la mayoría de casos
 ## Solución de Problemas
 
 ### Problemas Comunes
+
 ```yaml
 # Debuggear workflow
 - name: Información de debug
@@ -874,6 +927,7 @@ runs-on: ubuntu-latest  # Más rápido para la mayoría de casos
 ```
 
 ### Debugging de Workflow
+
 ```yaml
 # Habilitar logging de debug
 env:

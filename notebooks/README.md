@@ -27,9 +27,11 @@ This folder contains Jupyter notebooks used for:
 ### Detailed Notebook Descriptions
 
 #### 01_extract_law_text.ipynb
+
 **Goal**: Download and process Paraguay's Labor Code text for further analysis and indexing.
 
 **Key Features**:
+
 - Downloads HTML content from official government website
 - Extracts and cleans legal text using BeautifulSoup
 - Segments text into structured articles (books, titles, chapters, articles)
@@ -39,9 +41,11 @@ This folder contains Jupyter notebooks used for:
 **Output**: Structured JSON file with 410 legal articles organized by hierarchy
 
 #### 02_vectorstore_embedding_exploration.ipynb
+
 **Goal**: Evaluate different embedding models to determine the most suitable one for RAG queries about Paraguayan labor law.
 
 **Key Features**:
+
 - Tests 11 different embedding models (multilingual and Spanish-optimized)
 - Compares performance metrics: loading time, embedding speed, search quality
 - Evaluates search quality using cosine similarity on legal queries
@@ -52,9 +56,11 @@ This folder contains Jupyter notebooks used for:
 **Output**: Performance analysis, model recommendations, and integration examples
 
 #### 03_rag_pipeline_evaluation.ipynb
+
 **Goal**: Comprehensive evaluation of the complete RAG pipeline at multiple levels.
 
 **Key Features**:
+
 - **Retrieval Level**: Evaluates embedding models with metrics like Recall@k, Precision@k, nDCG@k
 - **Re-ranking Level**: Tests cross-encoder models to improve document relevance
 - **Generation Level**: Evaluates LLM responses using LLM-as-a-judge methodology
@@ -67,6 +73,7 @@ This folder contains Jupyter notebooks used for:
 ### Usage
 
 You can run the notebooks with:
+
 - See [UV Guide](../docs/uv_guide.md) for detailed commands
 - Basic command: `uv run jupyter notebook`
 
@@ -102,9 +109,11 @@ Esta carpeta contiene notebooks de Jupyter utilizados para:
 ### Descripciones Detalladas de Notebooks
 
 #### 01_extract_law_text.ipynb
+
 **Objetivo**: Descargar y procesar el texto del Código Laboral de Paraguay para análisis posterior e indexación.
 
 **Características Principales**:
+
 - Descarga contenido HTML desde el sitio oficial del gobierno
 - Extrae y limpia texto legal usando BeautifulSoup
 - Segmenta texto en artículos estructurados (libros, títulos, capítulos, artículos)
@@ -114,9 +123,11 @@ Esta carpeta contiene notebooks de Jupyter utilizados para:
 **Salida**: Archivo JSON estructurado con 410 artículos legales organizados jerárquicamente
 
 #### 02_vectorstore_embedding_exploration.ipynb
+
 **Objetivo**: Evaluar diferentes modelos de embedding para determinar el más adecuado para consultas RAG sobre ley laboral paraguaya.
 
 **Características Principales**:
+
 - Prueba 11 modelos de embedding diferentes (multilingües y optimizados para español)
 - Compara métricas de rendimiento: tiempo de carga, velocidad de embedding, calidad de búsqueda
 - Evalúa calidad de búsqueda usando similitud coseno en consultas legales
@@ -127,9 +138,11 @@ Esta carpeta contiene notebooks de Jupyter utilizados para:
 **Salida**: Análisis de rendimiento, recomendaciones de modelos y ejemplos de integración
 
 #### 03_rag_pipeline_evaluation.ipynb
+
 **Objetivo**: Evaluación integral del pipeline RAG completo en múltiples niveles.
 
 **Características Principales**:
+
 - **Nivel de Recuperación**: Evalúa modelos de embedding con métricas como Recall@k, Precision@k, nDCG@k
 - **Nivel de Re-ranking**: Prueba modelos cross-encoder para mejorar relevancia de documentos
 - **Nivel de Generación**: Evalúa respuestas LLM usando metodología LLM-as-a-judge
@@ -142,6 +155,7 @@ Esta carpeta contiene notebooks de Jupyter utilizados para:
 ### Uso
 
 Puedes ejecutar los notebooks con:
+
 - Ver [Guía de UV](../docs/uv_guide.md) para comandos detallados
 - Comando básico: `uv run jupyter notebook`
 

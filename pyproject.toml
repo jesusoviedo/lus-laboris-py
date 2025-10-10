@@ -1,0 +1,204 @@
+# Root pyproject.toml for project-wide configuration
+[project]
+name = "lus-laboris-py"
+version = "0.1.0"
+description = "RAG system for Paraguay's Labor Code"
+requires-python = ">=3.13"
+
+# Ruff configuration (linting and formatting)
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+indent-width = 4
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "*.egg-info",
+    ".terraform",
+    "terraform/.terraform",
+]
+
+[tool.ruff.lint]
+# Enable recommended rules
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "T10",    # flake8-debugger
+    "EM",     # flake8-errmsg
+    "ISC",    # flake8-implicit-str-concat
+    "ICN",    # flake8-import-conventions
+    "G",      # flake8-logging-format
+    "PIE",    # flake8-pie
+    "T20",    # flake8-print
+    "PT",     # flake8-pytest-style
+    "Q",      # flake8-quotes
+    "RSE",    # flake8-raise
+    "RET",    # flake8-return
+    "SIM",    # flake8-simplify
+    "TID",    # flake8-tidy-imports
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+    "ERA",    # eradicate (commented-out code)
+    "PL",     # pylint
+    "TRY",    # tryceratops
+    "RUF",    # ruff-specific rules
+]
+
+# Ignore specific rules
+ignore = [
+    "E501",    # Line too long (handled by formatter)
+    "PLR0913", # Too many arguments
+    "TRY003",  # Avoid specifying long messages outside exception class
+    "EM101",   # Exception must not use string literal
+    "EM102",   # Exception must not use f-string literal
+    "G004",    # Logging statement uses f-string
+    "TRY300",  # Consider moving to else block
+    "RUF013",  # Implicit Optional (allow str = None)
+    "PLW0603", # Global statement usage
+    "PTH",     # Use pathlib instead of os.path
+    "RUF001",  # Ambiguous unicode characters
+    "PLR0911", # Too many return statements
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value comparison
+    "RET504",  # Unnecessary assignment before return
+    "F841",    # Unused local variable
+    "W293",    # Whitespace on blank line
+    "DTZ005",  # datetime without timezone
+    "C414",    # Unnecessary list() in sorted()
+    "B028",    # No stacklevel in warnings.warn
+    "ERA001",  # Commented-out code
+    "TID252",  # Prefer absolute imports (keeping relative imports)
+    "B904",    # raise from err - difficult to autofix correctly
+    "TRY400",  # Use logger.exception instead of logger.error in except blocks
+    "TRY301",  # Abstract raise to inner function - requires significant refactoring
+    "RUF012",  # Mutable class attributes (Pydantic Config classes are fine)
+    "B008",    # Function calls in argument defaults (FastAPI Depends pattern is standard)
+    "ARG001",  # Unused function arguments (FastAPI dependencies, rate limiting)
+    "ARG002",  # Unused method arguments (deprecated methods, interface consistency)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Unused imports in __init__.py
+"tests/**/*.py" = ["ARG", "PLR2004", "S101", "T201"]  # Test-specific ignores
+"tests/conftest.py" = ["PLC0415"]  # Test fixtures with conditional imports
+"utils/generate_jwt_token.py" = ["T201"]  # Allow print in CLI script
+"utils/gcp_utils.py" = ["T201", "PLC0415"]  # CLI script with lazy imports
+"src/processing/extract_law_text.py" = ["T201", "PLC0415"]  # Script with print() for output, lazy imports
+"src/lus_laboris_api/api/endpoints/vectorstore.py" = ["PLC0415"]  # Lazy import for timezone
+"notebooks/**/*.ipynb" = ["F821", "F811", "E402", "B007", "PLC0415", "ARG", "T201", "PLR0912", "SIM102", "DTZ006", "UP038"]  # Notebooks are exploratory
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["lus_laboris_api", "processing"]
+
+# Mypy configuration (type checking)
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = false  # Too strict - many libraries return Any
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false  # Can be noisy
+warn_no_return = false  # Too strict
+warn_unreachable = false  # False positives in error handling
+strict_equality = true
+ignore_missing_imports = true
+
+# Disable specific error codes that are too strict
+disable_error_code = [
+    "no-any-return",  # Too strict - libraries often return Any
+    "union-attr",     # False positives with error handling
+    "operator",       # False positives with type narrowing
+    "assignment",     # Too strict with complex types
+    "var-annotated",  # Allow type inference
+    "arg-type",       # Too strict with generic types
+    "dict-item",      # Too strict with mixed-type dicts
+    "attr-defined",   # False positives
+    "return",         # False positives with early returns
+    "unreachable",    # False positives in error handling
+]
+
+# Bandit configuration (security)
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "venv"]
+skips = [
+    "B101",  # assert_used
+    "B601",  # paramiko_calls
+    "B104",  # hardcoded_bind_all_interfaces (safe in containerized apps)
+    "B110",  # try_except_pass (intentional in some utility scripts)
+    "B113",  # request_without_timeout (low risk in batch processing scripts)
+]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--showlocals",
+    "--tb=short",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/.venv/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+precision = 2
+show_missing = true

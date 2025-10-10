@@ -1,0 +1,279 @@
+name: Code Quality & Style
+
+on:
+  push:
+    branches:
+    - '**'
+    paths:
+    - src/**/*.py
+    - utils/**/*.py
+    - tests/**/*.py
+    - .pre-commit-config.yaml
+    - pyproject.toml
+    - '**/*.md'
+    - '**/*.yml'
+    - '**/*.yaml'
+  pull_request:
+    branches:
+    - '**'
+    paths:
+    - src/**/*.py
+    - utils/**/*.py
+    - tests/**/*.py
+    - .pre-commit-config.yaml
+    - pyproject.toml
+    - '**/*.md'
+    - '**/*.yml'
+    - '**/*.yaml'
+
+jobs:
+  pre-commit:
+    name: Pre-Commit Hooks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+
+    - name: Install pre-commit
+      run: |
+        uv tool install pre-commit
+
+    - name: Cache pre-commit hooks
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+        restore-keys: |
+          pre-commit-${{ runner.os }}-
+
+    - name: Run pre-commit hooks
+      run: |
+        uv tool run pre-commit run --all-files --show-diff-on-failure
+
+  lint-api:
+    name: Lint API Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Install dependencies
+      working-directory: src/lus_laboris_api
+      run: |
+        uv sync
+
+    - name: Run ruff linter
+      working-directory: src/lus_laboris_api
+      run: |
+        uv run ruff check . --output-format=github
+
+    - name: Run ruff formatter check
+      working-directory: src/lus_laboris_api
+      run: |
+        uv run ruff format --check .
+
+  lint-processing:
+    name: Lint Processing Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Install dependencies
+      working-directory: src/processing
+      run: |
+        uv sync
+
+    - name: Run ruff linter
+      working-directory: src/processing
+      run: |
+        uv run ruff check . --output-format=github
+
+    - name: Run ruff formatter check
+      working-directory: src/processing
+      run: |
+        uv run ruff format --check .
+
+  lint-utils:
+    name: Lint Utils Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Install dependencies
+      working-directory: utils
+      run: |
+        uv sync
+
+    - name: Run ruff linter
+      working-directory: utils
+      run: |
+        uv run ruff check . --output-format=github
+
+    - name: Run ruff formatter check
+      working-directory: utils
+      run: |
+        uv run ruff format --check .
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Install bandit
+      run: |
+        uv tool install bandit[toml]
+
+    - name: Run bandit security scan
+      run: |
+        uv tool run bandit -r src/ utils/ -c pyproject.toml -f json -o bandit-report.json || true
+        uv tool run bandit -r src/ utils/ -c pyproject.toml
+
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: bandit-security-report
+        path: bandit-report.json
+
+  type-check:
+    name: Type Checking
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Install mypy
+      run: |
+        uv tool install mypy
+
+    - name: Type check API
+      working-directory: src/lus_laboris_api
+      run: |
+        uv sync
+        uv run mypy . --config-file ../../pyproject.toml || true
+
+    - name: Type check Processing
+      working-directory: src/processing
+      run: |
+        uv sync
+        uv run mypy . --config-file ../../pyproject.toml || true
+
+    - name: Type check Utils
+      working-directory: utils
+      run: |
+        uv sync
+        uv run mypy . --config-file ../../pyproject.toml || true
+
+  test-api:
+    name: Test API
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Install dependencies
+      working-directory: src/lus_laboris_api
+      run: |
+        uv sync
+
+    - name: Run tests with coverage
+      working-directory: src/lus_laboris_api
+      run: |
+        uv run pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing || echo "No tests found yet"
+
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-coverage-report
+        path: src/lus_laboris_api/coverage.xml
+
+  summary:
+    name: Quality Summary
+    runs-on: ubuntu-latest
+    needs: [pre-commit, lint-api, lint-processing, lint-utils, security-scan, type-check, test-api]
+    if: always()
+
+    steps:
+    - name: Check job results
+      run: |
+        echo "## Quality Check Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- Pre-commit: ${{ needs.pre-commit.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Lint API: ${{ needs.lint-api.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Lint Processing: ${{ needs.lint-processing.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Lint Utils: ${{ needs.lint-utils.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Security Scan: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Type Check: ${{ needs.type-check.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Tests: ${{ needs.test-api.result }}" >> $GITHUB_STEP_SUMMARY

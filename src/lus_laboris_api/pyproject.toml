@@ -1,7 +1,7 @@
 [project]
 name = "lus-laboris-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "FastAPI REST API for RAG-based legal document queries"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -30,3 +30,13 @@ dependencies = [
     "uvicorn>=0.35.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.28.0",
+    "ruff>=0.8.4",
+    "mypy>=1.14.0",
+    "bandit[toml]>=1.8.0",
+]
