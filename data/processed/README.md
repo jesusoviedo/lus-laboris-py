@@ -37,7 +37,7 @@ Esta carpeta almacena los datos procesados y limpios, listos para ser indexados,
 
 ## Procesamiento
 
-Para información sobre el procesamiento y uso de datos, consulta el [README principal de Datos](../README_ES.md).
+Para información sobre el procesamiento y uso de datos, consulta el [README principal de Datos](../README.md).
 
 ## Generación
 

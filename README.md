@@ -23,10 +23,10 @@
 
 [![Licencia MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-
-
-[![Infra Provision](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-terraform.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-terraform.yml)
-
+[![Docker Processing](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-processing-build-publish.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-processing-build-publish.yml)
+[![Docker API](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml)
+[![Terraform Apply](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml)
+[![Deploy Qdrant](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/deploy-qdrant.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/deploy-qdrant.yml)
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
@@ -140,7 +140,7 @@ bash start_api_dev.sh
 |-----------|---------------|
 | **API** | [FastAPI Documentation](src/lus_laboris_api/README.md) |
 | **Data Processing** | [Processing Pipeline](src/processing/README.md) |
-| **Vector Store** | [Qdrant Operations](src/vectorstore/README.md) |
+| **Vector Store** | [Qdrant Operations](services/vectordb/README.md) |
 | **Setup** | [GCP Project Setup](docs/setup_gcp_project.md) |
 | **Infrastructure** | [Terraform Guide](terraform/README.md) |
 | **Automation** | [GitHub Actions](.github/workflows/README.md) |
@@ -264,7 +264,7 @@ bash start_api_dev.sh
 |------------|---------------|
 | **API** | [Documentación FastAPI](src/lus_laboris_api/README.md) |
 | **Procesamiento de Datos** | [Pipeline de Procesamiento](src/processing/README.md) |
-| **Base de Datos Vectorial** | [Operaciones Qdrant](src/vectorstore/README.md) |
+| **Base de Datos Vectorial** | [Operaciones Qdrant](services/vectordb/README.md) |
 | **Configuración** | [Configuración de Proyecto GCP](docs/setup_gcp_project.md) |
 | **Infraestructura** | [Guía de Terraform](terraform/README.md) |
 | **Automatización** | [GitHub Actions](.github/workflows/README.md) |
