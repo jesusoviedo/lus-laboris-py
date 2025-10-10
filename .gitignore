@@ -227,3 +227,6 @@ keys/
 
 # Posts in markdown format
 /posts_md/
+
+# Production environment file
+.envprod

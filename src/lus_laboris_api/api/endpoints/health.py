@@ -19,7 +19,7 @@ from ..utils.cache import health_check_cache
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/health", tags=["health"])
+router = APIRouter(prefix="/api/health", tags=["Health"])
 
 # Store startup time for uptime calculation
 startup_time = time.time()

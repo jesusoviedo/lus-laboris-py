@@ -23,7 +23,7 @@ from ..config import settings
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/data", tags=["vectorstore"])
+router = APIRouter(prefix="/api/data", tags=["Vectorstore"])
 
 # Global dictionary to track background jobs
 background_jobs: Dict[str, Dict[str, Any]] = {}
