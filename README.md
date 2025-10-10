@@ -1,5 +1,10 @@
 <div align="center">
 
+<!-- Banner Principal -->
+<img src="docs/images/lus-laboris-banner.png" alt="Lus Laboris RAG - AI-Powered Legal Research System" width="100%"/>
+
+<br/>
+
 # 🚀 Proyecto Py Labor Law RAG (lus-laboris-py)
 
 <!-- CI/CD Status -->
