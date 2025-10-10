@@ -3,6 +3,7 @@ Servicio de monitoreo con Phoenix para tracking de LLM y métricas de calidad
 """
 import os
 import uuid
+import json
 import logging
 import time
 from typing import Dict, Any, Optional, List
@@ -19,6 +20,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.semconv.trace import SpanAttributes as OTelSpanAttributes
+from opentelemetry.semconv.resource import ResourceAttributes
 from openinference.instrumentation.openai import OpenAIInstrumentor
 from ..config import settings
 
@@ -164,6 +166,40 @@ class PhoenixMonitoringService:
         
         return session_data
     
+    def _serialize_metadata(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Serialize complex metadata values to OpenTelemetry-compatible types.
+        
+        OpenTelemetry only accepts: bool, str, bytes, int, float, or sequences of those.
+        This function converts dicts and other complex types to JSON strings.
+        """
+        serialized = {}
+        for key, value in metadata.items():
+            if isinstance(value, (bool, str, bytes, int, float)):
+                # Primitive types: use as-is
+                serialized[key] = value
+            elif isinstance(value, (list, tuple)):
+                # Sequences: convert to string if they contain complex types
+                try:
+                    # Try to keep as list if all elements are primitive
+                    if all(isinstance(item, (bool, str, bytes, int, float)) for item in value):
+                        serialized[key] = list(value)
+                    else:
+                        serialized[key] = json.dumps(value)
+                except:
+                    serialized[key] = json.dumps(value)
+            elif isinstance(value, dict):
+                # Dicts: convert to JSON string
+                serialized[key] = json.dumps(value)
+            elif value is None:
+                # None: convert to string
+                serialized[key] = "null"
+            else:
+                # Other types: convert to string
+                serialized[key] = str(value)
+        
+        return serialized
+    
     def track_llm_call(
         self,
         session_id: str,
@@ -182,8 +218,8 @@ class PhoenixMonitoringService:
                 name=f"llm_call_{provider}_{model}",
                 kind=SpanKind.CLIENT,
                 attributes={
-                    OTelSpanAttributes.SERVICE_NAME: "lus-laboris-api",
-                    OTelSpanAttributes.SERVICE_VERSION: "1.0.0",
+                    "service.name": "lus-laboris-api",
+                    ResourceAttributes.SERVICE_VERSION: "1.0.0",
                     "llm.provider": provider,
                     "llm.model": model,
                     "llm.prompt_length": len(prompt),
@@ -247,7 +283,7 @@ class PhoenixMonitoringService:
                 name="vectorstore_search",
                 kind=SpanKind.CLIENT,
                 attributes={
-                    OTelSpanAttributes.SERVICE_NAME: "lus-laboris-api",
+                    "service.name": "lus-laboris-api",
                     "vectorstore.query_length": len(query),
                     "vectorstore.results_count": results_count,
                     "vectorstore.search_time": search_time,
@@ -291,7 +327,7 @@ class PhoenixMonitoringService:
                 name="embedding_generation",
                 kind=SpanKind.CLIENT,
                 attributes={
-                    OTelSpanAttributes.SERVICE_NAME: "lus-laboris-api",
+                    "service.name": "lus-laboris-api",
                     "embedding.model": model,
                     "embedding.text_length": len(text),
                     "embedding.generation_time": generation_time,
@@ -325,21 +361,27 @@ class PhoenixMonitoringService:
         collection_name: str,
         metadata: Optional[Dict[str, Any]] = None
     ) -> None:
-        """Trackear operaciones de vectorstore (load, delete, etc.)"""
+        """Track vectorstore operations (load, delete, etc.)"""
         if not self.enabled:
             return
         
         try:
+            # Serialize complex metadata to OpenTelemetry-compatible types
+            serialized_metadata = self._serialize_metadata(metadata or {})
+            
+            # Get session attributes and serialize them too
+            session_attrs = self._serialize_metadata(self._get_session_attributes(session_id))
+            
             with self.tracer.start_as_current_span(
                 name=f"vectorstore_{operation_type}",
                 kind=SpanKind.CLIENT,
                 attributes={
-                    OTelSpanAttributes.SERVICE_NAME: "lus-laboris-api",
+                    "service.name": "lus-laboris-api",
                     "vectorstore.operation": operation_type,
                     "vectorstore.collection": collection_name,
                     "session.id": session_id,
-                    **self._get_session_attributes(session_id),
-                    **(metadata or {})
+                    **session_attrs,
+                    **serialized_metadata
                 }
             ) as span:
                 
@@ -377,7 +419,7 @@ class PhoenixMonitoringService:
                 name="document_reranking",
                 kind=SpanKind.CLIENT,
                 attributes={
-                    OTelSpanAttributes.SERVICE_NAME: "lus-laboris-api",
+                    "service.name": "lus-laboris-api",
                     "reranking.query_length": len(query),
                     "reranking.documents_count": documents_count,
                     "reranking.time": reranking_time,
@@ -420,7 +462,7 @@ class PhoenixMonitoringService:
                 name="jwt_authentication",
                 kind=SpanKind.CLIENT,
                 attributes={
-                    OTelSpanAttributes.SERVICE_NAME: "lus-laboris-api",
+                    "service.name": "lus-laboris-api",
                     "auth.success": success,
                     "auth.user_id": user_id or "anonymous",
                     "session.id": session_id,

@@ -5,12 +5,14 @@ import os
 import json
 import time
 import logging
-from typing import Dict, Any
-from fastapi import APIRouter, HTTPException, status, Depends, Request
+import uuid
+from datetime import datetime
+from typing import Dict, Any, Optional
+from fastapi import APIRouter, HTTPException, status, Depends, Request, BackgroundTasks
 from pathlib import Path
 
 from ..models.requests import LoadToVectorstoreLocalRequest, LoadToVectorstoreGCPRequest
-from ..models.responses import LoadToVectorstoreResponse, CollectionInfoResponse, CollectionsListResponse, CollectionDeleteResponse
+from ..models.responses import LoadToVectorstoreResponse, CollectionInfoResponse, CollectionsListResponse, CollectionDeleteResponse, JobStatusResponse
 from ..services.qdrant_service import qdrant_service
 from ..services.gcp_service import gcp_service
 from ..services.embedding_service import embedding_service
@@ -22,6 +24,227 @@ from ..config import settings
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/data", tags=["vectorstore"])
+
+# Global dictionary to track background jobs
+background_jobs: Dict[str, Dict[str, Any]] = {}
+
+
+def _timestamp_to_datetime(timestamp: Optional[float]) -> Optional[str]:
+    """Convert Unix timestamp to ISO 8601 datetime string"""
+    if timestamp is None:
+        return None
+    return datetime.fromtimestamp(timestamp).isoformat()
+
+
+async def _load_to_vectorstore_background(
+    job_id: str,
+    request: LoadToVectorstoreLocalRequest,
+    current_user: str,
+    token_payload: Dict[str, Any]
+):
+    """Execute vectorstore loading in background"""
+    session_id = None
+    try:
+        background_jobs[job_id]["status"] = "processing"
+        background_jobs[job_id]["started_at"] = time.time()
+        
+        start_time = time.time()
+        
+        # Create Phoenix monitoring session
+        session_id = phoenix_service.create_session(user_id=current_user)
+        background_jobs[job_id]["session_id"] = session_id
+        
+        # Track operation start
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_local",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "user": current_user,
+                "token_payload": token_payload,
+                "filename": request.filename,
+                "local_data_path": request.local_data_path,
+                "replace_collection": request.replace_collection,
+                "job_id": job_id
+            }
+        )
+        
+        # Load data
+        data = await _load_local_data_new(request)
+        
+        # Process and generate embeddings
+        documents, embeddings, embedding_metadata = await _process_data_for_embedding(
+            data, settings.api_embedding_model, settings.api_embedding_batch_size
+        )
+        
+        # Create collection
+        collection_name = settings.api_qdrant_collection_name
+        vector_size = embeddings.shape[1]
+        qdrant_service.create_collection(
+            collection_name=collection_name,
+            vector_size=vector_size,
+            replace_existing=request.replace_collection
+        )
+        
+        # Insert documents
+        documents_processed, documents_inserted = qdrant_service.insert_documents(
+            collection_name=collection_name,
+            documents=documents,
+            embeddings=embeddings,
+            batch_size=settings.api_embedding_batch_size
+        )
+        
+        processing_time = time.time() - start_time
+        
+        # Track success
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_local_success",
+            collection_name=collection_name,
+            metadata={
+                "documents_processed": documents_processed,
+                "documents_inserted": documents_inserted,
+                "processing_time_seconds": processing_time
+            }
+        )
+        
+        # Update job status
+        background_jobs[job_id]["status"] = "completed"
+        background_jobs[job_id]["completed_at"] = time.time()
+        background_jobs[job_id]["result"] = {
+            "documents_processed": documents_processed,
+            "documents_inserted": documents_inserted,
+            "processing_time_seconds": processing_time
+        }
+        
+        logger.info(f"Background job {job_id} completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Background job {job_id} failed: {str(e)}")
+        
+        # Track error
+        if session_id:
+            phoenix_service.track_vectorstore_operation(
+                session_id=session_id,
+                operation_type="load_to_vectorstore_local_error",
+                collection_name=settings.api_qdrant_collection_name,
+                metadata={"error": str(e)}
+            )
+        
+        # Update job status
+        background_jobs[job_id]["status"] = "failed"
+        background_jobs[job_id]["completed_at"] = time.time()
+        background_jobs[job_id]["error"] = str(e)
+        
+    finally:
+        if session_id:
+            phoenix_service.end_session(session_id)
+
+
+async def _load_to_vectorstore_gcp_background(
+    job_id: str,
+    request: LoadToVectorstoreGCPRequest,
+    current_user: str,
+    token_payload: Dict[str, Any]
+):
+    """Execute GCP vectorstore loading in background"""
+    session_id = None
+    try:
+        background_jobs[job_id]["status"] = "processing"
+        background_jobs[job_id]["started_at"] = time.time()
+        
+        start_time = time.time()
+        
+        # Create Phoenix monitoring session
+        session_id = phoenix_service.create_session(user_id=current_user)
+        background_jobs[job_id]["session_id"] = session_id
+        
+        # Track operation start
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_gcp",
+            collection_name=settings.api_qdrant_collection_name,
+            metadata={
+                "user": current_user,
+                "token_payload": token_payload,
+                "bucket_name": request.bucket_name,
+                "filename": request.filename,
+                "folder": request.folder,
+                "replace_collection": request.replace_collection,
+                "job_id": job_id
+            }
+        )
+        
+        # Load data from GCS
+        data = await _load_gcp_data_new(request)
+        
+        # Process and generate embeddings
+        documents, embeddings, embedding_metadata = await _process_data_for_embedding(
+            data, settings.api_embedding_model, settings.api_embedding_batch_size
+        )
+        
+        # Create collection
+        collection_name = settings.api_qdrant_collection_name
+        vector_size = embeddings.shape[1]
+        qdrant_service.create_collection(
+            collection_name=collection_name,
+            vector_size=vector_size,
+            replace_existing=request.replace_collection
+        )
+        
+        # Insert documents
+        documents_processed, documents_inserted = qdrant_service.insert_documents(
+            collection_name=collection_name,
+            documents=documents,
+            embeddings=embeddings,
+            batch_size=settings.api_embedding_batch_size
+        )
+        
+        processing_time = time.time() - start_time
+        
+        # Track success
+        phoenix_service.track_vectorstore_operation(
+            session_id=session_id,
+            operation_type="load_to_vectorstore_gcp_success",
+            collection_name=collection_name,
+            metadata={
+                "documents_processed": documents_processed,
+                "documents_inserted": documents_inserted,
+                "processing_time_seconds": processing_time
+            }
+        )
+        
+        # Update job status
+        background_jobs[job_id]["status"] = "completed"
+        background_jobs[job_id]["completed_at"] = time.time()
+        background_jobs[job_id]["result"] = {
+            "documents_processed": documents_processed,
+            "documents_inserted": documents_inserted,
+            "processing_time_seconds": processing_time
+        }
+        
+        logger.info(f"Background job {job_id} completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Background job {job_id} failed: {str(e)}")
+        
+        # Track error
+        if session_id:
+            phoenix_service.track_vectorstore_operation(
+                session_id=session_id,
+                operation_type="load_to_vectorstore_gcp_error",
+                collection_name=settings.api_qdrant_collection_name,
+                metadata={"error": str(e)}
+            )
+        
+        # Update job status
+        background_jobs[job_id]["status"] = "failed"
+        background_jobs[job_id]["completed_at"] = time.time()
+        background_jobs[job_id]["error"] = str(e)
+        
+    finally:
+        if session_id:
+            phoenix_service.end_session(session_id)
 
 
 def _extract_token_payload(request: Request) -> Dict[str, Any]:
@@ -137,7 +360,7 @@ async def delete_collection(
                 "success": True,
                 "collection_deleted": collection_name
             }
-        )
+            )
         
         return CollectionDeleteResponse(
             success=True,
@@ -199,363 +422,137 @@ async def list_collections(
 @router.post(
     "/load-to-vectorstore-local",
     response_model=LoadToVectorstoreResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Load data to vectorstore from local files",
-    description="Load JSON data from local files into Qdrant vector database"
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Load data to vectorstore from local files (async)",
+    description="Initiates an asynchronous job to load JSON data from local files into Qdrant vector database"
 )
 async def load_to_vectorstore_local(
     http_request: Request,
+    background_tasks: BackgroundTasks,
     request: LoadToVectorstoreLocalRequest,
     current_user: str = Depends(require_vectorstore_write)
 ):
-    """Load data to vectorstore from local files"""
-    session_id = None
+    """Load data to vectorstore from local files (asynchronous processing)"""
     try:
-        start_time = time.time()
+        # Generate unique job ID
+        job_id = str(uuid.uuid4())
         
-        # Create sesión de monitoreo Phoenix
-        session_id = phoenix_service.create_session(user_id=current_user)
-        
-        # Extract payload del token JWT
+        # Extract JWT token payload
         token_payload = _extract_token_payload(http_request)
         
-        # Track operación principal
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="load_to_vectorstore_local",
-            collection_name=settings.api_qdrant_collection_name,
-            metadata={
-                "user": current_user,
-                "token_payload": token_payload,
-                "endpoint": "/api/data/load-to-vectorstore-local",
-                "method": "POST",
-                "source": "local_file",
-                "filename": request.filename,
-                "local_data_path": request.local_data_path,
-                "replace_collection": request.replace_collection,
-                "batch_size": request.batch_size
-            }
+        # Initialize job status
+        background_jobs[job_id] = {
+            "job_id": job_id,
+            "status": "queued",
+            "operation": "load_to_vectorstore_local",
+            "user": current_user,
+            "collection_name": settings.api_qdrant_collection_name,
+            "filename": request.filename,
+            "created_at": time.time(),
+            "started_at": None,
+            "completed_at": None
+        }
+        
+        # Add background task
+        background_tasks.add_task(
+            _load_to_vectorstore_background,
+            job_id,
+            request,
+            current_user,
+            token_payload
         )
         
-        # Etapa 1: Load data from local file
-        load_start = time.time()
-        data = await _load_local_data_new(request)
-        load_time = time.time() - load_start
+        logger.info(f"Background job {job_id} queued for user {current_user}")
         
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="load_local_data",
-            collection_name=settings.api_qdrant_collection_name,
-            metadata={
-                "articles_count": len(data.get('articulos', [])),
-                "load_time_seconds": load_time,
-                "file_path": request.filename
-            }
-        )
-        
-        # Etapa 2: Process data and generate embeddings
-        embedding_start = time.time()
-        documents, embeddings, embedding_metadata = await _process_data_for_embedding(
-            data, settings.api_embedding_model, settings.api_embedding_batch_size
-        )
-        embedding_time = time.time() - embedding_start
-        
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="generate_embeddings",
-            collection_name=settings.api_qdrant_collection_name,
-            metadata={
-                "documents_count": len(documents),
-                "embedding_model": embedding_metadata["model_name"],
-                "embedding_dimensions": embedding_metadata["dimensions"],
-                "embedding_time_seconds": embedding_time,
-                "batch_size": request.batch_size
-            }
-        )
-        
-        # Use configured collection name
-        collection_name = settings.api_qdrant_collection_name
-        
-        # Etapa 3: Create collection in Qdrant
-        collection_start = time.time()
-        vector_size = embeddings.shape[1]
-        qdrant_service.create_collection(
-            collection_name=collection_name,
-            vector_size=vector_size,
-            replace_existing=request.replace_collection
-        )
-        collection_time = time.time() - collection_start
-        
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="create_collection",
-            collection_name=collection_name,
-            metadata={
-                "vector_size": vector_size,
-                "replace_existing": request.replace_collection,
-                "collection_time_seconds": collection_time
-            }
-        )
-        
-        # Etapa 4: Insert documents
-        insert_start = time.time()
-        documents_processed, documents_inserted = qdrant_service.insert_documents(
-            collection_name=collection_name,
-            documents=documents,
-            embeddings=embeddings,
-            batch_size=request.batch_size
-        )
-        insert_time = time.time() - insert_start
-        
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="insert_documents",
-            collection_name=collection_name,
-            metadata={
-                "documents_processed": documents_processed,
-                "documents_inserted": documents_inserted,
-                "insert_time_seconds": insert_time,
-                "batch_size": request.batch_size
-            }
-        )
-        
-        processing_time = time.time() - start_time
-        
-        # Track resultado final exitoso
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="load_to_vectorstore_local_success",
-            collection_name=collection_name,
-            metadata={
-                "success": True,
-                "total_processing_time_seconds": processing_time,
-                "documents_processed": documents_processed,
-                "documents_inserted": documents_inserted,
-                "embedding_model": embedding_metadata["model_name"],
-                "vector_dimensions": vector_size,
-                "breakdown": {
-                    "load_time": load_time,
-                    "embedding_time": embedding_time,
-                    "collection_time": collection_time,
-                    "insert_time": insert_time
-                }
-            }
-        )
-        
+        # Return immediately with job information
         return LoadToVectorstoreResponse(
             success=True,
-            message="Data loaded successfully to vectorstore from local files",
-            collection_name=collection_name,
-            documents_processed=documents_processed,
-            documents_inserted=documents_inserted,
-            processing_time_seconds=processing_time,
-            embedding_model_used=embedding_metadata["model_name"],
-            vector_dimensions=vector_size,
-            batch_size=request.batch_size
+            message=f"Data loading job initiated successfully. Job ID: {job_id}. Check status at /api/data/jobs",
+            collection_name=settings.api_qdrant_collection_name,
+            documents_processed=0,  # Will be updated in background
+            documents_inserted=0,   # Will be updated in background
+            processing_time_seconds=0.0,
+            embedding_model_used=settings.api_embedding_model,
+            vector_dimensions=0,  # Will be determined in background
+            batch_size=settings.api_embedding_batch_size,
+            job_id=job_id
         )
         
     except Exception as e:
-        logger.error(f"Failed to load data to vectorstore from local files: {str(e)}")
-        
-        # Track error
-        if session_id:
-            phoenix_service.track_vectorstore_operation(
-                session_id=session_id,
-                operation_type="load_to_vectorstore_local_error",
-                collection_name=settings.api_qdrant_collection_name,
-                metadata={"error": str(e), "error_type": type(e).__name__}
-            )
-        
+        logger.error(f"Failed to queue background job: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to load data to vectorstore from local files: {str(e)}"
+            detail=f"Failed to initiate data loading job: {str(e)}"
         )
-    finally:
-        # Finalizar sesión Phoenix
-        if session_id:
-            phoenix_service.end_session(session_id)
 
 
 @router.post(
     "/load-to-vectorstore-gcp",
     response_model=LoadToVectorstoreResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Load data to vectorstore from GCS",
-    description="Load JSON data from Google Cloud Storage into Qdrant vector database"
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Load data to vectorstore from GCS (async)",
+    description="Initiates asynchronous loading of JSON data from Google Cloud Storage into Qdrant vector database"
 )
 async def load_to_vectorstore_gcp(
     http_request: Request,
+    background_tasks: BackgroundTasks,
     request: LoadToVectorstoreGCPRequest,
     current_user: str = Depends(require_vectorstore_write)
 ):
-    """Load data to vectorstore from GCS"""
-    session_id = None
+    """Load data to vectorstore from GCS (asynchronous processing)"""
     try:
-        start_time = time.time()
+        # Generate unique job ID
+        job_id = str(uuid.uuid4())
         
-        # Create sesión de monitoreo Phoenix
-        session_id = phoenix_service.create_session(user_id=current_user)
-        
-        # Extract payload del token JWT
+        # Extract JWT token payload
         token_payload = _extract_token_payload(http_request)
         
-        # Track operación principal
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="load_to_vectorstore_gcp",
-            collection_name=settings.api_qdrant_collection_name,
-            metadata={
-                "user": current_user,
-                "token_payload": token_payload,
-                "endpoint": "/api/data/load-to-vectorstore-gcp",
-                "method": "POST",
-                "source": "gcs",
-                "bucket_name": request.bucket_name,
-                "filename": request.filename,
-                "folder": request.folder,
-                "replace_collection": request.replace_collection,
-                "batch_size": request.batch_size
-            }
+        # Initialize job status
+        background_jobs[job_id] = {
+            "job_id": job_id,
+            "status": "queued",
+            "operation": "load_to_vectorstore_gcp",
+            "user": current_user,
+            "collection_name": settings.api_qdrant_collection_name,
+            "filename": request.filename,
+            "bucket_name": request.bucket_name,
+            "folder": request.folder,
+            "created_at": time.time(),
+            "started_at": None,
+            "completed_at": None
+        }
+        
+        # Add background task
+        background_tasks.add_task(
+            _load_to_vectorstore_gcp_background,
+            job_id,
+            request,
+            current_user,
+            token_payload
         )
         
-        # Etapa 1: Load data from GCS
-        load_start = time.time()
-        data = await _load_gcp_data_new(request)
-        load_time = time.time() - load_start
+        logger.info(f"Background job {job_id} queued for user {current_user}")
         
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="load_gcs_data",
-            collection_name=settings.api_qdrant_collection_name,
-            metadata={
-                "articles_count": len(data.get('articulos', [])),
-                "load_time_seconds": load_time,
-                "bucket_name": request.bucket_name,
-                "file_path": f"{request.folder}/{request.filename}"
-            }
-        )
-        
-        # Etapa 2: Process data and generate embeddings
-        embedding_start = time.time()
-        documents, embeddings, embedding_metadata = await _process_data_for_embedding(
-            data, settings.api_embedding_model, settings.api_embedding_batch_size
-        )
-        embedding_time = time.time() - embedding_start
-        
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="generate_embeddings",
-            collection_name=settings.api_qdrant_collection_name,
-            metadata={
-                "documents_count": len(documents),
-                "embedding_model": embedding_metadata["model_name"],
-                "embedding_dimensions": embedding_metadata["dimensions"],
-                "embedding_time_seconds": embedding_time,
-                "batch_size": request.batch_size
-            }
-        )
-        
-        # Use configured collection name
-        collection_name = settings.api_qdrant_collection_name
-        
-        # Etapa 3: Create collection in Qdrant
-        collection_start = time.time()
-        vector_size = embeddings.shape[1]
-        qdrant_service.create_collection(
-            collection_name=collection_name,
-            vector_size=vector_size,
-            replace_existing=request.replace_collection
-        )
-        collection_time = time.time() - collection_start
-        
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="create_collection",
-            collection_name=collection_name,
-            metadata={
-                "vector_size": vector_size,
-                "replace_existing": request.replace_collection,
-                "collection_time_seconds": collection_time
-            }
-        )
-        
-        # Etapa 4: Insert documents
-        insert_start = time.time()
-        documents_processed, documents_inserted = qdrant_service.insert_documents(
-            collection_name=collection_name,
-            documents=documents,
-            embeddings=embeddings,
-            batch_size=request.batch_size
-        )
-        insert_time = time.time() - insert_start
-        
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="insert_documents",
-            collection_name=collection_name,
-            metadata={
-                "documents_processed": documents_processed,
-                "documents_inserted": documents_inserted,
-                "insert_time_seconds": insert_time,
-                "batch_size": request.batch_size
-            }
-        )
-        
-        processing_time = time.time() - start_time
-        
-        # Track resultado final exitoso
-        phoenix_service.track_vectorstore_operation(
-            session_id=session_id,
-            operation_type="load_to_vectorstore_gcp_success",
-            collection_name=collection_name,
-            metadata={
-                "success": True,
-                "total_processing_time_seconds": processing_time,
-                "documents_processed": documents_processed,
-                "documents_inserted": documents_inserted,
-                "embedding_model": embedding_metadata["model_name"],
-                "vector_dimensions": vector_size,
-                "breakdown": {
-                    "load_time": load_time,
-                    "embedding_time": embedding_time,
-                    "collection_time": collection_time,
-                    "insert_time": insert_time
-                }
-            }
-        )
-        
+        # Return immediately with job information
         return LoadToVectorstoreResponse(
             success=True,
-            message="Data loaded successfully to vectorstore from GCS",
-            collection_name=collection_name,
-            documents_processed=documents_processed,
-            documents_inserted=documents_inserted,
-            processing_time_seconds=processing_time,
-            embedding_model_used=embedding_metadata["model_name"],
-            vector_dimensions=vector_size,
-            batch_size=request.batch_size
+            message=f"Data loading job initiated successfully. Job ID: {job_id}. Check status at /api/data/jobs",
+            collection_name=settings.api_qdrant_collection_name,
+            documents_processed=0,  # Will be updated in background
+            documents_inserted=0,   # Will be updated in background
+            processing_time_seconds=0.0,
+            embedding_model_used=settings.api_embedding_model,
+            vector_dimensions=0,  # Will be determined in background
+            batch_size=settings.api_embedding_batch_size,
+            job_id=job_id
         )
         
     except Exception as e:
-        logger.error(f"Failed to load data to vectorstore from GCS: {str(e)}")
-        
-        # Track error
-        if session_id:
-            phoenix_service.track_vectorstore_operation(
-                session_id=session_id,
-                operation_type="load_to_vectorstore_gcp_error",
-                collection_name=settings.api_qdrant_collection_name,
-                metadata={"error": str(e), "error_type": type(e).__name__}
-            )
-        
+        logger.error(f"Failed to queue background job: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to load data to vectorstore from GCS: {str(e)}"
+            detail=f"Failed to initiate data loading job: {str(e)}"
         )
-    finally:
-        # Finalizar sesión Phoenix
-        if session_id:
-            phoenix_service.end_session(session_id)
 
 
 
@@ -630,8 +627,8 @@ async def _process_data_for_embedding(
 async def _load_local_data_new(request: LoadToVectorstoreLocalRequest) -> Dict[str, Any]:
     """Load data from local JSON file (new endpoint)"""
     try:
-        # Get project root directory
-        project_root = Path(__file__).parent.parent.parent.parent
+        # Get project root directory (go up from src/lus_laboris_api/api/endpoints/ to project root)
+        project_root = Path(__file__).parent.parent.parent.parent.parent
         data_path = project_root / (request.local_data_path or "data/processed")
         file_path = data_path / request.filename
         
@@ -678,4 +675,51 @@ async def _load_gcp_data_new(request: LoadToVectorstoreGCPRequest) -> Dict[str, 
         logger.error(f"Failed to load GCP data: {str(e)}")
         raise
 
+
+@router.get(
+    "/jobs",
+    status_code=status.HTTP_200_OK,
+    summary="List all background jobs",
+    description="Retrieve all background jobs (accessible by any authenticated user)"
+)
+async def list_all_jobs(
+    current_user: str = Depends(require_vectorstore_write)
+):
+    """List all background jobs (accessible by any authenticated user)"""
+    try:
+        all_jobs = []
+        
+        for job_id, job_data in background_jobs.items():
+            # Extract username if user is a dict (token payload)
+            job_user = job_data["user"]
+            if isinstance(job_user, dict):
+                job_user = job_user.get("username") or job_user.get("sub")
+            
+            all_jobs.append({
+                "job_id": job_data["job_id"],
+                "status": job_data["status"],
+                "operation": job_data["operation"],
+                "user": job_user,
+                "filename": job_data.get("filename"),
+                "collection_name": job_data.get("collection_name"),
+                "created_at": _timestamp_to_datetime(job_data["created_at"]),
+                "started_at": _timestamp_to_datetime(job_data.get("started_at")),
+                "completed_at": _timestamp_to_datetime(job_data.get("completed_at")),
+                "error": job_data.get("error"),
+                "result": job_data.get("result")
+            })
+        
+        return {
+            "success": True,
+            "message": f"Found {len(all_jobs)} job(s)",
+            "jobs": all_jobs,
+            "count": len(all_jobs)
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to list all jobs: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list jobs: {str(e)}"
+        )
 

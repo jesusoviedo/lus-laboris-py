@@ -28,6 +28,8 @@ class LoadToVectorstoreResponse(BaseResponse):
     embedding_model_used: str = Field(..., description="Embedding model used for processing")
     vector_dimensions: int = Field(..., description="Dimension of the generated vectors")
     batch_size: int = Field(..., description="Batch size used for processing")
+    job_id: Optional[str] = Field(None, description="Unique job identifier for background processing")
+    job_status_url: Optional[str] = Field(None, description="URL to check job status")
     
     class Config:
         json_schema_extra = {
@@ -168,6 +170,42 @@ class CollectionDeleteResponse(BaseResponse):
                 "success": True,
                 "message": "Collection 'labor_law_articles' deleted successfully",
                 "timestamp": "2024-01-15T10:30:00Z"
+            }
+        }
+
+
+class JobStatusResponse(BaseResponse):
+    """Response model for background job status"""
+    job_id: str = Field(..., description="Unique job identifier")
+    status: str = Field(..., description="Job status: queued, processing, completed, failed")
+    operation: str = Field(..., description="Operation type")
+    user: str = Field(..., description="User who initiated the job")
+    created_at: float = Field(..., description="Job creation timestamp")
+    started_at: Optional[float] = Field(None, description="Job start timestamp")
+    completed_at: Optional[float] = Field(None, description="Job completion timestamp")
+    result: Optional[Dict[str, Any]] = Field(None, description="Job result if completed")
+    error: Optional[str] = Field(None, description="Error message if failed")
+    session_id: Optional[str] = Field(None, description="Phoenix monitoring session ID")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "message": "Job status retrieved successfully",
+                "timestamp": "2024-01-15T10:30:00Z",
+                "job_id": "550e8400-e29b-41d4-a716-446655440000",
+                "status": "completed",
+                "operation": "load_to_vectorstore_local",
+                "user": "admin",
+                "created_at": 1705315800.0,
+                "started_at": 1705315801.0,
+                "completed_at": 1705315845.0,
+                "result": {
+                    "documents_processed": 410,
+                    "documents_inserted": 410,
+                    "processing_time_seconds": 44.0
+                },
+                "session_id": "660e8400-e29b-41d4-a716-446655440001"
             }
         }
 

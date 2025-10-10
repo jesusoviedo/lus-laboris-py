@@ -152,7 +152,7 @@ class EvaluationService:
                 "relevance": relevance_score,
                 "hallucination": hallucination_score,
                 "toxicity": toxicity_score,
-                "grounding": 1.0 - hallucination_score if hallucination_score else None,
+                "grounding": 1.0 - hallucination_score if hallucination_score is not None else None,
                 "overall_quality": self._calculate_overall_quality(
                     relevance_score, hallucination_score, toxicity_score
                 ),
@@ -170,29 +170,22 @@ class EvaluationService:
     def _evaluate_relevance(self, question: str, context: str, answer: str) -> Optional[float]:
         """Evaluate response relevance using Phoenix Evals"""
         try:
-            # Use template de RAG relevancy de Phoenix
-            result = llm_classify(
-                dataframe=None,  # No usamos dataframe, evaluamos directamente
-                model=self.eval_model,
-                template=RAG_RELEVANCY_PROMPT_TEMPLATE,
-                rails=["relevant", "irrelevant"],
-                provide_explanation=True,
-            )
+            # Format prompt with dict of variables (ClassificationTemplate expects dict)
+            # Note: Template is in English but content (question, context) is in Spanish
+            # OpenAI models handle multilingual content well
+            variable_values = {
+                "input": question,  # Spanish question
+                "reference": context  # Spanish context
+            }
+            prompt = RAG_RELEVANCY_PROMPT_TEMPLATE.format(variable_values)
             
-            # For single evaluation, build manually
-            prompt = RAG_RELEVANCY_PROMPT_TEMPLATE.format(
-                query=question,
-                reference=context,
-                response=answer
-            )
+            # Call model directly (it's callable)
+            eval_response = self.eval_model(prompt)
             
-            # Evaluate
-            eval_response = self.eval_model.invoke(prompt)
-            
-            # Parse response (Phoenix devuelve "relevant" o "irrelevant")
-            if "relevant" in eval_response.lower():
+            # Parse response (Phoenix returns "relevant" or "irrelevant")
+            if eval_response and "relevant" in eval_response.lower():
                 return 1.0
-            elif "irrelevant" in eval_response.lower():
+            elif eval_response and "irrelevant" in eval_response.lower():
                 return 0.0
             else:
                 return 0.5  # Indeterminate
@@ -204,20 +197,23 @@ class EvaluationService:
     def _evaluate_hallucination(self, question: str, context: str, answer: str) -> Optional[float]:
         """Evaluate hallucinations using Phoenix Evals"""
         try:
-            # Use template de hallucination de Phoenix
-            prompt = HALLUCINATION_PROMPT_TEMPLATE.format(
-                query=question,
-                reference=context,
-                response=answer
-            )
+            # Format prompt with dict of variables (ClassificationTemplate expects dict)
+            # Note: Template is in English but content is in Spanish
+            # OpenAI models handle multilingual content well
+            variable_values = {
+                "input": question,  # Spanish question
+                "reference": context,  # Spanish context
+                "output": answer  # Spanish answer
+            }
+            prompt = HALLUCINATION_PROMPT_TEMPLATE.format(variable_values)
             
-            # Evaluate
-            eval_response = self.eval_model.invoke(prompt)
+            # Call model directly (it's callable)
+            eval_response = self.eval_model(prompt)
             
-            # Parse response (Phoenix devuelve "factual" o "hallucinated")
-            if "factual" in eval_response.lower():
+            # Parse response (Phoenix returns "factual" or "hallucinated")
+            if eval_response and "factual" in eval_response.lower():
                 return 0.0  # No hallucinations
-            elif "hallucinated" in eval_response.lower() or "hallucination" in eval_response.lower():
+            elif eval_response and ("hallucinated" in eval_response.lower() or "hallucination" in eval_response.lower()):
                 return 1.0  # High hallucination
             else:
                 return 0.5  # Indeterminate
@@ -229,20 +225,21 @@ class EvaluationService:
     def _evaluate_toxicity(self, answer: str) -> Optional[float]:
         """Evaluate response toxicity"""
         try:
-            # Template simple para toxicidad
+            # Prompt in Spanish for toxicity evaluation
             toxicity_prompt = f"""
-            Evaluate if the following response contains toxic, offensive, or inappropriate content.
+            Evalúa si la siguiente respuesta contiene contenido tóxico, ofensivo o inapropiado.
             
-            RESPONSE: {answer}
+            RESPUESTA: {answer}
             
-            Respond only with "toxic" o "non-toxic".
+            Responde únicamente con "tóxico" o "no-tóxico".
             """
             
-            eval_response = self.eval_model.invoke(toxicity_prompt)
+            # Call model directly (it's callable)
+            eval_response = self.eval_model(toxicity_prompt)
             
-            if "non-toxic" in eval_response.lower() or "non toxic" in eval_response.lower():
+            if eval_response and ("no-tóxico" in eval_response.lower() or "no toxico" in eval_response.lower() or "no tóxico" in eval_response.lower()):
                 return 0.0  # Non-toxic
-            elif "toxic" in eval_response.lower():
+            elif eval_response and ("tóxico" in eval_response.lower() or "toxico" in eval_response.lower()):
                 return 1.0  # Toxic
             else:
                 return 0.0  # Default: non-toxic
@@ -257,23 +254,29 @@ class EvaluationService:
         hallucination: Optional[float],
         toxicity: Optional[float]
     ) -> Optional[float]:
-        """Calculate overall quality score"""
+        """Calculate overall quality score with weighted average"""
         try:
-            scores = []
+            # Calculate weighted scores
+            total_score = 0.0
+            total_weight = 0.0
             
             if relevance is not None:
-                scores.append(relevance * 0.5)  # 50% weight
+                total_score += relevance * 0.5  # 50% weight
+                total_weight += 0.5
             
             if hallucination is not None:
-                scores.append((1.0 - hallucination) * 0.4)  # 40% weight (inverted)
+                total_score += (1.0 - hallucination) * 0.4  # 40% weight (inverted: 0=good)
+                total_weight += 0.4
             
             if toxicity is not None:
-                scores.append((1.0 - toxicity) * 0.1)  # 10% weight (inverted)
+                total_score += (1.0 - toxicity) * 0.1  # 10% weight (inverted: 0=good)
+                total_weight += 0.1
             
-            if not scores:
+            if total_weight == 0:
                 return None
             
-            return sum(scores) / len(scores)
+            # Normalize by actual total weight (in case some metrics are missing)
+            return total_score / total_weight
             
         except Exception as e:
             logger.error(f"Failed to calculate overall quality: {e}")

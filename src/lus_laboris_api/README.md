@@ -270,10 +270,6 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
   - Toxicity checking
   - Grounding verification
 
-**GET** `/api/rag/health`
-- RAG service health check
-- No authentication required
-
 **GET** `/api/rag/metrics`
 - Phoenix monitoring metrics and session statistics
 - **Requires JWT authentication** - protected endpoint
@@ -298,7 +294,10 @@ curl -X GET "http://localhost:8000/api/health/"
 #     "qdrant": "connected",
 #     "gcp": "connected",
 #     "embedding_service": "healthy",
-#     "rag_service": "healthy"
+#     "reranking_service": "disabled",
+#     "rag_service": "healthy",
+#     "evaluation_service": "healthy",
+#     "phoenix": "healthy"
 #   },
 #   "uptime_seconds": 3600.5
 # }
@@ -343,9 +342,6 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
 
-# RAG health check (public, no token required)
-curl -X GET "http://localhost:8000/api/rag/health"
-
 # Phoenix metrics (requires JWT token)
 curl -X GET "http://localhost:8000/api/rag/metrics" \
   -H "Authorization: Bearer your_jwt_token_here"
@@ -358,11 +354,23 @@ curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
 #### Vectorstore (Qdrant)
 
 **POST** `/api/data/load-to-vectorstore-local`
-- Load JSON data from local files to Qdrant
+- **Asynchronous** loading of JSON data from local files to Qdrant
+- Returns immediately with job information (HTTP 202 Accepted)
+- Processing happens in background (embeddings, vector insertion)
 - Requires JWT authentication
+- **Response includes**: `job_id` for tracking
 
 **POST** `/api/data/load-to-vectorstore-gcp`
-- Load JSON data from Google Cloud Storage to Qdrant
+- **Asynchronous** loading of JSON data from Google Cloud Storage to Qdrant
+- Returns immediately with job information (HTTP 202 Accepted)
+- Processing happens in background (embeddings, vector insertion)
+- Requires JWT authentication
+- **Response includes**: `job_id` for tracking
+
+**GET** `/api/data/jobs`
+- List all background processing jobs
+- Shows job status: `queued`, `processing`, `completed`, `failed`
+- Includes timestamps in ISO 8601 format
 - Requires JWT authentication
 
 **GET** `/api/data/collections`
@@ -420,14 +428,56 @@ curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
 ```json
 {
   "success": true,
-  "message": "Data loaded successfully to vectorstore",
+  "message": "Data loading job initiated successfully. Job ID: 550e8400-e29b-41d4-a716-446655440000. Check status at /api/data/jobs",
   "collection_name": "lus_laboris_articles",
-  "documents_processed": 413,
-  "documents_inserted": 413,
-  "processing_time_seconds": 45.2,
+  "documents_processed": 0,
+  "documents_inserted": 0,
+  "processing_time_seconds": 0.0,
   "embedding_model_used": "sentence-transformers/all-MiniLM-L6-v2",
-  "vector_dimensions": 384,
-  "batch_size": 100
+  "vector_dimensions": 0,
+  "batch_size": 100,
+  "job_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+#### JobsListResponse
+```json
+{
+  "success": true,
+  "message": "Found 2 job(s)",
+  "jobs": [
+    {
+      "job_id": "550e8400-e29b-41d4-a716-446655440000",
+      "status": "completed",
+      "operation": "load_to_vectorstore_local",
+      "user": "admin",
+      "filename": "codigo_trabajo_articulos.json",
+      "collection_name": "lus_laboris_articles",
+      "created_at": "2025-10-08T20:58:08.039417",
+      "started_at": "2025-10-08T20:58:08.040129",
+      "completed_at": "2025-10-08T20:58:27.090524",
+      "error": null,
+      "result": {
+        "documents_processed": 413,
+        "documents_inserted": 413,
+        "processing_time_seconds": 19.05
+      }
+    },
+    {
+      "job_id": "660e8400-e29b-41d4-a716-446655440001",
+      "status": "processing",
+      "operation": "load_to_vectorstore_local",
+      "user": "admin",
+      "filename": "codigo_trabajo_articulos.json",
+      "collection_name": "lus_laboris_articles",
+      "created_at": "2025-10-08T21:05:15.123456",
+      "started_at": "2025-10-08T21:05:15.124789",
+      "completed_at": null,
+      "error": null,
+      "result": null
+    }
+  ],
+  "count": 2
 }
 ```
 
@@ -1024,20 +1074,32 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
 #### Vectorstore (Qdrant)
 
 **POST** `/api/data/load-to-vectorstore-local`
-- Cargar datos JSON desde archivos locales a Qdrant
+- Carga **asíncrona** de datos JSON desde archivos locales a Qdrant
+- Retorna inmediatamente con información del job (HTTP 202 Accepted)
+- El procesamiento ocurre en background (embeddings, inserción vectorial)
 - Requiere autenticación JWT
+- **La respuesta incluye**: `job_id` para hacer seguimiento
 - **Phoenix Tracking**: Tracking completo con spans jerárquicos
   - Track de operación principal con payload JWT decodificado
   - Spans por etapa: carga, embedding, creación de colección, inserción
   - Métricas detalladas de tiempo y contadores por etapa
 
 **POST** `/api/data/load-to-vectorstore-gcp`
-- Cargar datos JSON desde Google Cloud Storage a Qdrant
+- Carga **asíncrona** de datos JSON desde Google Cloud Storage a Qdrant
+- Retorna inmediatamente con información del job (HTTP 202 Accepted)
+- El procesamiento ocurre en background (embeddings, inserción vectorial)
 - Requiere autenticación JWT
+- **La respuesta incluye**: `job_id` para hacer seguimiento
 - **Phoenix Tracking**: Tracking completo con spans jerárquicos
   - Track de operación principal con payload JWT decodificado
   - Spans por etapa: carga desde GCS, embedding, creación de colección, inserción
   - Métricas detalladas de tiempo y contadores por etapa
+
+**GET** `/api/data/jobs`
+- Listar todos los jobs de procesamiento en background
+- Muestra el estado del job: `queued`, `processing`, `completed`, `failed`
+- Incluye timestamps en formato ISO 8601
+- Requiere autenticación JWT
 
 **GET** `/api/data/collections`
 - Listar todas las colecciones
@@ -1131,10 +1193,6 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
   - Verificación de toxicidad
   - Verificación de grounding
 
-**GET** `/api/rag/health`
-- Health check del servicio RAG
-- Sin autenticación requerida
-
 **GET** `/api/rag/metrics`
 - Métricas de monitoreo Phoenix y estadísticas de sesiones
 - **Requiere autenticación JWT** - endpoint protegido
@@ -1191,9 +1249,6 @@ curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
 
-# Health check RAG (público, sin token requerido)
-curl -X GET "http://localhost:8000/api/rag/health"
-
 # Métricas Phoenix (requiere token JWT)
 curl -X GET "http://localhost:8000/api/rag/metrics" \
   -H "Authorization: Bearer tu_jwt_token_aqui"
@@ -1228,14 +1283,56 @@ curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
 ```json
 {
   "success": true,
-  "message": "Data loaded successfully to vectorstore",
+  "message": "Data loading job initiated successfully. Job ID: 550e8400-e29b-41d4-a716-446655440000. Check status at /api/data/jobs",
   "collection_name": "lus_laboris_articles",
-  "documents_processed": 413,
-  "documents_inserted": 413,
-  "processing_time_seconds": 45.2,
+  "documents_processed": 0,
+  "documents_inserted": 0,
+  "processing_time_seconds": 0.0,
   "embedding_model_used": "sentence-transformers/all-MiniLM-L6-v2",
-  "vector_dimensions": 384,
-  "batch_size": 100
+  "vector_dimensions": 0,
+  "batch_size": 100,
+  "job_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+#### JobsListResponse
+```json
+{
+  "success": true,
+  "message": "Found 2 job(s)",
+  "jobs": [
+    {
+      "job_id": "550e8400-e29b-41d4-a716-446655440000",
+      "status": "completed",
+      "operation": "load_to_vectorstore_local",
+      "user": "admin",
+      "filename": "codigo_trabajo_articulos.json",
+      "collection_name": "lus_laboris_articles",
+      "created_at": "2025-10-08T20:58:08.039417",
+      "started_at": "2025-10-08T20:58:08.040129",
+      "completed_at": "2025-10-08T20:58:27.090524",
+      "error": null,
+      "result": {
+        "documents_processed": 413,
+        "documents_inserted": 413,
+        "processing_time_seconds": 19.05
+      }
+    },
+    {
+      "job_id": "660e8400-e29b-41d4-a716-446655440001",
+      "status": "processing",
+      "operation": "load_to_vectorstore_local",
+      "user": "admin",
+      "filename": "codigo_trabajo_articulos.json",
+      "collection_name": "lus_laboris_articles",
+      "created_at": "2025-10-08T21:05:15.123456",
+      "started_at": "2025-10-08T21:05:15.124789",
+      "completed_at": null,
+      "error": null,
+      "result": null
+    }
+  ],
+  "count": 2
 }
 ```
 

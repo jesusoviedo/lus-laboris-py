@@ -96,47 +96,6 @@ async def ask_question(
 
 
 @router.get(
-    "/health",
-    summary="RAG service health check",
-    description="Check the health status of the RAG service and its dependencies"
-)
-async def rag_health_check() -> Dict[str, Any]:
-    """Check RAG service health status"""
-    try:
-        health_status = rag_service.health_check()
-        
-        if health_status["status"] == "healthy":
-            return {
-                "success": True,
-                "message": "RAG service is healthy",
-                "timestamp": datetime.now().isoformat(),
-                "status": health_status
-            }
-        else:
-            return JSONResponse(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                content={
-                    "success": False,
-                    "message": "RAG service is unhealthy",
-                    "timestamp": datetime.now().isoformat(),
-                    "status": health_status
-                }
-            )
-            
-    except Exception as e:
-        logger.error(f"RAG health check failed: {str(e)}")
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "success": False,
-                "message": "RAG health check failed",
-                "timestamp": datetime.now().isoformat(),
-                "error": str(e)
-            }
-        )
-
-
-@router.get(
     "/metrics",
     summary="Get Phoenix monitoring metrics",
     description="Get current Phoenix monitoring metrics and session statistics"
