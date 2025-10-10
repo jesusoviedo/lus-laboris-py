@@ -93,32 +93,3 @@ async def ask_question(
         # Finalizar sesión si se creó
         if session_id:
             phoenix_service.end_session(session_id)
-
-
-@router.get(
-    "/evaluations/status",
-    summary="Get evaluation service status",
-    description="Get current status of the asynchronous evaluation service"
-)
-async def get_evaluation_status(
-    current_user: str = Depends(get_current_user)
-) -> Dict[str, Any]:
-    """Get evaluation service status"""
-    try:
-        health = evaluation_service.health_check()
-        
-        return {
-            "success": True,
-            "message": "Evaluation service status retrieved successfully",
-            "timestamp": datetime.now().isoformat(),
-            "evaluation_service": health
-        }
-        
-    except Exception as e:
-        logger.error(f"Failed to get evaluation status: {str(e)}")
-        return {
-            "success": False,
-            "message": "Failed to get evaluation status",
-            "timestamp": datetime.now().isoformat(),
-            "error": str(e)
-        }

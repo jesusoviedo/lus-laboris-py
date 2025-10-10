@@ -270,11 +270,6 @@ API_JWT_PUBLIC_KEY_PATH=/home/user/keys/public_key.pem
   - Toxicity checking
   - Grounding verification
 
-**GET** `/api/rag/evaluations/status`
-- Evaluation service status and queue information
-- **Requires JWT authentication** - protected endpoint
-- Returns evaluation queue size and service health
-
 **Phoenix Metrics and Monitoring**
 - **Access Phoenix UI** to view detailed metrics, traces, and evaluations:
   - Local: `http://localhost:6006`
@@ -346,10 +341,6 @@ curl -X GET "http://localhost:8000/api/status" \
 curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
-
-# Evaluation service status (requires JWT token)
-curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
-  -H "Authorization: Bearer your_jwt_token_here"
 ```
 
 #### Vectorstore (Qdrant)
@@ -1194,11 +1185,6 @@ API_JWT_PUBLIC_KEY_PATH=/home/usuario/keys/public_key.pem
   - Verificación de toxicidad
   - Verificación de grounding
 
-**GET** `/api/rag/evaluations/status`
-- Estado del servicio de evaluación e información de la cola
-- **Requiere autenticación JWT** - endpoint protegido
-- Retorna tamaño de la cola de evaluaciones y salud del servicio
-
 **Métricas y Monitoreo con Phoenix**
 - **Acceder a la UI de Phoenix** para ver métricas detalladas, trazas y evaluaciones:
   - Local: `http://localhost:6006`
@@ -1254,10 +1240,6 @@ curl -X GET "http://localhost:8000/api/status" \
 curl -X POST "http://localhost:8000/api/rag/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "¿Cuáles son las horas de trabajo permitidas?"}'
-
-# Estado de evaluaciones (requiere token JWT)
-curl -X GET "http://localhost:8000/api/rag/evaluations/status" \
-  -H "Authorization: Bearer tu_jwt_token_aqui"
 ```
 
 ### Modelos de Datos
