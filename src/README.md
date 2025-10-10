@@ -33,7 +33,7 @@ Utilities for extracting and preprocessing text from legal documents before load
 ## Development Notes
 
 - Both projects use `uv` as the package manager
-- Python 3.11 or higher is required
+- Python 3.13 or higher is required
 - Each subdirectory is a self-contained project with its own `pyproject.toml` and `Dockerfile`
 - Configuration is managed through environment variables (see root `.env` file)
 
@@ -73,7 +73,7 @@ Utilidades para extraer y preprocesar texto de documentos legales antes de carga
 ## Notas de Desarrollo
 
 - Ambos proyectos usan `uv` como gestor de paquetes
-- Se requiere Python 3.11 o superior
+- Se requiere Python 3.13 o superior
 - Cada subdirectorio es un proyecto autocontenido con su propio `pyproject.toml` y `Dockerfile`
 - La configuración se gestiona a través de variables de entorno (ver archivo `.env` raíz)
 
