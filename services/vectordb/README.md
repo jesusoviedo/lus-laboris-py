@@ -22,7 +22,7 @@ This folder contains scripts for loading, managing, and querying the Qdrant vect
 
 1. Navigate to this directory:
    ```bash
-   cd src/vectorstore
+   cd services/vectordb
    ```
 
 2. Start Qdrant:
@@ -98,7 +98,7 @@ Esta carpeta contiene scripts para la carga, gestión y consulta de la base de d
 
 1. Navegar a este directorio:
    ```bash
-   cd src/vectorstore
+   cd services/vectordb
    ```
 
 2. Iniciar Qdrant:
