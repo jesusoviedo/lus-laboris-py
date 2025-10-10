@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Banner Principal -->
-<img src="docs/images/lus-laboris-banner.png" alt="Lus Laboris RAG - AI-Powered Legal Research System" width="100%"/>
+<img src="docs/images/lus-laboris-banner.png" alt="Lus Laboris RAG - AI-Powered Legal Research System" width="800"/>
 
 <br/>
 
