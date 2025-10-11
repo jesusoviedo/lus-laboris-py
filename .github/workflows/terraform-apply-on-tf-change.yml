@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_PROJECT_NUMBER: ${{ vars.GCP_PROJECT_NUMBER }}
       GCP_REGION: ${{ secrets.GCP_REGION }}
       GCP_BUCKET_NAME: ${{ vars.GCP_BUCKET_NAME }}
       GCP_CLOUD_RUN_BATCH_JOB_NAME: ${{ vars.GCP_CLOUD_RUN_BATCH_JOB_NAME }}
@@ -51,6 +52,7 @@ jobs:
       run: |
         cat <<EOF > .env
         GCP_PROJECT_ID=${GCP_PROJECT_ID}
+        GCP_PROJECT_NUMBER=${GCP_PROJECT_NUMBER}
         GCP_REGION=${GCP_REGION}
         GCP_BUCKET_NAME=${GCP_BUCKET_NAME}
         GCP_CLOUD_RUN_BATCH_JOB_NAME=${GCP_CLOUD_RUN_BATCH_JOB_NAME}

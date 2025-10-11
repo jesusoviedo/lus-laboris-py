@@ -39,6 +39,7 @@ create_tfvars() {
 
     # Read existing variables (ignore comments and handle whitespace)
     GCP_PROJECT_ID=$(read_env_var "GCP_PROJECT_ID" "$ENV_FILE")
+    GCP_PROJECT_NUMBER=$(read_env_var "GCP_PROJECT_NUMBER" "$ENV_FILE")
     GCP_REGION=$(read_env_var "GCP_REGION" "$ENV_FILE")
     GCP_BUCKET_NAME=$(read_env_var "GCP_BUCKET_NAME" "$ENV_FILE")
     GCP_CLOUD_RUN_BATCH_JOB_NAME=$(read_env_var "GCP_CLOUD_RUN_BATCH_JOB_NAME" "$ENV_FILE")
@@ -74,6 +75,7 @@ create_tfvars() {
 
     # Check existing variables
     [[ -z "$GCP_PROJECT_ID" ]] && MISSING_VARS+=("GCP_PROJECT_ID")
+    [[ -z "$GCP_PROJECT_NUMBER" ]] && MISSING_VARS+=("GCP_PROJECT_NUMBER")
     [[ -z "$GCP_REGION" ]] && MISSING_VARS+=("GCP_REGION")
     [[ -z "$GCP_BUCKET_NAME" ]] && MISSING_VARS+=("GCP_BUCKET_NAME")
     [[ -z "$GCP_CLOUD_RUN_BATCH_JOB_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_BATCH_JOB_NAME")
@@ -103,9 +105,10 @@ create_tfvars() {
     validate_qdrant_vm_vars
 
     cat > "$TFVARS_FILE" <<EOF
-project_id   = "$GCP_PROJECT_ID"
-region       = "$GCP_REGION"
-bucket_name  = "$GCP_BUCKET_NAME"
+project_id     = "$GCP_PROJECT_ID"
+project_number = "$GCP_PROJECT_NUMBER"
+region         = "$GCP_REGION"
+bucket_name    = "$GCP_BUCKET_NAME"
 
 job_name   = "$GCP_CLOUD_RUN_BATCH_JOB_NAME"
 image      = "$GCP_CLOUD_RUN_BATCH_IMAGE"

@@ -32,12 +32,7 @@ module "secret_manager" {
   source = "./modules/secret_manager"
 
   project_id                = var.project_id
-  cloud_run_service_account = data.google_project.current.number
-}
-
-# Data source to get project number for default service account
-data "google_project" "current" {
-  project_id = var.project_id
+  cloud_run_service_account = var.project_number
 }
 
 # Cloud Run service - Uses secrets from Secret Manager

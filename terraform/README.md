@@ -67,6 +67,7 @@ The `.env_example` file contains all required variables organized by category. H
 ```env
 # Basic GCP Configuration
 GCP_PROJECT_ID=your-gcp-project-id
+GCP_PROJECT_NUMBER=123456789012  # Get it with: gcloud projects describe PROJECT_ID --format='value(projectNumber)'
 GCP_REGION=name-region
 GCP_BUCKET_NAME=your-bucket-name
 
@@ -185,9 +186,10 @@ terraform destroy
 Before running `terraform apply`, make sure to configure variables in `terraform.tfvars`:
 
 ```hcl
-project_id   = "your-gcp-project"
-region       = "name-region"
-bucket_name  = "your-bucket-name"
+project_id     = "your-gcp-project"
+project_number = "123456789012"
+region         = "name-region"
+bucket_name    = "your-bucket-name"
 
 job_name     = "my-cloud-run-batch-job"
 image        = "docker.io/usuario/mi-imagen:20240911"
@@ -254,6 +256,7 @@ This script will:
 > **Basic GCP Configuration:**
 >
 > - GCP_PROJECT_ID
+> - GCP_PROJECT_NUMBER
 > - GCP_REGION
 > - GCP_BUCKET_NAME
 >
@@ -347,6 +350,7 @@ El archivo `.env_example` contiene todas las variables requeridas organizadas po
 ```env
 # Configuración básica de GCP
 GCP_PROJECT_ID=tu-proyecto-gcp
+GCP_PROJECT_NUMBER=123456789012  # Obtenerlo con: gcloud projects describe PROJECT_ID --format='value(projectNumber)'
 GCP_REGION=nombre-region
 GCP_BUCKET_NAME=nombre-de-tu-bucket
 
@@ -467,9 +471,10 @@ terraform destroy
 Antes de ejecutar `terraform apply`, asegúrate de configurar las variables en `terraform.tfvars`:
 
 ```hcl
-project_id   = "tu-proyecto-gcp"
-region       = "nombre-region
-bucket_name  = "nombre-de-tu-bucket"
+project_id     = "tu-proyecto-gcp"
+project_number = "123456789012"
+region         = "nombre-region"
+bucket_name    = "nombre-de-tu-bucket"
 
 job_name     = "mi-cloud-run-batch-job"
 image        = "docker.io/usuario/mi-imagen:20240911"
@@ -536,6 +541,7 @@ Este script:
 > **Configuración básica de GCP:**
 >
 > - GCP_PROJECT_ID
+> - GCP_PROJECT_NUMBER
 > - GCP_REGION
 > - GCP_BUCKET_NAME
 >
