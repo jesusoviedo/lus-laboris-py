@@ -27,6 +27,16 @@ Interactive script to run GitHub Actions workflows locally using `act`.
 
 ## Existing Workflows
 
+- **code-quality.yml**:
+Validates code quality, style, and security across the entire project.
+  - Triggers on push/PR when Python files, configs, or documentation change.
+  - Runs pre-commit hooks (ruff, bandit, mypy, trailing-whitespace, etc.).
+  - Lints API, processing, and utils code separately with ruff.
+  - Performs security scanning with bandit.
+  - Type checks with mypy (pragmatic configuration to avoid false positives).
+  - Runs API tests with pytest and generates coverage reports.
+  - Provides a comprehensive quality summary with all job results.
+
 - **docker-processing-build-publish.yml**:
 Automates the build and publishing of the Docker image for the legal text processing service (`src/processing` folder).
   - Triggers manually or when key files change (`Dockerfile`, `extract_law_text.py`, `pyproject.toml`, `.python-version`).
@@ -97,6 +107,16 @@ Script interactivo para ejecutar workflows de GitHub Actions localmente usando `
   - Incluye lista configurable de variables secretas para mejor gestión de seguridad.
 
 ## Workflows existentes
+
+- **code-quality.yml**:
+Valida la calidad de código, estilo y seguridad en todo el proyecto.
+  - Se ejecuta en push/PR cuando cambian archivos Python, configuraciones o documentación.
+  - Ejecuta hooks de pre-commit (ruff, bandit, mypy, trailing-whitespace, etc.).
+  - Hace linting de API, processing y utils por separado con ruff.
+  - Realiza escaneo de seguridad con bandit.
+  - Chequeo de tipos con mypy (configuración pragmática para evitar falsos positivos).
+  - Ejecuta tests de la API con pytest y genera reportes de cobertura.
+  - Proporciona un resumen completo de calidad con todos los resultados de jobs.
 
 - **docker-processing-build-publish.yml**:
 Automatiza la construcción y publicación de la imagen Docker para el procesamiento de texto legal (carpeta `src/processing`).

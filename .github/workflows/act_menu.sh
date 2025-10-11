@@ -8,22 +8,24 @@
 set -e
 
 # Required variables per workflow
-WORKFLOW1="docker-processing-build-publish.yml"
-WORKFLOW2="docker-api-build-publish.yml"
-WORKFLOW3="terraform-apply-on-tf-change.yml"
-WORKFLOW4="deploy-qdrant.yml"
+WORKFLOW1="code-quality.yml"
+WORKFLOW2="docker-processing-build-publish.yml"
+WORKFLOW3="docker-api-build-publish.yml"
+WORKFLOW4="terraform-apply-on-tf-change.yml"
+WORKFLOW5="deploy-qdrant.yml"
 
-REQUIRED_VARS_WORKFLOW1=(
+REQUIRED_VARS_WORKFLOW1=()  # No required vars for code-quality
+REQUIRED_VARS_WORKFLOW2=(
   "DOCKER_HUB_USERNAME"
   "DOCKER_HUB_PASSWORD"
   "DOCKER_IMAGE_NAME_PROCESSING"
 )
-REQUIRED_VARS_WORKFLOW2=(
+REQUIRED_VARS_WORKFLOW3=(
   "DOCKER_HUB_USERNAME"
   "DOCKER_HUB_PASSWORD"
   "DOCKER_IMAGE_NAME_RAG_API"
 )
-REQUIRED_VARS_WORKFLOW3=(
+REQUIRED_VARS_WORKFLOW4=(
   "GCP_PROJECT_ID"
   "GCP_REGION"
   "GSA_KEY"
@@ -56,7 +58,7 @@ REQUIRED_VARS_WORKFLOW3=(
   "GCP_CLOUD_RUN_API_MAX_INSTANCES"
   "GCP_CLOUD_RUN_API_TIMEOUT"
 )
-REQUIRED_VARS_WORKFLOW4=(
+REQUIRED_VARS_WORKFLOW5=(
   "GCP_PROJECT_ID"
   "GCP_REGION"
   "GSA_KEY"
@@ -82,6 +84,15 @@ GCP_CREDENTIALS_DIR="../../.gcpcredentials"
 if [ ! -f "$ENV_FILE" ]; then
   echo "\n[ERROR] No se encontró el archivo .env en $ENV_FILE.\n"
   exit 1
+fi
+
+# Docker Hub login (execute BEFORE anything else)
+DOCKER_HUB_USERNAME=$(grep '^DOCKER_HUB_USERNAME=' "$ENV_FILE" | cut -d'=' -f2-)
+DOCKER_HUB_PASSWORD=$(grep '^DOCKER_HUB_PASSWORD=' "$ENV_FILE" | cut -d'=' -f2-)
+if [[ -n "$DOCKER_HUB_USERNAME" && -n "$DOCKER_HUB_PASSWORD" ]]; then
+  echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin > /dev/null 2>&1 || {
+    echo "⚠️  Docker Hub login falló. Es posible que no puedas pull/push imágenes."
+  }
 fi
 
 # Find the first .json file in .gcpcredentials
@@ -134,11 +145,12 @@ validar_vars() {
 }
 
 # Menu
-echo "\nSeleccione el workflow a ejecutar:\n"
-echo "1) Build & Publish Docker Image (processing)"
-echo "2) Build & Publish Docker Image (API)"
-echo "3) Terraform Apply on .tf Change"
-echo "4) Deploy Qdrant to VM"
+echo "Seleccione el workflow a ejecutar:"
+echo "1) Code Quality & Style Check"
+echo "2) Build & Publish Docker Image (processing)"
+echo "3) Build & Publish Docker Image (API)"
+echo "4) Terraform Apply on .tf Change"
+echo "5) Deploy Qdrant to VM"
 echo "0) Salir"
 read -p $'\nOpción: ' opcion
 
@@ -159,6 +171,10 @@ case $opcion in
     WORKFLOW="$WORKFLOW4"
     VARS=("${REQUIRED_VARS_WORKFLOW4[@]}")
     ;;
+  5)
+    WORKFLOW="$WORKFLOW5"
+    VARS=("${REQUIRED_VARS_WORKFLOW5[@]}")
+    ;;
   0)
     echo "Saliendo."
     exit 0
@@ -172,15 +188,31 @@ esac
 # Validate variables
 validar_vars "${VARS[@]}"
 
-# Always try Docker login if credentials are present in .env
-DOCKER_HUB_USERNAME=$(grep '^DOCKER_HUB_USERNAME=' "$ENV_FILE" | cut -d'=' -f2-)
-DOCKER_HUB_PASSWORD=$(grep '^DOCKER_HUB_PASSWORD=' "$ENV_FILE" | cut -d'=' -f2-)
-if [[ -n "$DOCKER_HUB_USERNAME" && -n "$DOCKER_HUB_PASSWORD" ]]; then
-  echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin > /dev/null 2>&1 || {
-    echo "⚠️  Docker login failed. You may not be able to pull/push images.";
-  }
-else
-  echo "⚠️  Docker Hub credentials not found in .env. Skipping docker login."
+# Special handling for code-quality workflow (run jobs sequentially)
+if [ "$WORKFLOW" = "$WORKFLOW1" ]; then
+  echo "⚠️  Code Quality workflow se ejecutará secuencialmente (evita conflictos en act)"
+  echo "Ejecutando jobs uno por uno..."
+
+  JOBS=("pre-commit" "lint-api" "lint-processing" "lint-utils" "security-scan" "type-check" "test-api")
+
+  cd ../../
+  for job in "${JOBS[@]}"; do
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "▶️  Ejecutando job: $job"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    act -W ".github/workflows/$WORKFLOW" -j "$job" || {
+      echo "\n❌ Job '$job' falló. ¿Desea continuar con los siguientes jobs? (s/n): "
+      read continue_choice
+      if [[ ! "$continue_choice" =~ ^[sS]$ ]]; then
+        echo "Ejecución cancelada."
+        exit 1
+      fi
+    }
+  done
+
+  echo "\n✅ Todos los jobs de Code Quality completados."
+  exit 0
 fi
 
 # Build arguments

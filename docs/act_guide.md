@@ -17,11 +17,33 @@
 
 ### Linux
 
+**Option 1: Using apt (may be outdated)**
+
 ```bash
 sudo apt-get install act
 ```
 
-Or with Homebrew:
+**Option 2: Install latest version from GitHub Releases (recommended)**
+
+Download and install the latest version directly:
+
+```bash
+# Download latest release
+curl -s https://api.github.com/repos/nektos/act/releases/latest \
+| grep "browser_download_url.*Linux_x86_64.tar.gz" \
+| cut -d '"' -f 4 \
+| wget -i -
+
+# Extract and install
+tar -xzf act_Linux_x86_64.tar.gz
+sudo mv act /usr/local/bin/
+rm act_Linux_x86_64.tar.gz
+
+# Verify installation
+act --version
+```
+
+**Option 3: Using Homebrew**
 
 ```bash
 brew install act
@@ -35,7 +57,56 @@ brew install act
 
 ### Windows
 
-Download the executable from the [act releases page](https://github.com/nektos/act/releases) and add it to your PATH.
+**Option 1: Using Chocolatey (recommended)**
+
+```powershell
+choco install act-cli
+```
+
+**Option 2: Using Scoop**
+
+```powershell
+scoop install act
+```
+
+**Option 3: Manual Installation**
+
+1. Download the Windows executable from the [act releases page](https://github.com/nektos/act/releases)
+2. Extract the `.zip` file
+3. Move `act.exe` to a directory in your PATH (e.g., `C:\Program Files\act\`)
+4. Add that directory to your system PATH if not already there
+5. Verify: `act --version`
+
+## Global Configuration (Recommended)
+
+To avoid compatibility issues with modern GitHub Actions, you can configure `act` globally using a `.actrc` file in your home directory.
+
+### Creating ~/.actrc
+
+Create or edit the file `~/.actrc`:
+
+```bash
+# Use a runner image with Node.js 20 (compatible with modern actions)
+-P ubuntu-latest=catthehacker/ubuntu:full-22.04
+
+# Force linux/amd64 architecture for better compatibility
+--container-architecture linux/amd64
+```
+
+**Benefits:**
+
+- ✅ Applies to all `act` executions on your system
+- ✅ Compatible with modern GitHub Actions (setup-python@v5+, setup-uv@v5+)
+- ✅ Avoids Node.js version conflicts
+- ✅ No need to add flags to every command
+
+**After creating this file**, you can run `act` normally:
+
+```bash
+act -j job-name
+```
+
+And it will automatically use the configured image and architecture.
 
 ## Basic Concepts
 
@@ -151,11 +222,33 @@ act --secret-file ../../.env --env-file ../../.env
 
 ### Linux
 
+**Opción 1: Usando apt (puede estar desactualizado)**
+
 ```bash
 sudo apt-get install act
 ```
 
-O con Homebrew:
+**Opción 2: Instalar última versión desde GitHub Releases (recomendado)**
+
+Descarga e instala la última versión directamente:
+
+```bash
+# Descargar última release
+curl -s https://api.github.com/repos/nektos/act/releases/latest \
+| grep "browser_download_url.*Linux_x86_64.tar.gz" \
+| cut -d '"' -f 4 \
+| wget -i -
+
+# Extraer e instalar
+tar -xzf act_Linux_x86_64.tar.gz
+sudo mv act /usr/local/bin/
+rm act_Linux_x86_64.tar.gz
+
+# Verificar instalación
+act --version
+```
+
+**Opción 3: Usando Homebrew**
 
 ```bash
 brew install act
@@ -169,7 +262,67 @@ brew install act
 
 ### Windows
 
-Descarga el ejecutable desde la [página de releases de act](https://github.com/nektos/act/releases) y agrégalo a tu PATH.
+**Opción 1: Usando Chocolatey (recomendado)**
+
+```powershell
+choco install act-cli
+```
+
+**Opción 2: Usando Scoop**
+
+```powershell
+scoop install act
+```
+
+**Opción 3: Instalación manual**
+
+1. Descarga el ejecutable de Windows desde la [página de releases de act](https://github.com/nektos/act/releases)
+2. Extrae el archivo `.zip`
+3. Mueve `act.exe` a un directorio en tu PATH (ej: `C:\Program Files\act\`)
+4. Agrega ese directorio a tu PATH del sistema si no está ya
+5. Verifica: `act --version`
+
+## Configuración Global (Recomendado)
+
+Para evitar problemas de compatibilidad con GitHub Actions modernas, puedes configurar `act` globalmente usando un archivo `.actrc` en tu directorio home.
+
+### Crear ~/.actrc
+
+Crea o edita el archivo `~/.actrc`:
+
+```bash
+# Usar imagen con Node.js 20 (compatible con actions modernas)
+-P ubuntu-latest=catthehacker/ubuntu:full-22.04
+
+# Forzar arquitectura linux/amd64 para mejor compatibilidad
+--container-architecture linux/amd64
+```
+
+**Beneficios:**
+
+- ✅ Se aplica a todas las ejecuciones de `act` en tu sistema
+- ✅ Compatible con GitHub Actions modernas (setup-python@v5+, setup-uv@v5+)
+- ✅ Evita conflictos de versiones de Node.js
+- ✅ No necesitas agregar flags a cada comando
+
+**Después de crear este archivo**, puedes ejecutar `act` normalmente:
+
+```bash
+act -j nombre-del-job
+```
+
+Y automáticamente usará la imagen y arquitectura configuradas.
+
+### Verificar configuración
+
+Para verificar que act está usando tu configuración:
+
+```bash
+# Ver qué imagen usará
+act -l
+
+# Debería mostrar: catthehacker/ubuntu:full-20.04
+```
 
 ## Conceptos básicos
 

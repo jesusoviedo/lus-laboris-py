@@ -33,17 +33,17 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         version: latest
 
@@ -69,30 +69,27 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
 
-    - name: Install dependencies
-      working-directory: src/lus_laboris_api
+    - name: Install ruff
       run: |
-        uv sync
+        uv tool install ruff
 
     - name: Run ruff linter
-      working-directory: src/lus_laboris_api
       run: |
-        uv run ruff check . --output-format=github
+        uv tool run ruff check src/lus_laboris_api --output-format=github
 
     - name: Run ruff formatter check
-      working-directory: src/lus_laboris_api
       run: |
-        uv run ruff format --check .
+        uv tool run ruff format --check src/lus_laboris_api
 
   lint-processing:
     name: Lint Processing Code
@@ -100,30 +97,27 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
 
-    - name: Install dependencies
-      working-directory: src/processing
+    - name: Install ruff
       run: |
-        uv sync
+        uv tool install ruff
 
     - name: Run ruff linter
-      working-directory: src/processing
       run: |
-        uv run ruff check . --output-format=github
+        uv tool run ruff check src/processing --output-format=github
 
     - name: Run ruff formatter check
-      working-directory: src/processing
       run: |
-        uv run ruff format --check .
+        uv tool run ruff format --check src/processing
 
   lint-utils:
     name: Lint Utils Code
@@ -131,30 +125,27 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
 
-    - name: Install dependencies
-      working-directory: utils
+    - name: Install ruff
       run: |
-        uv sync
+        uv tool install ruff
 
     - name: Run ruff linter
-      working-directory: utils
       run: |
-        uv run ruff check . --output-format=github
+        uv tool run ruff check utils --output-format=github
 
     - name: Run ruff formatter check
-      working-directory: utils
       run: |
-        uv run ruff format --check .
+        uv tool run ruff format --check utils
 
   security-scan:
     name: Security Scan
@@ -162,15 +153,15 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
 
     - name: Install bandit
       run: |
@@ -194,15 +185,15 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
 
     - name: Install mypy
       run: |
@@ -232,15 +223,15 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
 
     - name: Install dependencies
       working-directory: src/lus_laboris_api
