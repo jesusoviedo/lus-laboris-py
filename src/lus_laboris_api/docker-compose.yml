@@ -1,0 +1,12 @@
+services:
+  legal-rag-api:
+    image: rj24/legal-rag-api:latest
+    container_name: legal-rag-api
+    ports:
+    - 8000:8000
+    environment:
+      API_ENV_FILE_PATH: /app/.env
+    volumes:
+    - ../../keys/public_key.pem:/app/api/keys/public_key.pem:ro
+    - ../../.env:/app/.env:ro
+    restart: unless-stopped

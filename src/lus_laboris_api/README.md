@@ -35,27 +35,62 @@ cd src/lus_laboris_api/
 ./docker_build_push.sh
 ```
 
-#### Run with Docker
+#### Run with Docker Compose (Recommended)
+
+The simplest way to run the API is using docker-compose:
 
 ```bash
-# Basic command with volumes
+# Navigate to API directory
+cd src/lus_laboris_api/
+
+# Start the API (pulls image if not present)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the API
+docker-compose down
+```
+
+**Prerequisites:**
+
+- `.env` file in project root (`../../.env`)
+- `keys/public_key.pem` in project root (`../../keys/public_key.pem`)
+
+The `docker-compose.yml` file automatically:
+
+- ✅ Uses relative paths from the API directory
+- ✅ Mounts `.env` and JWT keys as read-only
+- ✅ Exposes port 8000
+- ✅ Restarts automatically unless stopped
+- ✅ Uses the latest image from Docker Hub
+
+#### Run with Docker (Alternative)
+
+If you prefer using `docker run` directly:
+
+```bash
+# From src/lus_laboris_api/ directory - use $(pwd) for relative paths
 docker run -it --rm \
   --name legal-rag-api \
   -p 8000:8000 \
-  -v /path/to/your/keys/public_key.pem:/app/api/keys/public_key.pem \
-  -v /path/to/your/.env:/app/.env \
+  -v $(pwd)/../../keys/public_key.pem:/app/api/keys/public_key.pem:ro \
+  -v $(pwd)/../../.env:/app/.env:ro \
   -e API_ENV_FILE_PATH=/app/.env \
-  your_username/legal-rag-api:latest
+  rj24/legal-rag-api:latest
+
+# Or from project root - with absolute paths
+docker run -it --rm \
+  --name legal-rag-api \
+  -p 8000:8000 \
+  -v /absolute/path/to/keys/public_key.pem:/app/api/keys/public_key.pem:ro \
+  -v /absolute/path/to/.env:/app/.env:ro \
+  -e API_ENV_FILE_PATH=/app/.env \
+  rj24/legal-rag-api:latest
 ```
 
-#### Command Parameters
-
-- **`-it --rm`**: Interactive mode and remove container on exit
-- **`--name legal-rag-api`**: Container name
-- **`-p 8000:8000`**: Maps host port 8000 to container port 8000
-- **`-v /path/to/your/keys/public_key.pem:/app/api/keys/public_key.pem`**: Mounts JWT public key file
-- **`-v /path/to/your/.env:/app/.env`**: Mounts configuration file
-- **`-e API_ENV_FILE_PATH=/app/.env`**: Defines .env file path inside container
+**Important:** Docker requires **absolute paths** for volume mounts. Use `$(pwd)` to get the current directory or provide full paths.
 
 #### Verify it Works
 
@@ -63,7 +98,10 @@ docker run -it --rm \
 # Health check
 curl http://localhost:8000/api/health/
 
-# View logs
+# View logs (docker-compose)
+docker-compose logs -f
+
+# View logs (docker run)
 docker logs legal-rag-api
 
 # Access Swagger UI
@@ -967,27 +1005,62 @@ cd src/lus_laboris_api/
 ./docker_build_push.sh
 ```
 
-#### Ejecutar con Docker
+#### Ejecutar con Docker Compose (Recomendado)
+
+La forma más simple de ejecutar la API es usando docker-compose:
 
 ```bash
-# Comando básico con volúmenes
+# Ir al directorio de la API
+cd src/lus_laboris_api/
+
+# Iniciar la API (descarga la imagen si no está presente)
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Detener la API
+docker-compose down
+```
+
+**Prerequisitos:**
+
+- Archivo `.env` en la raíz del proyecto (`../../.env`)
+- Archivo `keys/public_key.pem` en la raíz del proyecto (`../../keys/public_key.pem`)
+
+El archivo `docker-compose.yml` automáticamente:
+
+- ✅ Usa rutas relativas desde el directorio de la API
+- ✅ Monta `.env` y claves JWT como solo lectura
+- ✅ Expone el puerto 8000
+- ✅ Reinicia automáticamente a menos que se detenga
+- ✅ Usa la última imagen de Docker Hub
+
+#### Ejecutar con Docker (Alternativa)
+
+Si prefieres usar `docker run` directamente:
+
+```bash
+# Desde el directorio src/lus_laboris_api/ - usa $(pwd) para rutas relativas
 docker run -it --rm \
   --name legal-rag-api \
   -p 8000:8000 \
-  -v /ruta/a/tus/keys/public_key.pem:/app/api/keys/public_key.pem \
-  -v /ruta/a/tu/.env:/app/.env \
+  -v $(pwd)/../../keys/public_key.pem:/app/api/keys/public_key.pem:ro \
+  -v $(pwd)/../../.env:/app/.env:ro \
   -e API_ENV_FILE_PATH=/app/.env \
-  tu_usuario/legal-rag-api:latest
+  rj24/legal-rag-api:latest
+
+# O desde la raíz del proyecto - con rutas absolutas
+docker run -it --rm \
+  --name legal-rag-api \
+  -p 8000:8000 \
+  -v /ruta/absoluta/a/keys/public_key.pem:/app/api/keys/public_key.pem:ro \
+  -v /ruta/absoluta/a/.env:/app/.env:ro \
+  -e API_ENV_FILE_PATH=/app/.env \
+  rj24/legal-rag-api:latest
 ```
 
-#### Parámetros del Comando
-
-- **`-it --rm`**: Modo interactivo y eliminar contenedor al salir
-- **`--name legal-rag-api`**: Nombre del contenedor
-- **`-p 8000:8000`**: Mapea el puerto 8000 del host al puerto 8000 del contenedor
-- **`-v /ruta/a/tus/keys/public_key.pem:/app/api/keys/public_key.pem`**: Monta el archivo de clave pública JWT
-- **`-v /ruta/a/tu/.env:/app/.env`**: Monta el archivo de configuración
-- **`-e API_ENV_FILE_PATH=/app/.env`**: Define la ruta del archivo .env dentro del contenedor
+**Importante:** Docker requiere **rutas absolutas** para montar volúmenes. Usa `$(pwd)` para obtener el directorio actual o proporciona rutas completas.
 
 #### Verificar que Funciona
 
@@ -995,7 +1068,10 @@ docker run -it --rm \
 # Health check
 curl http://localhost:8000/api/health/
 
-# Ver logs
+# Ver logs (docker-compose)
+docker-compose logs -f
+
+# Ver logs (docker run)
 docker logs legal-rag-api
 
 # Acceder a Swagger UI
