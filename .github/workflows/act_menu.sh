@@ -13,6 +13,7 @@ WORKFLOW2="docker-processing-build-publish.yml"
 WORKFLOW3="docker-api-build-publish.yml"
 WORKFLOW4="terraform-apply-on-tf-change.yml"
 WORKFLOW5="deploy-qdrant.yml"
+WORKFLOW6="update-api-secrets-deploy.yml"
 
 REQUIRED_VARS_WORKFLOW1=()  # No required vars for code-quality
 REQUIRED_VARS_WORKFLOW2=(
@@ -42,16 +43,6 @@ REQUIRED_VARS_WORKFLOW4=(
   "GCP_CLOUD_RUN_API_SERVICE_NAME"
   "GCP_CLOUD_RUN_API_IMAGE"
   "GCP_CLOUD_RUN_API_CONTAINER_PORT"
-  "GCP_CLOUD_RUN_API_LOG_LEVEL"
-  "GCP_CLOUD_RUN_API_QDRANT_URL"
-  "GCP_CLOUD_RUN_API_QDRANT_API_KEY"
-  "GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME"
-  "GCP_CLOUD_RUN_API_EMBEDDING_MODEL"
-  "GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH"
-  "GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE"
-  "GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH"
-  "GCP_CLOUD_RUN_API_ALLOWED_ORIGINS"
-  "GCP_CLOUD_RUN_API_ALLOWED_HOSTS"
   "GCP_CLOUD_RUN_API_CPU"
   "GCP_CLOUD_RUN_API_MEMORY"
   "GCP_CLOUD_RUN_API_MIN_INSTANCES"
@@ -64,6 +55,16 @@ REQUIRED_VARS_WORKFLOW5=(
   "GSA_KEY"
   "QDRANT_API_KEY"
 )
+REQUIRED_VARS_WORKFLOW6=(
+  "GCP_PROJECT_ID"
+  "GCP_REGION"
+  "GSA_KEY"
+  "API_ENV_FILE"
+  "JWT_PUBLIC_KEY"
+  "GCP_CLOUD_RUN_API_SERVICE_NAME"
+  "DOCKER_HUB_USERNAME"
+  "DOCKER_IMAGE_NAME_RAG_API"
+)
 
 # List of variables that should be treated as secrets (use -s instead of --var)
 SECRET_VARS=(
@@ -73,7 +74,10 @@ SECRET_VARS=(
   "GCP_PROJECT_ID"
   "GCP_REGION"
   "QDRANT_API_KEY"
-  "GCP_CLOUD_RUN_API_QDRANT_API_KEY"
+  "API_ENV_FILE"
+  "JWT_PUBLIC_KEY"
+  "OPENAI_API_KEY"
+  "GEMINI_API_KEY"
   # Add more secret variables here as needed
 )
 
@@ -151,6 +155,7 @@ echo "2) Build & Publish Docker Image (processing)"
 echo "3) Build & Publish Docker Image (API)"
 echo "4) Terraform Apply on .tf Change"
 echo "5) Deploy Qdrant to VM"
+echo "6) Update API Secrets & Deploy to Cloud Run"
 echo "0) Salir"
 read -p $'\nOpción: ' opcion
 
@@ -174,6 +179,10 @@ case $opcion in
   5)
     WORKFLOW="$WORKFLOW5"
     VARS=("${REQUIRED_VARS_WORKFLOW5[@]}")
+    ;;
+  6)
+    WORKFLOW="$WORKFLOW6"
+    VARS=("${REQUIRED_VARS_WORKFLOW6[@]}")
     ;;
   0)
     echo "Saliendo."

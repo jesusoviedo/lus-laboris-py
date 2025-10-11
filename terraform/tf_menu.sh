@@ -59,20 +59,11 @@ create_tfvars() {
     GCP_COMPUTE_ENGINE_VM_ZONE=$(read_env_var "GCP_COMPUTE_ENGINE_VM_ZONE" "$ENV_FILE")
     GCP_COMPUTE_ENGINE_VM_DISK_SIZE=$(read_env_var "GCP_COMPUTE_ENGINE_VM_DISK_SIZE" "$ENV_FILE")
 
-    # Read Cloud Run API variables
+    # Read Cloud Run API variables (only infrastructure-related)
+    # Application configuration (Qdrant, JWT, etc.) comes from .env in Secret Manager
     GCP_CLOUD_RUN_API_SERVICE_NAME=$(read_env_var "GCP_CLOUD_RUN_API_SERVICE_NAME" "$ENV_FILE")
     GCP_CLOUD_RUN_API_IMAGE=$(read_env_var "GCP_CLOUD_RUN_API_IMAGE" "$ENV_FILE")
     GCP_CLOUD_RUN_API_CONTAINER_PORT=$(read_env_var "GCP_CLOUD_RUN_API_CONTAINER_PORT" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_LOG_LEVEL=$(read_env_var "GCP_CLOUD_RUN_API_LOG_LEVEL" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_QDRANT_URL=$(read_env_var "GCP_CLOUD_RUN_API_QDRANT_URL" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_QDRANT_API_KEY=$(read_env_var "GCP_CLOUD_RUN_API_QDRANT_API_KEY" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=$(read_env_var "GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=$(read_env_var "GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_EMBEDDING_MODEL=$(read_env_var "GCP_CLOUD_RUN_API_EMBEDDING_MODEL" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=$(read_env_var "GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=$(read_env_var "GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" "$ENV_FILE")
-    GCP_CLOUD_RUN_API_ALLOWED_HOSTS=$(read_env_var "GCP_CLOUD_RUN_API_ALLOWED_HOSTS" "$ENV_FILE")
     GCP_CLOUD_RUN_API_CPU=$(read_env_var "GCP_CLOUD_RUN_API_CPU" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_API_MEMORY=$(read_env_var "GCP_CLOUD_RUN_API_MEMORY" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
     GCP_CLOUD_RUN_API_MIN_INSTANCES=$(read_env_var "GCP_CLOUD_RUN_API_MIN_INSTANCES" "$ENV_FILE")
@@ -95,17 +86,10 @@ create_tfvars() {
     [[ -z "$GCP_COMPUTE_ENGINE_VM_ZONE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_ZONE")
     [[ -z "$GCP_COMPUTE_ENGINE_VM_DISK_SIZE" ]] && MISSING_VARS+=("GCP_COMPUTE_ENGINE_VM_DISK_SIZE")
 
-    # Check Cloud Run API variables
+    # Check Cloud Run API variables (only infrastructure-related)
     [[ -z "$GCP_CLOUD_RUN_API_SERVICE_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_SERVICE_NAME")
     [[ -z "$GCP_CLOUD_RUN_API_IMAGE" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_IMAGE")
     [[ -z "$GCP_CLOUD_RUN_API_CONTAINER_PORT" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_CONTAINER_PORT")
-    [[ -z "$GCP_CLOUD_RUN_API_QDRANT_URL" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_URL")
-    [[ -z "$GCP_CLOUD_RUN_API_QDRANT_API_KEY" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_API_KEY")
-    [[ -z "$GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME")
-    [[ -z "$GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH")
-    [[ -z "$GCP_CLOUD_RUN_API_EMBEDDING_MODEL" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_EMBEDDING_MODEL")
-    [[ -z "$GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE")
-    [[ -z "$GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH")
     [[ -z "$GCP_CLOUD_RUN_API_CPU" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_CPU")
     [[ -z "$GCP_CLOUD_RUN_API_MEMORY" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_MEMORY")
 
@@ -134,17 +118,10 @@ qdrant_vm_zone        = "$GCP_COMPUTE_ENGINE_VM_ZONE"
 qdrant_vm_disk_size   = $GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 
 # Cloud Run Service for API
+# Application configuration (Qdrant, JWT, Embedding, etc.) comes from .env in Secret Manager
 api_service_name = "$GCP_CLOUD_RUN_API_SERVICE_NAME"
 api_image       = "$GCP_CLOUD_RUN_API_IMAGE"
 api_container_port = $GCP_CLOUD_RUN_API_CONTAINER_PORT
-api_log_level   = "${GCP_CLOUD_RUN_API_LOG_LEVEL:-info}"
-qdrant_url      = "$GCP_CLOUD_RUN_API_QDRANT_URL"
-qdrant_api_key  = "$GCP_CLOUD_RUN_API_QDRANT_API_KEY"
-qdrant_collection_name = "$GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME"
-api_gcp_credentials_path = "$GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH"
-api_embedding_model = "$GCP_CLOUD_RUN_API_EMBEDDING_MODEL"
-api_embedding_batch_size = $GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE
-api_jwt_public_key_path = "$GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH"
 api_cpu = "$GCP_CLOUD_RUN_API_CPU"
 api_memory = "$GCP_CLOUD_RUN_API_MEMORY"
 api_min_instance_count = ${GCP_CLOUD_RUN_API_MIN_INSTANCES:-0}
@@ -160,23 +137,6 @@ EOF
     done
     ARGS_LIST=$(IFS=', '; echo "${ARGS_ARRAY[*]}")
     echo "args         = [$ARGS_LIST]" >> "$TFVARS_FILE"
-
-    # Handle allowed_origins and allowed_hosts as lists
-    if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" ]; then
-        # Remove outer quotes if they exist and convert single quotes to double quotes
-        ORIGINS_CLEAN=$(echo "$GCP_CLOUD_RUN_API_ALLOWED_ORIGINS" | sed 's/^"//' | sed 's/"$//' | sed "s/'/\"/g")
-        echo "api_allowed_origins = $ORIGINS_CLEAN" >> "$TFVARS_FILE"
-    else
-        echo "api_allowed_origins = [\"*\"]" >> "$TFVARS_FILE"
-    fi
-
-    if [ -n "$GCP_CLOUD_RUN_API_ALLOWED_HOSTS" ]; then
-        # Remove outer quotes if they exist and convert single quotes to double quotes
-        HOSTS_CLEAN=$(echo "$GCP_CLOUD_RUN_API_ALLOWED_HOSTS" | sed 's/^"//' | sed 's/"$//' | sed "s/'/\"/g")
-        echo "api_allowed_hosts = $HOSTS_CLEAN" >> "$TFVARS_FILE"
-    else
-        echo "api_allowed_hosts = [\"*\"]" >> "$TFVARS_FILE"
-    fi
 
     echo "✅ Archivo terraform.tfvars generado correctamente"
   else

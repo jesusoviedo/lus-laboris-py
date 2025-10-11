@@ -26,29 +26,38 @@ module "compute_engine" {
   disk_size   = var.qdrant_vm_disk_size
 }
 
+# Secret Manager module - Required for Cloud Run deployment
+# Must be created BEFORE Cloud Run service
+module "secret_manager" {
+  source = "./modules/secret_manager"
+
+  project_id                = var.project_id
+  cloud_run_service_account = data.google_project.current.number
+}
+
+# Data source to get project number for default service account
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
+# Cloud Run service - Uses secrets from Secret Manager
 module "cloud_run_service" {
   source = "./modules/cloud_run_service"
 
-  project_id                = var.project_id
-  region                   = var.region
-  service_name             = var.api_service_name
+  project_id              = var.project_id
+  region                  = var.region
+  service_name            = var.api_service_name
   image                   = var.api_image
   container_port          = var.api_container_port
-  log_level               = var.api_log_level
-  qdrant_url              = var.qdrant_url
-  qdrant_api_key          = var.qdrant_api_key
-  qdrant_collection_name  = var.qdrant_collection_name
-  gcp_credentials_path    = var.api_gcp_credentials_path
-  embedding_model         = var.api_embedding_model
-  embedding_batch_size    = var.api_embedding_batch_size
-  jwt_public_key_path     = var.api_jwt_public_key_path
-  allowed_origins         = var.api_allowed_origins
-  allowed_hosts           = var.api_allowed_hosts
   cpu                     = var.api_cpu
   memory                  = var.api_memory
   min_instance_count      = var.api_min_instance_count
   max_instance_count      = var.api_max_instance_count
   timeout                 = var.api_timeout
+  env_secret_name         = module.secret_manager.env_secret_name
+  jwt_secret_name         = module.secret_manager.jwt_secret_name
+
+  depends_on = [module.secret_manager]
 }
 
 # Outputs
@@ -95,4 +104,15 @@ output "api_service_location" {
 
 output "api_service_id" {
   value = module.cloud_run_service.service_id
+}
+
+# Secret Manager outputs
+output "secret_manager_env_secret_name" {
+  value       = module.secret_manager.env_secret_name
+  description = "Name of the .env secret in Secret Manager"
+}
+
+output "secret_manager_jwt_secret_name" {
+  value       = module.secret_manager.jwt_secret_name
+  description = "Name of the JWT public key secret in Secret Manager"
 }

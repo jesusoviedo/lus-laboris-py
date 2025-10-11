@@ -83,20 +83,10 @@ GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=type-machine
 GCP_COMPUTE_ENGINE_VM_ZONE=name-zone
 GCP_COMPUTE_ENGINE_VM_DISK_SIZE=50
 
-# Cloud Run API Service Configuration
+# Cloud Run API Service Configuration (Infrastructure only)
+# Application configuration (Qdrant, JWT, Embedding, etc.) comes from .env in Secret Manager
 GCP_CLOUD_RUN_API_SERVICE_NAME=lus-laboris-api
 GCP_CLOUD_RUN_API_IMAGE=docker.io/rj24/lus-laboris-api:latest
-GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
-GCP_CLOUD_RUN_API_LOG_LEVEL=info
-GCP_CLOUD_RUN_API_QDRANT_URL=http://10.0.0.2:6333
-GCP_CLOUD_RUN_API_QDRANT_API_KEY=your-qdrant-api-key
-GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=lus_laboris_articles
-GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=/app/.gcpcredentials/service-account.json
-GCP_CLOUD_RUN_API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=100
-GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=/app/keys/public_key.pem
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
 GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
 GCP_CLOUD_RUN_API_CPU=1
 GCP_CLOUD_RUN_API_MEMORY=1Gi
@@ -110,42 +100,8 @@ These variables are required for the interactive script and for generating the `
 - **Basic GCP Configuration**: Core project settings
 - **Cloud Run Job Configuration**: Variables for the scheduled batch job
 - **Compute Engine VM Configuration**: Variables for creating the Qdrant VM
-- **Cloud Run API Service Configuration**: Variables for the FastAPI service
-
-### Important Format Notes for List Variables
-
-The following variables must be formatted as Terraform lists (without outer quotes):
-
-- `GCP_CLOUD_RUN_API_ALLOWED_ORIGINS`: List of allowed CORS origins
-- `GCP_CLOUD_RUN_API_ALLOWED_HOSTS`: List of allowed hosts
-
-**Correct format examples:**
-
-```env
-# Single wildcard (most common)
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
-
-# Multiple specific values
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://example.com", "https://app.example.com"]
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["example.com", "api.example.com"]
-
-# Mixed values
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://example.com", "*"]
-```
-
-**Incorrect formats (will cause Terraform errors):**
-
-```env
-# ❌ Wrong: Single quotes around the entire list
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
-
-# ❌ Wrong: Double quotes around the entire list  
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="["*"]"
-
-# ❌ Wrong: Missing brackets
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="*"
-```
+- **Cloud Run API Service Configuration**: Infrastructure variables only (service name, image, resources)
+  - Application configuration (Qdrant, JWT, Embedding, Security, etc.) is managed via Secret Manager
 
 ### Step 1: Create Terraform State Bucket
 
@@ -265,6 +221,7 @@ This Terraform project creates:
 - **Google Cloud Storage Bucket**: A bucket for storing files with uniform bucket-level access
 - **Cloud Run Job (batch)**: A scheduled job that runs a Docker image from Docker Hub every day at 23:00
 - **Cloud Run Service (API)**: A FastAPI service that runs on-demand for legal document queries
+- **Secret Manager Secrets**: Secure storage for API configuration (.env file) and JWT public key, updated via GitHub Actions workflow
 - **Compute Engine Instance**: A VM instance for hosting services like Qdrant vector database
 - **Firewall Rules**: Network rules to allow access to the VM on required ports (22, 6333, 6334)
 - **Regional configuration**: All resources are created in the region specified in `terraform.tfvars`
@@ -315,14 +272,18 @@ This script will:
 > - GCP_COMPUTE_ENGINE_VM_ZONE
 > - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 >
-> **Cloud Run API Service Configuration:**
+> **Cloud Run API Service Configuration (Infrastructure only):**
 >
 > - GCP_CLOUD_RUN_API_SERVICE_NAME
 > - GCP_CLOUD_RUN_API_IMAGE
-> - GCP_CLOUD_RUN_API_QDRANT_URL
-> - GCP_CLOUD_RUN_API_QDRANT_API_KEY
-> - GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME
-> - GCP_CLOUD_RUN_API_EMBEDDING_MODEL
+> - GCP_CLOUD_RUN_API_CONTAINER_PORT
+> - GCP_CLOUD_RUN_API_CPU
+> - GCP_CLOUD_RUN_API_MEMORY
+> - GCP_CLOUD_RUN_API_MIN_INSTANCES
+> - GCP_CLOUD_RUN_API_MAX_INSTANCES
+> - GCP_CLOUD_RUN_API_TIMEOUT
+>
+> **Note:** Application configuration (Qdrant, JWT, Embedding, Security, etc.) is managed via Secret Manager, not Terraform variables.
 >
 > If any of these variables are missing, the script will show a clear error with validation details and will not generate the `terraform.tfvars` file. You will not be able to run Terraform commands until all are set.
 
@@ -402,20 +363,10 @@ GCP_COMPUTE_ENGINE_VM_MACHINE_TYPE=tipo-maquina
 GCP_COMPUTE_ENGINE_VM_ZONE=nombre-zona
 GCP_COMPUTE_ENGINE_VM_DISK_SIZE=50
 
-# Configuración de Cloud Run API Service
+# Configuración de Cloud Run API Service (Solo infraestructura)
+# La configuración de aplicación (Qdrant, JWT, Embedding, etc.) viene del .env en Secret Manager
 GCP_CLOUD_RUN_API_SERVICE_NAME=lus-laboris-api
 GCP_CLOUD_RUN_API_IMAGE=docker.io/rj24/lus-laboris-api:latest
-GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
-GCP_CLOUD_RUN_API_LOG_LEVEL=info
-GCP_CLOUD_RUN_API_QDRANT_URL=http://10.0.0.2:6333
-GCP_CLOUD_RUN_API_QDRANT_API_KEY=tu-qdrant-api-key
-GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME=lus_laboris_articles
-GCP_CLOUD_RUN_API_GCP_CREDENTIALS_PATH=/app/.gcpcredentials/service-account.json
-GCP_CLOUD_RUN_API_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-GCP_CLOUD_RUN_API_EMBEDDING_BATCH_SIZE=100
-GCP_CLOUD_RUN_API_JWT_PUBLIC_KEY_PATH=/app/keys/public_key.pem
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
 GCP_CLOUD_RUN_API_CONTAINER_PORT=8000
 GCP_CLOUD_RUN_API_CPU=1
 GCP_CLOUD_RUN_API_MEMORY=1Gi
@@ -429,42 +380,8 @@ Estas variables son requeridas por el script interactivo y para la generación a
 - **Configuración básica de GCP**: Configuraciones principales del proyecto
 - **Configuración de Cloud Run Job**: Variables para el job batch programado
 - **Configuración de Compute Engine VM**: Variables para crear la VM de Qdrant
-- **Configuración de Cloud Run API Service**: Variables para el servicio de API FastAPI
-
-### Notas Importantes sobre el Formato de Variables de Lista
-
-Las siguientes variables deben tener formato de lista de Terraform (sin comillas externas):
-
-- `GCP_CLOUD_RUN_API_ALLOWED_ORIGINS`: Lista de orígenes CORS permitidos
-- `GCP_CLOUD_RUN_API_ALLOWED_HOSTS`: Lista de hosts permitidos
-
-**Ejemplos de formato correcto:**
-
-```env
-# Comodín único (más común)
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["*"]
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["*"]
-
-# Múltiples valores específicos
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://ejemplo.com", "https://app.ejemplo.com"]
-GCP_CLOUD_RUN_API_ALLOWED_HOSTS=["ejemplo.com", "api.ejemplo.com"]
-
-# Valores mixtos
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS=["https://ejemplo.com", "*"]
-```
-
-**Formatos incorrectos (causarán errores de Terraform):**
-
-```env
-# ❌ Incorrecto: Comillas simples alrededor de toda la lista
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS='["*"]'
-
-# ❌ Incorrecto: Comillas dobles alrededor de toda la lista
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="["*"]"
-
-# ❌ Incorrecto: Faltan corchetes
-GCP_CLOUD_RUN_API_ALLOWED_ORIGINS="*"
-```
+- **Configuración de Cloud Run API Service**: Solo variables de infraestructura (nombre, imagen, recursos)
+  - La configuración de aplicación (Qdrant, JWT, Embedding, Seguridad, etc.) se gestiona mediante Secret Manager
 
 ### Paso 1: Crear Bucket para Estado de Terraform
 
@@ -586,6 +503,7 @@ Este proyecto de Terraform crea:
 - **Google Cloud Storage Bucket**: Un bucket para almacenar archivos con acceso uniforme a nivel de bucket
 - **Cloud Run Job (batch)**: Un job programado que ejecuta una imagen de Docker Hub todos los días a las 23:00
 - **Cloud Run Service (API)**: Un servicio de API FastAPI que se ejecuta bajo demanda para consultas de documentos legales
+- **Secretos de Secret Manager**: Almacenamiento seguro para la configuración de la API (archivo .env) y clave pública JWT, actualizado mediante workflow de GitHub Actions
 - **Instancia de Compute Engine**: Una instancia VM para hospedar servicios como la base de datos vectorial Qdrant
 - **Reglas de Firewall**: Reglas de red para permitir acceso a la VM en los puertos requeridos (22, 6333, 6334)
 - **Configuración regional**: Todos los recursos se crean en la región especificada en `terraform.tfvars`
@@ -636,14 +554,18 @@ Este script:
 > - GCP_COMPUTE_ENGINE_VM_ZONE
 > - GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 >
-> **Configuración de Cloud Run API Service:**
+> **Configuración de Cloud Run API Service (Solo infraestructura):**
 >
 > - GCP_CLOUD_RUN_API_SERVICE_NAME
 > - GCP_CLOUD_RUN_API_IMAGE
-> - GCP_CLOUD_RUN_API_QDRANT_URL
-> - GCP_CLOUD_RUN_API_QDRANT_API_KEY
-> - GCP_CLOUD_RUN_API_QDRANT_COLLECTION_NAME
-> - GCP_CLOUD_RUN_API_EMBEDDING_MODEL
+> - GCP_CLOUD_RUN_API_CONTAINER_PORT
+> - GCP_CLOUD_RUN_API_CPU
+> - GCP_CLOUD_RUN_API_MEMORY
+> - GCP_CLOUD_RUN_API_MIN_INSTANCES
+> - GCP_CLOUD_RUN_API_MAX_INSTANCES
+> - GCP_CLOUD_RUN_API_TIMEOUT
+>
+> **Nota:** La configuración de aplicación (Qdrant, JWT, Embedding, Seguridad, etc.) se gestiona mediante Secret Manager, no mediante variables de Terraform.
 >
 > Si falta alguna de estas variables, el script mostrará un error claro con detalles de validación y no generará el archivo `terraform.tfvars`. No podrás ejecutar comandos de Terraform hasta que todas estén definidas.
 

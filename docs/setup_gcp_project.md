@@ -153,6 +153,10 @@ gcloud config set project py-labor-law-rag
    - Search for "Cloud Monitoring API"
    - Click "Enable"
 
+9. **Enable Secret Manager API**
+   - Search for "Secret Manager API"
+   - Click "Enable"
+
 ### Using Google Cloud CLI
 
 ```bash
@@ -165,6 +169,7 @@ gcloud services enable iam.googleapis.com
 gcloud services enable logging.googleapis.com
 gcloud services enable monitoring.googleapis.com
 gcloud services enable compute.googleapis.com
+gcloud services enable secretmanager.googleapis.com
 ```
 
 ## Step 3: Create a Service Account
@@ -191,6 +196,7 @@ gcloud services enable compute.googleapis.com
      - **Cloud Scheduler Admin** (`roles/cloudscheduler.admin`)
      - **Compute Instance Admin** (`roles/compute.instanceAdmin`)
      - **Compute Network Admin** (`roles/compute.networkAdmin`)
+     - **Secret Manager Admin** (`roles/secretmanager.admin`)
    - Click "Continue" and then "Done"
 
 ### Using Google Cloud CLI
@@ -235,6 +241,11 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
 gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/compute.networkAdmin"
+
+# Assign Secret Manager Admin role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.admin"
 ```
 
 ## Step 4: Generate JSON Key
@@ -323,6 +334,13 @@ gcloud auth activate-service-account \
 - Allows managing Compute Engine networking resources
 - Includes permissions to create, update, and delete firewall rules
 - Allows configuring network interfaces and access controls
+
+### Secret Manager Admin (`roles/secretmanager.admin`)
+
+- Allows managing Secret Manager secrets
+- Includes permissions to create, update, delete, and access secrets
+- Required for storing API configuration (.env file) and JWT public keys
+- Enables secure configuration management for Cloud Run services
 
 ## Security
 
@@ -516,6 +534,10 @@ gcloud config set project py-labor-law-rag
    - Busca "Cloud Monitoring API"
    - Haz clic en "Habilitar"
 
+9. **Habilitar Secret Manager API**
+   - Busca "Secret Manager API"
+   - Haz clic en "Habilitar"
+
 ### Usando Google Cloud CLI
 
 ```bash
@@ -528,6 +550,7 @@ gcloud services enable iam.googleapis.com
 gcloud services enable logging.googleapis.com
 gcloud services enable monitoring.googleapis.com
 gcloud services enable compute.googleapis.com
+gcloud services enable secretmanager.googleapis.com
 ```
 
 ## Paso 3: Crear una Cuenta de Servicio
@@ -554,6 +577,7 @@ gcloud services enable compute.googleapis.com
      - **Administrador de Cloud Scheduler** (`roles/cloudscheduler.admin`)
      - **Administrador de instancias de Compute** (`roles/compute.instanceAdmin`)
      - **Administrador de red de Compute** (`roles/compute.networkAdmin`)
+     - **Administrador de Secret Manager** (`roles/secretmanager.admin`)
    - Haz clic en "Continuar" y luego en "Listo"
 
 ### Usando Google Cloud CLI
@@ -598,6 +622,11 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
 gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/compute.networkAdmin"
+
+# Asignar rol de Administrador de Secret Manager
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.admin"
 ```
 
 ## Paso 4: Generar Clave JSON
@@ -686,6 +715,13 @@ gcloud auth activate-service-account \
 - Permite gestionar recursos de red de Compute Engine
 - Incluye permisos para crear, actualizar y eliminar reglas de firewall
 - Permite configurar interfaces de red y controles de acceso
+
+### Administrador de Secret Manager (`roles/secretmanager.admin`)
+
+- Permite gestionar secretos de Secret Manager
+- Incluye permisos para crear, actualizar, eliminar y acceder a secretos
+- Requerido para almacenar configuración de la API (archivo .env) y claves públicas JWT
+- Habilita gestión segura de configuración para servicios de Cloud Run
 
 ## Seguridad
 

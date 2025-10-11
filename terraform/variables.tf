@@ -74,61 +74,8 @@ variable "api_container_port" {
   type        = number
 }
 
-variable "api_log_level" {
-  description = "Log level for the API"
-  type        = string
-  default     = "info"
-}
-
-# Qdrant Configuration for API
-variable "qdrant_url" {
-  description = "Qdrant vector database URL"
-  type        = string
-}
-
-variable "qdrant_api_key" {
-  description = "Qdrant API key"
-  type        = string
-  sensitive   = true
-}
-
-variable "qdrant_collection_name" {
-  description = "Qdrant collection name"
-  type        = string
-}
-
-# API Configuration
-variable "api_gcp_credentials_path" {
-  description = "Path to GCP credentials file in the container"
-  type        = string
-}
-
-variable "api_embedding_model" {
-  description = "Default embedding model for the API"
-  type        = string
-}
-
-variable "api_embedding_batch_size" {
-  description = "Batch size for embedding generation"
-  type        = number
-}
-
-variable "api_jwt_public_key_path" {
-  description = "Path to JWT public key in the container"
-  type        = string
-}
-
-variable "api_allowed_origins" {
-  description = "Allowed CORS origins for the API"
-  type        = list(string)
-  default     = ["*"]
-}
-
-variable "api_allowed_hosts" {
-  description = "Allowed hosts for the API"
-  type        = list(string)
-  default     = ["*"]
-}
+# All other API configuration (Qdrant, GCP, Embedding, JWT, Security, etc.)
+# comes from .env file mounted from Secret Manager
 
 # Resource Configuration
 variable "api_cpu" {

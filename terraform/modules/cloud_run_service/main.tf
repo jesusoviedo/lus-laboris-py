@@ -27,75 +27,55 @@ resource "google_cloud_run_v2_service" "api_service" {
         value = "false"
       }
 
-      env {
-        name  = "API_LOG_LEVEL"
-        value = var.log_level
-      }
-
-      # Qdrant Configuration
-      env {
-        name  = "API_QDRANT_URL"
-        value = var.qdrant_url
-      }
-
-      env {
-        name  = "API_QDRANT_API_KEY"
-        value = var.qdrant_api_key
-      }
-
-      env {
-        name  = "API_QDRANT_COLLECTION_NAME"
-        value = var.qdrant_collection_name
-      }
-
-      # GCP Configuration
-      env {
-        name  = "API_GCP_PROJECT_ID"
-        value = var.project_id
-      }
-
-      env {
-        name  = "API_GOOGLE_APPLICATION_CREDENTIALS"
-        value = var.gcp_credentials_path
-      }
-
-      env {
-        name  = "API_GCP_USE_CREDENTIALS"
-        value = "true"
-      }
-
-      # Embedding Configuration
-      env {
-        name  = "API_DEFAULT_EMBEDDING_MODEL"
-        value = var.embedding_model
-      }
-
-      env {
-        name  = "API_EMBEDDING_BATCH_SIZE"
-        value = tostring(var.embedding_batch_size)
-      }
-
-      # JWT Configuration
+      # All other configuration comes from .env file in Secret Manager
+      # JWT Configuration - Path to mounted secret
       env {
         name  = "API_JWT_PUBLIC_KEY_PATH"
-        value = var.jwt_public_key_path
+        value = "/secrets/public_key.pem"
       }
 
-      # Security Configuration
+      # Env file path - Always from Secret Manager
       env {
-        name  = "API_ALLOWED_ORIGINS"
-        value = jsonencode(var.allowed_origins)
-      }
-
-      env {
-        name  = "API_ALLOWED_HOSTS"
-        value = jsonencode(var.allowed_hosts)
+        name  = "API_ENV_FILE_PATH"
+        value = "/secrets/.env"
       }
 
       resources {
         limits = {
           cpu    = var.cpu
           memory = var.memory
+        }
+      }
+
+      # Mount secrets as volumes
+      volume_mounts {
+        name       = "env-secrets"
+        mount_path = "/secrets"
+      }
+    }
+
+    # Volume for .env secret
+    volumes {
+      name = "env-secrets"
+      secret {
+        secret       = var.env_secret_name
+        default_mode = 0444
+        items {
+          version = "latest"
+          path    = ".env"
+        }
+      }
+    }
+
+    # Volume for JWT public key secret
+    volumes {
+      name = "jwt-secrets"
+      secret {
+        secret       = var.jwt_secret_name
+        default_mode = 0444
+        items {
+          version = "latest"
+          path    = "public_key.pem"
         }
       }
     }

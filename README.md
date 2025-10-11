@@ -149,6 +149,29 @@ bash start_api_dev.sh
 - **📚 Extensive Documentation**: Detailed guides for setup and usage
 - **🔍 RAG Evaluation Framework**: Complete evaluation system for retrieval and generation quality
 
+## ☁️ Cloud Deployment
+
+The project infrastructure is deployed to Google Cloud Platform using Terraform and GitHub Actions workflows.
+
+### Quick Start
+
+```bash
+# Setup GCP project and infrastructure
+bash utils/setup_gcp_project.sh
+cd terraform/
+bash tf_menu.sh
+
+# Deploy API updates
+# GitHub Actions → Update API Secrets & Deploy → Run workflow
+```
+
+For detailed deployment instructions, see:
+
+- [terraform/README.md](terraform/README.md) - Infrastructure setup
+- [docs/setup_gcp_project.md](docs/setup_gcp_project.md) - GCP configuration
+- [docs/gcp_resources_guide.md](docs/gcp_resources_guide.md) - GCP resources overview
+- [.github/workflows/README.md](.github/workflows/README.md) - Workflows documentation
+
 ## 📚 Documentation
 
 | Component | Documentation |
@@ -279,6 +302,29 @@ bash start_api_dev.sh
 - **🔄 Pipeline CI/CD**: Workflows automatizados de testing y despliegue
 - **📚 Documentación Extensa**: Guías detalladas para configuración y uso
 - **🔍 Framework de Evaluación RAG**: Sistema completo de evaluación para calidad de recuperación y generación
+
+## ☁️ Despliegue en la Nube
+
+La infraestructura del proyecto se despliega en Google Cloud Platform usando Terraform y workflows de GitHub Actions.
+
+### Inicio Rápido
+
+```bash
+# Configurar proyecto GCP e infraestructura
+bash utils/setup_gcp_project.sh
+cd terraform/
+bash tf_menu.sh
+
+# Desplegar actualizaciones de la API
+# GitHub Actions → Update API Secrets & Deploy → Run workflow
+```
+
+Para instrucciones detalladas de despliegue, consultar:
+
+- [terraform/README.md](terraform/README.md) - Configuración de infraestructura
+- [docs/setup_gcp_project.md](docs/setup_gcp_project.md) - Configuración de GCP
+- [docs/gcp_resources_guide.md](docs/gcp_resources_guide.md) - Guía de recursos de GCP
+- [.github/workflows/README.md](.github/workflows/README.md) - Documentación de workflows
 
 ## 📚 Documentación
 

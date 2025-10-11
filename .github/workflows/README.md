@@ -70,6 +70,17 @@ Deploys Qdrant vector database to a Compute Engine VM instance.
   - Starts Qdrant containers and verifies deployment.
   - Uses repository secrets for GCP project configuration and Qdrant API key.
 
+- **update-api-secrets-deploy.yml**:
+Updates secrets in Google Secret Manager and deploys the API to Cloud Run.
+  - Triggers manually via `workflow_dispatch` with configurable inputs.
+  - Allows specifying image tag to deploy (default: `latest`).
+  - Optional secret update (can deploy without updating secrets).
+  - Updates `.env` file and JWT public key in Secret Manager.
+  - Performs rolling update of Cloud Run service with new image.
+  - Outputs service URL and health check endpoint after deployment.
+  - Independent from full Terraform infrastructure workflow.
+  - Useful for quick API updates without full infrastructure changes.
+
 ## Local Testing with act
 
 To test workflows locally before pushing changes, use the interactive script (run from the current directory):
@@ -150,6 +161,17 @@ Despliega la base de datos vectorial Qdrant en una instancia de Compute Engine V
   - Copia archivos de Docker Compose y crea configuración de entorno.
   - Inicia contenedores de Qdrant y verifica el despliegue.
   - Usa secrets del repositorio para configuración del proyecto GCP y clave API de Qdrant.
+
+- **update-api-secrets-deploy.yml**:
+Actualiza secretos en Google Secret Manager y despliega la API a Cloud Run.
+  - Se activa manualmente mediante `workflow_dispatch` con inputs configurables.
+  - Permite especificar el tag de imagen a desplegar (por defecto: `latest`).
+  - Actualización de secretos opcional (puede desplegar sin actualizar secretos).
+  - Actualiza archivo `.env` y clave pública JWT en Secret Manager.
+  - Realiza actualización rolling del servicio Cloud Run con nueva imagen.
+  - Muestra URL del servicio y endpoint de health check después del despliegue.
+  - Independiente del workflow completo de infraestructura Terraform.
+  - Útil para actualizaciones rápidas de la API sin cambios completos de infraestructura.
 
 ## Pruebas locales con act
 

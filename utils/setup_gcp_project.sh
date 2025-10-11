@@ -142,6 +142,7 @@ enable_apis() {
         "iam.googleapis.com"
         "logging.googleapis.com"
         "monitoring.googleapis.com"
+        "secretmanager.googleapis.com"
     )
 
     for api in "${apis[@]}"; do
@@ -197,6 +198,7 @@ assign_roles() {
         "roles/cloudscheduler.admin"
         "roles/compute.instanceAdmin"
         "roles/compute.networkAdmin"
+        "roles/secretmanager.admin"
     )
 
     for role in "${roles[@]}"; do
