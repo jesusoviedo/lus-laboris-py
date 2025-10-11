@@ -797,28 +797,28 @@ def generate_quality_report(articles: list[dict[str, Any]]) -> str:
 
         report = f"""
 📊 REPORTE DE CALIDAD DE DATOS PROCESADOS
-{'='*50}
+{"=" * 50}
 
 ✅ VALIDACIÓN DE ESTRUCTURA:
-   • Artículos válidos: {validation_results['valid_articles']}/{validation_results['total_articles']}
-   • Score de calidad: {validation_results['quality_score']:.2%}
-   • Artículos con problemas: {len(validation_results['invalid_articles'])}
+   • Artículos válidos: {validation_results["valid_articles"]}/{validation_results["total_articles"]}
+   • Score de calidad: {validation_results["quality_score"]:.2%}
+   • Artículos con problemas: {len(validation_results["invalid_articles"])}
 
 📋 COMPLETITUD DE DATOS:
-   • Artículos encontrados: {completeness_report['found_total']}/413
-   • Completitud: {completeness_report['completeness_percentage']:.1f}%
-   • Artículos faltantes: {len(completeness_report['missing_articles'])}
-   • Artículos duplicados: {len(completeness_report['duplicate_articles'])}
+   • Artículos encontrados: {completeness_report["found_total"]}/413
+   • Completitud: {completeness_report["completeness_percentage"]:.1f}%
+   • Artículos faltantes: {len(completeness_report["missing_articles"])}
+   • Artículos duplicados: {len(completeness_report["duplicate_articles"])}
 
 📝 ANÁLISIS DE CONTENIDO:
-   • Longitud promedio: {quality_metrics['avg_content_length']:.1f} caracteres
-   • Artículos cortos (< 50 chars): {quality_metrics['short_articles']}
-   • Artículos medianos (50-200 chars): {quality_metrics['medium_articles']}
-   • Artículos largos (> 200 chars): {quality_metrics['long_articles']}
-   • Con caracteres especiales: {quality_metrics['articles_with_special_chars']}
-   • Con números: {quality_metrics['articles_with_numbers']}
+   • Longitud promedio: {quality_metrics["avg_content_length"]:.1f} caracteres
+   • Artículos cortos (< 50 chars): {quality_metrics["short_articles"]}
+   • Artículos medianos (50-200 chars): {quality_metrics["medium_articles"]}
+   • Artículos largos (> 200 chars): {quality_metrics["long_articles"]}
+   • Con caracteres especiales: {quality_metrics["articles_with_special_chars"]}
+   • Con números: {quality_metrics["articles_with_numbers"]}
 
-🎯 ESTADO GENERAL: {'✅ EXCELENTE' if validation_results['quality_score'] > 0.95 else '⚠️ REQUIERE ATENCIÓN'}
+🎯 ESTADO GENERAL: {"✅ EXCELENTE" if validation_results["quality_score"] > 0.95 else "⚠️ REQUIERE ATENCIÓN"}
 """
 
         log_process("Reporte de calidad generado", "result")
