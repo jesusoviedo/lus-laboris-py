@@ -71,7 +71,7 @@ jobs:
     - name: Copy Docker Compose files
       run: |
         gcloud compute scp services/vectordb/docker-compose.yml \
-          ${{ steps.get_vm_details.outputs.vm_name }}:/home/\$(whoami)/qdrant/ \
+          ${{ steps.get_vm_details.outputs.vm_name }}:~/qdrant/ \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }}
 
     - name: Create .env file on VM
@@ -79,10 +79,10 @@ jobs:
         gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
           --command="
-            mkdir -p /home/\$(whoami)/qdrant &&
-            echo 'QDRANT_API_KEY=${{ env.QDRANT_API_KEY }}' > /home/\$(whoami)/qdrant/.env &&
-            echo 'QDRANT_HOST=0.0.0.0' >> /home/\$(whoami)/qdrant/.env &&
-            echo 'QDRANT_PORT=6333' >> /home/\$(whoami)/qdrant/.env
+            mkdir -p ~/qdrant &&
+            echo 'QDRANT_API_KEY=${{ env.QDRANT_API_KEY }}' > ~/qdrant/.env &&
+            echo 'QDRANT_HOST=0.0.0.0' >> ~/qdrant/.env &&
+            echo 'QDRANT_PORT=6333' >> ~/qdrant/.env
           "
 
     - name: Start Qdrant
@@ -90,7 +90,7 @@ jobs:
         gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
           --command="
-            cd /home/\$(whoami)/qdrant &&
+            cd ~/qdrant &&
             docker-compose down &&
             docker-compose up -d
           "
