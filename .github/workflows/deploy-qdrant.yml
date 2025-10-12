@@ -14,21 +14,25 @@ jobs:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       GCP_REGION: ${{ secrets.GCP_REGION }}
       QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+      QDRANT_VM_NAME: ${{ vars.QDRANT_VM_NAME }}
+      QDRANT_VM_ZONE: ${{ vars.QDRANT_VM_ZONE }}
     steps:
     - name: Checkout
       uses: actions/checkout@v5
 
-    - name: Setup GCP
-      uses: google-github-actions/setup-gcloud@v3
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v2
       with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GSA_KEY }}
+        credentials_json: ${{ secrets.GSA_KEY }}
+
+    - name: Setup GCP
+      uses: google-github-actions/setup-gcloud@v2
 
     - name: Get VM Details
       id: get_vm_details
       run: |
-        VM_NAME="qdrant-vm"
-        VM_ZONE="southamerica-east1-a"
+        VM_NAME="${{ env.QDRANT_VM_NAME }}"
+        VM_ZONE="${{ env.QDRANT_VM_ZONE }}"
 
         VM_IP=$(gcloud compute instances describe $VM_NAME \
           --zone=$VM_ZONE \
