@@ -73,14 +73,15 @@ Deploys Qdrant vector database to a Compute Engine VM instance.
 
 - **update-api-secrets-deploy.yml**:
 Updates secrets in Google Secret Manager and deploys the API to Cloud Run.
-  - Triggers manually via `workflow_dispatch` with configurable inputs.
-  - Allows specifying image tag to deploy (default: `latest`).
-  - Optional secret update (can deploy without updating secrets).
-  - Updates `.env` file and JWT public key in Secret Manager.
-  - Performs rolling update of Cloud Run service with new image.
+  - Triggers manually via `workflow_dispatch` (no inputs required).
+  - Uses GitHub Variables to configure deployment (image tag, secret IDs, etc.).
+  - Optionally updates secrets in Secret Manager (controlled by `GCP_CLOUD_SECRETS_UPDATE` variable).
+  - Updates `.env` file and JWT public key in Secret Manager when enabled.
+  - Performs rolling update of Cloud Run service with specified image tag.
   - Outputs service URL and health check endpoint after deployment.
   - Independent from full Terraform infrastructure workflow.
   - Useful for quick API updates without full infrastructure changes.
+  - **Required Variables**: `GCP_CLOUD_SECRETS_API_ENV_ID`, `GCP_CLOUD_SECRETS_JWT_KEY_ID` (secret names in Secret Manager).
 
 ## Local Testing with act
 
@@ -166,14 +167,15 @@ Despliega la base de datos vectorial Qdrant en una instancia de Compute Engine V
 
 - **update-api-secrets-deploy.yml**:
 Actualiza secretos en Google Secret Manager y despliega la API a Cloud Run.
-  - Se activa manualmente mediante `workflow_dispatch` con inputs configurables.
-  - Permite especificar el tag de imagen a desplegar (por defecto: `latest`).
-  - Actualización de secretos opcional (puede desplegar sin actualizar secretos).
-  - Actualiza archivo `.env` y clave pública JWT en Secret Manager.
-  - Realiza actualización rolling del servicio Cloud Run con nueva imagen.
+  - Se activa manualmente mediante `workflow_dispatch` (sin inputs requeridos).
+  - Usa Variables de GitHub para configurar el despliegue (tag de imagen, IDs de secrets, etc.).
+  - Actualización de secretos opcional (controlada por variable `GCP_CLOUD_SECRETS_UPDATE`).
+  - Actualiza archivo `.env` y clave pública JWT en Secret Manager cuando está habilitado.
+  - Realiza actualización rolling del servicio Cloud Run con el tag de imagen especificado.
   - Muestra URL del servicio y endpoint de health check después del despliegue.
   - Independiente del workflow completo de infraestructura Terraform.
   - Útil para actualizaciones rápidas de la API sin cambios completos de infraestructura.
+  - **Variables Requeridas**: `GCP_CLOUD_SECRETS_API_ENV_ID`, `GCP_CLOUD_SECRETS_JWT_KEY_ID` (nombres de secrets en Secret Manager).
 
 ## Pruebas locales con act
 
