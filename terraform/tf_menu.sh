@@ -121,10 +121,11 @@ qdrant_vm_zone        = "$GCP_COMPUTE_ENGINE_VM_ZONE"
 qdrant_vm_disk_size   = $GCP_COMPUTE_ENGINE_VM_DISK_SIZE
 
 # Cloud Run Service for API
-# Application configuration (Qdrant, JWT, Embedding, etc.) comes from .env in Secret Manager
+# TEMPORARY: Using hello world image for initial Terraform deployment
+# GitHub Action will update to real image later
 api_service_name = "$GCP_CLOUD_RUN_API_SERVICE_NAME"
-api_image       = "$GCP_CLOUD_RUN_API_IMAGE"
-api_container_port = $GCP_CLOUD_RUN_API_CONTAINER_PORT
+api_image       = "gcr.io/cloudrun/hello"
+api_container_port = 8080
 api_cpu = "$GCP_CLOUD_RUN_API_CPU"
 api_memory = "$GCP_CLOUD_RUN_API_MEMORY"
 api_min_instance_count = ${GCP_CLOUD_RUN_API_MIN_INSTANCES:-0}

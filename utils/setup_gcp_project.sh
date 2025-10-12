@@ -158,6 +158,28 @@ enable_apis() {
     log_success "All APIs enabled successfully"
 }
 
+# Step 2.5: Create App Engine Application
+create_app_engine() {
+    log_step "Creating App Engine application..."
+
+    # Check if App Engine already exists
+    if gcloud app describe --project="$PROJECT_ID" &>/dev/null; then
+        log_warn "App Engine application already exists in project $PROJECT_ID"
+        return 0
+    fi
+
+    log_info "Creating App Engine application in region: $REGION"
+    log_warn "Note: App Engine is required by Cloud Scheduler in some regions"
+
+    if gcloud app create --region="$REGION" --project="$PROJECT_ID"; then
+        log_success "App Engine application created successfully"
+    else
+        log_error "Failed to create App Engine application"
+        log_warn "This may cause issues with Cloud Scheduler"
+        return 1
+    fi
+}
+
 # Step 3: Create Service Account
 create_service_account() {
     log_step "Creating Service Account..."
@@ -198,7 +220,11 @@ assign_roles() {
         "roles/cloudscheduler.admin"
         "roles/compute.instanceAdmin"
         "roles/compute.networkAdmin"
+        "roles/compute.securityAdmin"
         "roles/secretmanager.admin"
+        "roles/logging.admin"
+        "roles/monitoring.notificationChannelEditor"
+        "roles/monitoring.alertPolicyEditor"
     )
 
     for role in "${roles[@]}"; do
@@ -318,13 +344,14 @@ show_menu() {
     echo "Available options:"
     echo "  1) Create Project"
     echo "  2) Enable APIs"
-    echo "  3) Create Service Account"
-    echo "  4) Assign Roles"
-    echo "  5) Generate JSON Key"
-    echo "  6) Verify Setup"
-    echo "  7) Full Setup (all steps)"
-    echo "  8) Show Configuration"
-    echo "  9) Exit"
+    echo "  3) Create App Engine Application"
+    echo "  4) Create Service Account"
+    echo "  5) Assign Roles"
+    echo "  6) Generate JSON Key"
+    echo "  7) Verify Setup"
+    echo "  8) Full Setup (all steps)"
+    echo "  9) Show Configuration"
+    echo "  10) Exit"
     echo
 }
 
@@ -365,7 +392,7 @@ main() {
 
     while true; do
         show_menu
-        echo -n "Select an option (1-9): "
+        echo -n "Select an option (1-10): "
         read -r choice
 
         case $choice in
@@ -376,36 +403,40 @@ main() {
                 enable_apis
                 ;;
             3)
-                create_service_account
+                create_app_engine
                 ;;
             4)
-                assign_roles
+                create_service_account
                 ;;
             5)
-                generate_key
+                assign_roles
                 ;;
             6)
-                verify_setup
+                generate_key
                 ;;
             7)
+                verify_setup
+                ;;
+            8)
                 log_step "Starting full setup..."
                 create_project && \
                 enable_apis && \
+                create_app_engine && \
                 create_service_account && \
                 assign_roles && \
                 generate_key && \
                 verify_setup && \
                 log_success "Full setup completed successfully!"
                 ;;
-            8)
+            9)
                 show_configuration
                 ;;
-            9)
+            10)
                 log_info "Exiting..."
                 exit 0
                 ;;
             *)
-                log_error "Invalid option. Please select 1-9."
+                log_error "Invalid option. Please select 1-10."
                 ;;
         esac
 

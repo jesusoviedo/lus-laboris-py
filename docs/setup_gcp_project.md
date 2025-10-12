@@ -172,6 +172,31 @@ gcloud services enable compute.googleapis.com
 gcloud services enable secretmanager.googleapis.com
 ```
 
+## Step 2.5: Create App Engine Application
+
+App Engine is required by Cloud Scheduler in some regions (including South America). You must create an App Engine application before using Cloud Scheduler.
+
+### Using Google Cloud Console
+
+1. **Navigate to App Engine**
+   - Go to "App Engine" > "Dashboard"
+
+2. **Create Application**
+   - Click "Create Application"
+   - Select region: `southamerica-east1` (São Paulo)
+   - Click "Create"
+
+> ⚠️ **Important**: The App Engine region cannot be changed after creation. Make sure to select the correct region.
+
+### Using Google Cloud CLI
+
+```bash
+# Create App Engine application
+gcloud app create --region=southamerica-east1 --project=py-labor-law-rag
+```
+
+> 💡 **Note**: You don't need to deploy any code to App Engine. Cloud Scheduler just requires the App Engine application to exist in the project.
+
 ## Step 3: Create a Service Account
 
 ### Using Google Cloud Console
@@ -196,7 +221,11 @@ gcloud services enable secretmanager.googleapis.com
      - **Cloud Scheduler Admin** (`roles/cloudscheduler.admin`)
      - **Compute Instance Admin** (`roles/compute.instanceAdmin`)
      - **Compute Network Admin** (`roles/compute.networkAdmin`)
+     - **Compute Security Admin** (`roles/compute.securityAdmin`)
      - **Secret Manager Admin** (`roles/secretmanager.admin`)
+     - **Logging Admin** (`roles/logging.admin`)
+     - **Monitoring Notification Channel Editor** (`roles/monitoring.notificationChannelEditor`)
+     - **Monitoring Alert Policy Editor** (`roles/monitoring.alertPolicyEditor`)
    - Click "Continue" and then "Done"
 
 ### Using Google Cloud CLI
@@ -242,10 +271,30 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/compute.networkAdmin"
 
+# Assign Compute Security Admin role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/compute.securityAdmin"
+
 # Assign Secret Manager Admin role
 gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/secretmanager.admin"
+
+# Assign Logging Admin role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/logging.admin"
+
+# Assign Monitoring Notification Channel Editor role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/monitoring.notificationChannelEditor"
+
+# Assign Monitoring Alert Policy Editor role
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/monitoring.alertPolicyEditor"
 ```
 
 ## Step 4: Generate JSON Key
@@ -332,15 +381,40 @@ gcloud auth activate-service-account \
 ### Compute Network Admin (`roles/compute.networkAdmin`)
 
 - Allows managing Compute Engine networking resources
-- Includes permissions to create, update, and delete firewall rules
+- Includes permissions to create, update, and delete network configurations
 - Allows configuring network interfaces and access controls
+
+### Compute Security Admin (`roles/compute.securityAdmin`)
+
+- Allows managing Compute Engine security resources
+- Includes permissions to create, update, and delete firewall rules
+- Required for configuring VM firewall rules (e.g., Qdrant VM access)
 
 ### Secret Manager Admin (`roles/secretmanager.admin`)
 
 - Allows managing Secret Manager secrets
 - Includes permissions to create, update, delete, and access secrets
 - Required for storing API configuration (.env file) and JWT public keys
-- Enables secure configuration management for Cloud Run services
+
+### Logging Admin (`roles/logging.admin`)
+
+- Allows managing Cloud Logging resources
+- Includes permissions to create, update, and delete logging notification rules
+- Required for creating log-based alert policies
+- Enables monitoring and alerting based on log patterns
+
+### Monitoring Notification Channel Editor (`roles/monitoring.notificationChannelEditor`)
+
+- Allows managing Cloud Monitoring notification channels
+- Includes permissions to create, update, and delete notification channels
+- Required for setting up email alerts for Cloud Run jobs
+
+### Monitoring Alert Policy Editor (`roles/monitoring.alertPolicyEditor`)
+
+- Allows managing Cloud Monitoring alert policies
+- Includes permissions to create, update, and delete alert policies
+- Required for configuring automatic alerts based on metrics
+- Works together with notification channels to send alerts
 
 ## Security
 
@@ -553,6 +627,31 @@ gcloud services enable compute.googleapis.com
 gcloud services enable secretmanager.googleapis.com
 ```
 
+## Paso 2.5: Crear Aplicación de App Engine
+
+App Engine es requerido por Cloud Scheduler en algunas regiones (incluyendo Sudamérica). Debes crear una aplicación de App Engine antes de usar Cloud Scheduler.
+
+### Usando la Consola de Google Cloud
+
+1. **Navegar a App Engine**
+   - Ve a "App Engine" > "Panel de control"
+
+2. **Crear Aplicación**
+   - Haz clic en "Crear aplicación"
+   - Selecciona región: `southamerica-east1` (São Paulo)
+   - Haz clic en "Crear"
+
+> ⚠️ **Importante**: La región de App Engine no se puede cambiar después de la creación. Asegúrate de seleccionar la región correcta.
+
+### Usando Google Cloud CLI
+
+```bash
+# Crear aplicación de App Engine
+gcloud app create --region=southamerica-east1 --project=py-labor-law-rag
+```
+
+> 💡 **Nota**: No necesitas desplegar ningún código en App Engine. Cloud Scheduler solo requiere que la aplicación de App Engine exista en el proyecto.
+
 ## Paso 3: Crear una Cuenta de Servicio
 
 ### Usando la Consola de Google Cloud
@@ -577,7 +676,11 @@ gcloud services enable secretmanager.googleapis.com
      - **Administrador de Cloud Scheduler** (`roles/cloudscheduler.admin`)
      - **Administrador de instancias de Compute** (`roles/compute.instanceAdmin`)
      - **Administrador de red de Compute** (`roles/compute.networkAdmin`)
+     - **Administrador de seguridad de Compute** (`roles/compute.securityAdmin`)
      - **Administrador de Secret Manager** (`roles/secretmanager.admin`)
+     - **Administrador de Logging** (`roles/logging.admin`)
+     - **Editor de canales de notificación de Monitoring** (`roles/monitoring.notificationChannelEditor`)
+     - **Editor de políticas de alerta de Monitoring** (`roles/monitoring.alertPolicyEditor`)
    - Haz clic en "Continuar" y luego en "Listo"
 
 ### Usando Google Cloud CLI
@@ -623,10 +726,30 @@ gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/compute.networkAdmin"
 
+# Asignar rol de Administrador de seguridad de Compute
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/compute.securityAdmin"
+
 # Asignar rol de Administrador de Secret Manager
 gcloud projects add-iam-policy-binding py-labor-law-rag \
   --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
   --role="roles/secretmanager.admin"
+
+# Asignar rol de Administrador de Logging
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/logging.admin"
+
+# Asignar rol de Editor de canales de notificación de Monitoring
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/monitoring.notificationChannelEditor"
+
+# Asignar rol de Editor de políticas de alerta de Monitoring
+gcloud projects add-iam-policy-binding py-labor-law-rag \
+  --member="serviceAccount:lus-laboris-py-service-account@py-labor-law-rag.iam.gserviceaccount.com" \
+  --role="roles/monitoring.alertPolicyEditor"
 ```
 
 ## Paso 4: Generar Clave JSON
@@ -713,15 +836,40 @@ gcloud auth activate-service-account \
 ### Administrador de red de Compute (`roles/compute.networkAdmin`)
 
 - Permite gestionar recursos de red de Compute Engine
-- Incluye permisos para crear, actualizar y eliminar reglas de firewall
+- Incluye permisos para crear, actualizar y eliminar configuraciones de red
 - Permite configurar interfaces de red y controles de acceso
+
+### Administrador de seguridad de Compute (`roles/compute.securityAdmin`)
+
+- Permite gestionar recursos de seguridad de Compute Engine
+- Incluye permisos para crear, actualizar y eliminar reglas de firewall
+- Requerido para configurar reglas de firewall de VM (ej., acceso a VM de Qdrant)
 
 ### Administrador de Secret Manager (`roles/secretmanager.admin`)
 
 - Permite gestionar secretos de Secret Manager
 - Incluye permisos para crear, actualizar, eliminar y acceder a secretos
 - Requerido para almacenar configuración de la API (archivo .env) y claves públicas JWT
-- Habilita gestión segura de configuración para servicios de Cloud Run
+
+### Administrador de Logging (`roles/logging.admin`)
+
+- Permite gestionar recursos de Cloud Logging
+- Incluye permisos para crear, actualizar y eliminar reglas de notificación de logging
+- Requerido para crear políticas de alerta basadas en logs
+- Habilita monitoreo y alertas basadas en patrones de logs
+
+### Editor de canales de notificación de Monitoring (`roles/monitoring.notificationChannelEditor`)
+
+- Permite gestionar canales de notificación de Cloud Monitoring
+- Incluye permisos para crear, actualizar y eliminar canales de notificación
+- Requerido para configurar alertas por email para Cloud Run jobs
+
+### Editor de políticas de alerta de Monitoring (`roles/monitoring.alertPolicyEditor`)
+
+- Permite gestionar políticas de alerta de Cloud Monitoring
+- Incluye permisos para crear, actualizar y eliminar políticas de alerta
+- Requerido para configurar alertas automáticas basadas en métricas
+- Trabaja en conjunto con canales de notificación para enviar alertas
 
 ## Seguridad
 

@@ -3,6 +3,9 @@ resource "google_cloud_run_v2_job" "job" {
   location = var.region
   project  = var.project_id
 
+  # Allow destruction without manual intervention
+  deletion_protection = false
+
   template {
     template {
       containers {
@@ -51,6 +54,12 @@ resource "google_monitoring_alert_policy" "job_failed" {
       filter = "resource.type=\"cloud_run_job\" resource.labels.job_name=\"${var.job_name}\" severity=\"ERROR\""
     }
   }
+
+  alert_strategy {
+    notification_rate_limit {
+      period = "300s"  # 5 minutes between notifications
+    }
+  }
 }
 
 resource "google_monitoring_alert_policy" "job_succeeded" {
@@ -62,6 +71,12 @@ resource "google_monitoring_alert_policy" "job_succeeded" {
     display_name = "Cloud Run Batch Job Succeeded Condition"
     condition_matched_log {
       filter = "resource.type=\"cloud_run_job\" resource.labels.job_name=\"${var.job_name}\" severity=\"INFO\""
+    }
+  }
+
+  alert_strategy {
+    notification_rate_limit {
+      period = "300s"  # 5 minutes between notifications
     }
   }
 }
