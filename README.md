@@ -13,6 +13,7 @@
 [![Docker API](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/docker-api-build-publish.yml)
 [![Terraform Apply](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/terraform-apply-on-tf-change.yml)
 [![Deploy Qdrant](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/deploy-qdrant.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/deploy-qdrant.yml)
+[![Deploy API](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/update-api-secrets-deploy.yml/badge.svg)](https://github.com/jesusoviedo/lus-laboris-py/actions/workflows/update-api-secrets-deploy.yml)
 
 <!-- Language & Package Manager -->
 [![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://www.python.org/)
