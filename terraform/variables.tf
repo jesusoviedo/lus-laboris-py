@@ -77,6 +77,7 @@ variable "api_image" {
 variable "api_container_port" {
   description = "Port that the API container listens on"
   type        = number
+  default     = 8080  # Default for gcr.io/cloudrun/hello dummy image
 }
 
 # All other API configuration (Qdrant, GCP, Embedding, JWT, Security, etc.)
