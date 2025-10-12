@@ -102,7 +102,7 @@ jobs:
 
         # Check if Qdrant is responding
         for i in {1..30}; do
-          if curl -f http://${{ steps.get_vm_details.outputs.vm_ip }}:6333/health; then
+          if curl -f http://${{ steps.get_vm_details.outputs.vm_ip }}:6333/healthz; then
             echo "Qdrant is running successfully!"
             break
           fi
