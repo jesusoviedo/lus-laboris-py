@@ -16,7 +16,7 @@ terraform {
 
 # Providers for Google Cloud
 provider "google" {
-  credentials = file("../.gcpcredentials/lus-laboris-py-service-account.json")
+  # Use GOOGLE_APPLICATION_CREDENTIALS env var if set (GitHub Actions, CI/CD)
   project = var.project_id
   region  = var.region
 }
