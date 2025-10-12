@@ -2,11 +2,14 @@
 Configuration settings for the API
 """
 
+import logging
 import os
 from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -89,7 +92,9 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Log which .env file is being used
+logger.info(f"Using .env file: {settings.Config.env_file}")
 
 # Optional: Debug information
 if settings.api_debug_config:
-    pass
+    logger.info(f"File exists: {settings.Config.env_file.exists()}")
+    logger.info(f"Project root: {settings.Config.project_root}")
