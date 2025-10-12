@@ -27,6 +27,8 @@ project-root/
 │   └── modules/              # Reusable modules
 │       ├── gcs/              # Google Cloud Storage module
 │       ├── cloud_run_job/    # Cloud Run Job (batch) module
+│       ├── cloud_run_service/ # Cloud Run Service (API) module
+│       ├── secret_manager/   # Secret Manager module
 │       └── compute_engine/   # Compute Engine (VM) module
 └── ...
 ```
@@ -41,6 +43,8 @@ project-root/
 - **`tf_menu.sh`**: Interactive menu script for common Terraform operations
 - **`modules/gcs/`**: Reusable module for creating Google Cloud Storage buckets
 - **`modules/cloud_run_job/`**: Module to deploy a scheduled Cloud Run Job (batch) using a Docker image from Docker Hub
+- **`modules/cloud_run_service/`**: Module to deploy a Cloud Run Service (API) with configurable resources
+- **`modules/secret_manager/`**: Module to create and manage secrets in Secret Manager for API configuration
 - **`modules/compute_engine/`**: Module to create Compute Engine instances (VMs) for hosting services like Qdrant
 
 ## Steps to Implement Infrastructure
@@ -94,6 +98,10 @@ GCP_CLOUD_RUN_API_MEMORY=1Gi
 GCP_CLOUD_RUN_API_MIN_INSTANCES=0
 GCP_CLOUD_RUN_API_MAX_INSTANCES=3
 GCP_CLOUD_RUN_API_TIMEOUT=300s
+
+# Secret Manager Configuration (Required)
+GCP_CLOUD_SECRETS_API_ENV_ID=lus-laboris-api-env-file
+GCP_CLOUD_SECRETS_JWT_KEY_ID=lus-laboris-jwt-public-key
 ```
 
 These variables are required for the interactive script and for generating the `terraform.tfvars` file automatically:
@@ -103,6 +111,8 @@ These variables are required for the interactive script and for generating the `
 - **Compute Engine VM Configuration**: Variables for creating the Qdrant VM
 - **Cloud Run API Service Configuration**: Infrastructure variables only (service name, image, resources)
   - Application configuration (Qdrant, JWT, Embedding, Security, etc.) is managed via Secret Manager
+- **Secret Manager Configuration** (Required): Names for secrets in Secret Manager
+  - These variables are required and must be set in the `.env` file
 
 ### Step 1: Create Terraform State Bucket
 
@@ -286,6 +296,11 @@ This script will:
 > - GCP_CLOUD_RUN_API_MAX_INSTANCES
 > - GCP_CLOUD_RUN_API_TIMEOUT
 >
+> **Secret Manager Configuration (Required):**
+>
+> - GCP_CLOUD_SECRETS_API_ENV_ID
+> - GCP_CLOUD_SECRETS_JWT_KEY_ID
+>
 > **Note:** Application configuration (Qdrant, JWT, Embedding, Security, etc.) is managed via Secret Manager, not Terraform variables.
 >
 > If any of these variables are missing, the script will show a clear error with validation details and will not generate the `terraform.tfvars` file. You will not be able to run Terraform commands until all are set.
@@ -310,6 +325,8 @@ raiz-del-proyecto/
 │   └── modules/              # Módulos reutilizables
 │       ├── gcs/              # Módulo para Google Cloud Storage
 │       ├── cloud_run_job/    # Módulo para Cloud Run Job (batch)
+│       ├── cloud_run_service/ # Módulo para Cloud Run Service (API)
+│       ├── secret_manager/   # Módulo para Secret Manager
 │       └── compute_engine/   # Módulo para Compute Engine (VM)
 └── ...
 ```
@@ -324,6 +341,8 @@ raiz-del-proyecto/
 - **`tf_menu.sh`**: Script de menú interactivo para operaciones comunes de Terraform
 - **`modules/gcs/`**: Módulo reutilizable para crear buckets de Google Cloud Storage
 - **`modules/cloud_run_job/`**: Módulo para desplegar un Cloud Run Job (batch) programado usando una imagen de Docker Hub
+- **`modules/cloud_run_service/`**: Módulo para desplegar un Cloud Run Service (API) con recursos configurables
+- **`modules/secret_manager/`**: Módulo para crear y gestionar secrets en Secret Manager para configuración de la API
 - **`modules/compute_engine/`**: Módulo para crear instancias de Compute Engine (VMs) para hospedar servicios como Qdrant
 
 ## Pasos para Implementar la Infraestructura
@@ -377,6 +396,10 @@ GCP_CLOUD_RUN_API_MEMORY=1Gi
 GCP_CLOUD_RUN_API_MIN_INSTANCES=0
 GCP_CLOUD_RUN_API_MAX_INSTANCES=3
 GCP_CLOUD_RUN_API_TIMEOUT=300s
+
+# Configuración de Secret Manager (Requerida)
+GCP_CLOUD_SECRETS_API_ENV_ID=lus-laboris-api-env-file
+GCP_CLOUD_SECRETS_JWT_KEY_ID=lus-laboris-jwt-public-key
 ```
 
 Estas variables son requeridas por el script interactivo y para la generación automática del archivo `terraform.tfvars`:
@@ -386,6 +409,8 @@ Estas variables son requeridas por el script interactivo y para la generación a
 - **Configuración de Compute Engine VM**: Variables para crear la VM de Qdrant
 - **Configuración de Cloud Run API Service**: Solo variables de infraestructura (nombre, imagen, recursos)
   - La configuración de aplicación (Qdrant, JWT, Embedding, Seguridad, etc.) se gestiona mediante Secret Manager
+- **Configuración de Secret Manager** (Requerida): Nombres para secrets en Secret Manager
+  - Estas variables son obligatorias y deben estar definidas en el archivo `.env`
 
 ### Paso 1: Crear Bucket para Estado de Terraform
 
@@ -570,6 +595,11 @@ Este script:
 > - GCP_CLOUD_RUN_API_MIN_INSTANCES
 > - GCP_CLOUD_RUN_API_MAX_INSTANCES
 > - GCP_CLOUD_RUN_API_TIMEOUT
+>
+> **Configuración de Secret Manager (Requerida):**
+>
+> - GCP_CLOUD_SECRETS_API_ENV_ID
+> - GCP_CLOUD_SECRETS_JWT_KEY_ID
 >
 > **Nota:** La configuración de aplicación (Qdrant, JWT, Embedding, Seguridad, etc.) se gestiona mediante Secret Manager, no mediante variables de Terraform.
 >

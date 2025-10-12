@@ -33,6 +33,8 @@ module "secret_manager" {
 
   project_id                = var.project_id
   cloud_run_service_account = var.project_number
+  api_env_secret_id         = var.api_env_secret_id
+  jwt_public_key_secret_id  = var.jwt_public_key_secret_id
 }
 
 # Cloud Run service - Uses secrets from Secret Manager

@@ -70,6 +70,10 @@ create_tfvars() {
     GCP_CLOUD_RUN_API_MIN_INSTANCES=$(read_env_var "GCP_CLOUD_RUN_API_MIN_INSTANCES" "$ENV_FILE")
     GCP_CLOUD_RUN_API_MAX_INSTANCES=$(read_env_var "GCP_CLOUD_RUN_API_MAX_INSTANCES" "$ENV_FILE")
     GCP_CLOUD_RUN_API_TIMEOUT=$(read_env_var "GCP_CLOUD_RUN_API_TIMEOUT" "$ENV_FILE" | sed 's/^"//' | sed 's/"$//')
+
+    # Read Secret Manager variables (required)
+    GCP_CLOUD_SECRETS_API_ENV_ID=$(read_env_var "GCP_CLOUD_SECRETS_API_ENV_ID" "$ENV_FILE")
+    GCP_CLOUD_SECRETS_JWT_KEY_ID=$(read_env_var "GCP_CLOUD_SECRETS_JWT_KEY_ID" "$ENV_FILE")
     # Validate that all required variables exist
     MISSING_VARS=()
 
@@ -94,6 +98,10 @@ create_tfvars() {
     [[ -z "$GCP_CLOUD_RUN_API_CONTAINER_PORT" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_CONTAINER_PORT")
     [[ -z "$GCP_CLOUD_RUN_API_CPU" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_CPU")
     [[ -z "$GCP_CLOUD_RUN_API_MEMORY" ]] && MISSING_VARS+=("GCP_CLOUD_RUN_API_MEMORY")
+
+    # Check Secret Manager variables (required)
+    [[ -z "$GCP_CLOUD_SECRETS_API_ENV_ID" ]] && MISSING_VARS+=("GCP_CLOUD_SECRETS_API_ENV_ID")
+    [[ -z "$GCP_CLOUD_SECRETS_JWT_KEY_ID" ]] && MISSING_VARS+=("GCP_CLOUD_SECRETS_JWT_KEY_ID")
 
     if [ ${#MISSING_VARS[@]} -gt 0 ]; then
       echo "❌ ERROR: Faltan variables en $ENV_FILE:"
@@ -132,6 +140,10 @@ api_memory = "$GCP_CLOUD_RUN_API_MEMORY"
 api_min_instance_count = ${GCP_CLOUD_RUN_API_MIN_INSTANCES:-0}
 api_max_instance_count = ${GCP_CLOUD_RUN_API_MAX_INSTANCES:-3}
 api_timeout = "${GCP_CLOUD_RUN_API_TIMEOUT:-300s}"
+
+# Secret Manager Configuration
+api_env_secret_id = "$GCP_CLOUD_SECRETS_API_ENV_ID"
+jwt_public_key_secret_id = "$GCP_CLOUD_SECRETS_JWT_KEY_ID"
 EOF
     # Parse args properly to avoid double quotes
     # Note: GCP_CLOUD_RUN_BATCH_ARGS has already been processed to expand environment variables

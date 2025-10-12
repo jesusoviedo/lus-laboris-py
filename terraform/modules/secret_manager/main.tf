@@ -3,7 +3,7 @@
 
 # Secret for .env file
 resource "google_secret_manager_secret" "api_env_file" {
-  secret_id = "lus-laboris-api-env-file"
+  secret_id = var.api_env_secret_id
   project   = var.project_id
 
   replication {
@@ -30,7 +30,7 @@ resource "google_secret_manager_secret_version" "api_env_file_initial" {
 
 # Secret for JWT public key
 resource "google_secret_manager_secret" "jwt_public_key" {
-  secret_id = "lus-laboris-jwt-public-key"
+  secret_id = var.jwt_public_key_secret_id
   project   = var.project_id
 
   replication {
