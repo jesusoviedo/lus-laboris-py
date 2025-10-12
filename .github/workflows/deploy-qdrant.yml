@@ -46,7 +46,7 @@ jobs:
       run: |
         echo "Waiting for VM to be ready..."
         for i in {1..30}; do
-          if gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+          if gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
             --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
             --command="echo 'VM is ready'" 2>/dev/null; then
             echo "VM is ready!"
@@ -58,7 +58,7 @@ jobs:
 
     - name: Install Docker and Docker Compose
       run: |
-        gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+        gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
           --command="
             sudo apt-get update &&
@@ -71,12 +71,12 @@ jobs:
     - name: Copy Docker Compose files
       run: |
         gcloud compute scp src/vectorstore/docker-compose.yml \
-          ${{ steps.get_vm_details.outputs.vm_ip }}:/home/\$(whoami)/qdrant/ \
+          ${{ steps.get_vm_details.outputs.vm_name }}:/home/\$(whoami)/qdrant/ \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }}
 
     - name: Create .env file on VM
       run: |
-        gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+        gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
           --command="
             mkdir -p /home/\$(whoami)/qdrant &&
@@ -87,7 +87,7 @@ jobs:
 
     - name: Start Qdrant
       run: |
-        gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_ip }} \
+        gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
           --command="
             cd /home/\$(whoami)/qdrant &&
