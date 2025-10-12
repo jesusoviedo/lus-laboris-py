@@ -17,19 +17,22 @@ jobs:
       GCP_COMPUTE_ENGINE_VM_NAME: ${{ vars.GCP_COMPUTE_ENGINE_VM_NAME }}
       GCP_COMPUTE_ENGINE_VM_ZONE: ${{ vars.GCP_COMPUTE_ENGINE_VM_ZONE }}
     steps:
-    - name: Checkout
+    - id: checkout
+      name: Checkout
       uses: actions/checkout@v5
 
-    - name: Authenticate to GCP
+    - id: auth_gcp
+      name: Authenticate to GCP
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GSA_KEY }}
 
-    - name: Setup GCP
+    - id: setup_gcloud
+      name: Setup GCP
       uses: google-github-actions/setup-gcloud@v2
 
-    - name: Get VM Details
-      id: get_vm_details
+    - id: get_vm_details
+      name: Get VM Details
       run: |
         VM_NAME="${{ env.GCP_COMPUTE_ENGINE_VM_NAME }}"
         VM_ZONE="${{ env.GCP_COMPUTE_ENGINE_VM_ZONE }}"
@@ -42,7 +45,8 @@ jobs:
         echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
         echo "vm_zone=$VM_ZONE" >> $GITHUB_OUTPUT
 
-    - name: Wait for VM to be ready
+    - id: wait_vm_ready
+      name: Wait for VM to be ready
       run: |
         echo "Waiting for VM to be ready..."
         for i in {1..30}; do
@@ -56,7 +60,8 @@ jobs:
           sleep 10
         done
 
-    - name: Install Docker and Docker Compose
+    - id: install_docker
+      name: Install Docker and Docker Compose
       run: |
         gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
@@ -68,7 +73,8 @@ jobs:
             sudo systemctl start docker
           "
 
-    - name: Create qdrant directory and .env file on VM
+    - id: create_qdrant_dir
+      name: Create qdrant directory and .env file on VM
       run: |
         gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
@@ -79,13 +85,15 @@ jobs:
             echo 'QDRANT_PORT=6333' >> ~/qdrant/.env
           "
 
-    - name: Copy Docker Compose files
+    - id: copy_compose_files
+      name: Copy Docker Compose files
       run: |
         gcloud compute scp services/vectordb/docker-compose.yml \
           ${{ steps.get_vm_details.outputs.vm_name }}:~/qdrant/ \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }}
 
-    - name: Start Qdrant
+    - id: start_qdrant
+      name: Start Qdrant
       run: |
         gcloud compute ssh ${{ steps.get_vm_details.outputs.vm_name }} \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }} \
@@ -95,7 +103,8 @@ jobs:
             docker-compose up -d
           "
 
-    - name: Verify Deployment
+    - id: verify_deployment
+      name: Verify Deployment
       run: |
         echo "Waiting for Qdrant to start..."
         sleep 30
@@ -110,7 +119,8 @@ jobs:
           sleep 15
         done
 
-    - name: Display Connection Info
+    - id: display_connection_info
+      name: Display Connection Info
       run: |
         echo "Qdrant deployed successfully!"
         echo "VM Name: ${{ steps.get_vm_details.outputs.vm_name }}"

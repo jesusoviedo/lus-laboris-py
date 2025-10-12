@@ -32,26 +32,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - id: checkout
+      name: Checkout code
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
-    - name: Set up Python
+    - id: setup_python
+      name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
-    - name: Install uv
+    - id: install_uv
+      name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
         version: latest
 
-    - name: Install pre-commit
+    - id: install_precommit
+      name: Install pre-commit
       run: |
         uv tool install pre-commit
 
-    - name: Cache pre-commit hooks
+    - id: cache_precommit
+      name: Cache pre-commit hooks
       uses: actions/cache@v4
       with:
         path: ~/.cache/pre-commit
@@ -59,7 +64,8 @@ jobs:
         restore-keys: |
           pre-commit-${{ runner.os }}-
 
-    - name: Run pre-commit hooks
+    - id: run_precommit
+      name: Run pre-commit hooks
       run: |
         uv tool run pre-commit run --all-files --show-diff-on-failure
 
@@ -68,26 +74,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - id: checkout
+      name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Set up Python
+    - id: setup_python
+      name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
-    - name: Install uv
+    - id: install_uv
+      name: Install uv
       uses: astral-sh/setup-uv@v6
 
-    - name: Install ruff
+    - id: install_ruff
+      name: Install ruff
       run: |
         uv tool install ruff
 
-    - name: Run ruff linter
+    - id: run_ruff_linter
+      name: Run ruff linter
       run: |
         uv tool run ruff check src/lus_laboris_api --output-format=github
 
-    - name: Run ruff formatter check
+    - id: run_ruff_formatter
+      name: Run ruff formatter check
       run: |
         uv tool run ruff format --check src/lus_laboris_api
 
@@ -96,26 +108,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - id: checkout
+      name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Set up Python
+    - id: setup_python
+      name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
-    - name: Install uv
+    - id: install_uv
+      name: Install uv
       uses: astral-sh/setup-uv@v6
 
-    - name: Install ruff
+    - id: install_ruff
+      name: Install ruff
       run: |
         uv tool install ruff
 
-    - name: Run ruff linter
+    - id: run_ruff_linter
+      name: Run ruff linter
       run: |
         uv tool run ruff check src/processing --output-format=github
 
-    - name: Run ruff formatter check
+    - id: run_ruff_formatter
+      name: Run ruff formatter check
       run: |
         uv tool run ruff format --check src/processing
 
@@ -124,26 +142,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - id: checkout
+      name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Set up Python
+    - id: setup_python
+      name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
-    - name: Install uv
+    - id: install_uv
+      name: Install uv
       uses: astral-sh/setup-uv@v6
 
-    - name: Install ruff
+    - id: install_ruff
+      name: Install ruff
       run: |
         uv tool install ruff
 
-    - name: Run ruff linter
+    - id: run_ruff_linter
+      name: Run ruff linter
       run: |
         uv tool run ruff check utils --output-format=github
 
-    - name: Run ruff formatter check
+    - id: run_ruff_formatter
+      name: Run ruff formatter check
       run: |
         uv tool run ruff format --check utils
 
@@ -152,27 +176,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - id: checkout
+      name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Set up Python
+    - id: setup_python
+      name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
-    - name: Install uv
+    - id: install_uv
+      name: Install uv
       uses: astral-sh/setup-uv@v6
 
-    - name: Install bandit
+    - id: install_bandit
+      name: Install bandit
       run: |
         uv tool install bandit[toml]
 
-    - name: Run bandit security scan
+    - id: run_bandit_scan
+      name: Run bandit security scan
       run: |
         uv tool run bandit -r src/ utils/ -c pyproject.toml -f json -o bandit-report.json || true
         uv tool run bandit -r src/ utils/ -c pyproject.toml
 
-    - name: Upload security report
+    - id: upload_security_report
+      name: Upload security report
       if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -184,34 +214,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - id: checkout
+      name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Set up Python
+    - id: setup_python
+      name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
-    - name: Install uv
+    - id: install_uv
+      name: Install uv
       uses: astral-sh/setup-uv@v6
 
-    - name: Install mypy
+    - id: install_mypy
+      name: Install mypy
       run: |
         uv tool install mypy
 
-    - name: Type check API
+    - id: typecheck_api
+      name: Type check API
       working-directory: src/lus_laboris_api
       run: |
         uv sync
         uv run mypy . --config-file ../../pyproject.toml || true
 
-    - name: Type check Processing
+    - id: typecheck_processing
+      name: Type check Processing
       working-directory: src/processing
       run: |
         uv sync
         uv run mypy . --config-file ../../pyproject.toml || true
 
-    - name: Type check Utils
+    - id: typecheck_utils
+      name: Type check Utils
       working-directory: utils
       run: |
         uv sync
@@ -222,28 +259,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - id: checkout
+      name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Set up Python
+    - id: setup_python
+      name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.13'
 
-    - name: Install uv
+    - id: install_uv
+      name: Install uv
       uses: astral-sh/setup-uv@v6
 
-    - name: Install dependencies
+    - id: install_dependencies
+      name: Install dependencies
       working-directory: src/lus_laboris_api
       run: |
         uv sync
 
-    - name: Run tests with coverage
+    - id: run_tests
+      name: Run tests with coverage
       working-directory: src/lus_laboris_api
       run: |
         uv run pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing || echo "No tests found yet"
 
-    - name: Upload coverage report
+    - id: upload_coverage
+      name: Upload coverage report
       if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -257,7 +300,8 @@ jobs:
     if: always()
 
     steps:
-    - name: Check job results
+    - id: check_results
+      name: Check job results
       run: |
         echo "## Quality Check Results" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
