@@ -1,6 +1,7 @@
 name: Terraform Apply on .tf Change
 
 on:
+  workflow_dispatch:
   push:
     paths:
     - terraform/**/*.tf

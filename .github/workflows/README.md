@@ -55,6 +55,7 @@ Automates the build and publishing of the Docker image for the FastAPI service (
 - **terraform-apply-on-tf-change.yml**:
 Runs Terraform automatically when any `.tf` file changes in the `terraform/` folder (or its subfolders).
   - Triggers on push events affecting any Terraform file inside `terraform/`.
+  - Can also be triggered manually via `workflow_dispatch`.
   - Sets up Google Cloud authentication using a service account key stored as a secret.
   - Generates the required `.env` file and runs the menu script to create `terraform.tfvars`.
   - Executes `terraform init`, `plan`, and `apply` to update the infrastructure.
@@ -147,6 +148,7 @@ Automatiza la construcción y publicación de la imagen Docker para el servicio 
 - **terraform-apply-on-tf-change.yml**:
 Ejecuta Terraform automáticamente cuando se modifica cualquier archivo `.tf` dentro de la carpeta `terraform/` (o sus subcarpetas).
   - Se activa ante un push que afecte archivos de Terraform en `terraform/`.
+  - También se puede activar manualmente mediante `workflow_dispatch`.
   - Configura la autenticación de Google Cloud usando una service account almacenada como secret.
   - Genera el archivo `.env` necesario y ejecuta el script de menú para crear `terraform.tfvars`.
   - Ejecuta `terraform init`, `plan` y `apply` para actualizar la infraestructura.
