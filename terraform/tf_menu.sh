@@ -194,6 +194,44 @@ validate_env() {
   return 0
 }
 
+# Check if argument was passed (for non-interactive mode)
+if [ $# -eq 1 ]; then
+  opt="$1"
+  case $opt in
+    1)
+      set_gac
+      ;;
+    2)
+      create_tfvars
+      ;;
+    3)
+      validate_env && terraform init
+      ;;
+    4)
+      validate_env && terraform plan
+      ;;
+    5)
+      validate_env && terraform apply
+      ;;
+    6)
+      validate_env && terraform destroy
+      ;;
+    *)
+      echo "❌ Opción inválida: $opt"
+      echo "Uso: $0 [1-6]"
+      echo "  1) Setear GOOGLE_APPLICATION_CREDENTIALS"
+      echo "  2) Crear archivo terraform.tfvars"
+      echo "  3) terraform init"
+      echo "  4) terraform plan"
+      echo "  5) terraform apply"
+      echo "  6) terraform destroy"
+      exit 1
+      ;;
+  esac
+  exit 0
+fi
+
+# Interactive mode (no arguments)
 while true; do
   echo "========= Terraform Menu ========="
   echo "1) Setear GOOGLE_APPLICATION_CREDENTIALS"
