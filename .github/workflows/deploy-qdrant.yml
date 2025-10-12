@@ -3,7 +3,7 @@ name: Deploy Qdrant to VM
 on:
   push:
     paths:
-    - src/vectorstore/**
+    - services/vectordb/**
     - terraform/modules/compute_engine/**
   workflow_dispatch:
 
@@ -70,7 +70,7 @@ jobs:
 
     - name: Copy Docker Compose files
       run: |
-        gcloud compute scp src/vectorstore/docker-compose.yml \
+        gcloud compute scp services/vectordb/docker-compose.yml \
           ${{ steps.get_vm_details.outputs.vm_name }}:/home/\$(whoami)/qdrant/ \
           --zone=${{ steps.get_vm_details.outputs.vm_zone }}
 

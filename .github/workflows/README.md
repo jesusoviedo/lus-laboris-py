@@ -63,7 +63,7 @@ Runs Terraform automatically when any `.tf` file changes in the `terraform/` fol
 
 - **deploy-qdrant.yml**:
 Deploys Qdrant vector database to a Compute Engine VM instance.
-  - Triggers when files in `src/vectorstore/` or `terraform/modules/compute_engine/` change.
+  - Triggers when files in `services/vectordb/` or `terraform/modules/compute_engine/` change.
   - Can also be triggered manually via `workflow_dispatch`.
   - Gets VM details using the VM name from Terraform outputs.
   - Installs Docker and Docker Compose on the VM.
@@ -156,7 +156,7 @@ Ejecuta Terraform automáticamente cuando se modifica cualquier archivo `.tf` de
 
 - **deploy-qdrant.yml**:
 Despliega la base de datos vectorial Qdrant en una instancia de Compute Engine VM.
-  - Se activa cuando se modifican archivos en `src/vectorstore/` o `terraform/modules/compute_engine/`.
+  - Se activa cuando se modifican archivos en `services/vectordb/` o `terraform/modules/compute_engine/`.
   - También se puede activar manualmente mediante `workflow_dispatch`.
   - Obtiene detalles de la VM usando el nombre de la VM desde las salidas de Terraform.
   - Instala Docker y Docker Compose en la VM.
