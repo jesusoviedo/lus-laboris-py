@@ -14,8 +14,8 @@ jobs:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       GCP_REGION: ${{ secrets.GCP_REGION }}
       QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
-      QDRANT_VM_NAME: ${{ vars.QDRANT_VM_NAME }}
-      QDRANT_VM_ZONE: ${{ vars.QDRANT_VM_ZONE }}
+      GCP_COMPUTE_ENGINE_VM_NAME: ${{ vars.GCP_COMPUTE_ENGINE_VM_NAME }}
+      GCP_COMPUTE_ENGINE_VM_ZONE: ${{ vars.GCP_COMPUTE_ENGINE_VM_ZONE }}
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -31,8 +31,8 @@ jobs:
     - name: Get VM Details
       id: get_vm_details
       run: |
-        VM_NAME="${{ env.QDRANT_VM_NAME }}"
-        VM_ZONE="${{ env.QDRANT_VM_ZONE }}"
+        VM_NAME="${{ env.GCP_COMPUTE_ENGINE_VM_NAME }}"
+        VM_ZONE="${{ env.GCP_COMPUTE_ENGINE_VM_ZONE }}"
 
         VM_IP=$(gcloud compute instances describe $VM_NAME \
           --zone=$VM_ZONE \
