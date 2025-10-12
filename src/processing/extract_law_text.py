@@ -241,13 +241,16 @@ def check_phoenix_availability(endpoint: str, timeout: int = 2) -> bool:
         return False
 
 
-def setup_phoenix_tracing(phoenix_endpoint: str = None, project_name: str = None) -> bool:
+def setup_phoenix_tracing(
+    phoenix_endpoint: str = None, project_name: str = None, api_key: str = None
+) -> bool:
     """
     Configures Phoenix/OpenTelemetry instrumentation using the official method.
 
     Args:
         phoenix_endpoint: Phoenix endpoint URL (default: http://localhost:6006/v1/traces)
         project_name: Phoenix project name (default: lus-laboris-processing)
+        api_key: Phoenix API key for authentication (optional, required for Phoenix Cloud)
 
     Returns:
         bool: True if configuration was successful, False otherwise
@@ -269,9 +272,18 @@ def setup_phoenix_tracing(phoenix_endpoint: str = None, project_name: str = None
             )
 
         # Configure Phoenix using official method
-        tracer_provider = register(
-            protocol="http/protobuf", project_name=project_name, endpoint=phoenix_endpoint
-        )
+        # api_key is optional - only needed for Phoenix Cloud
+        register_kwargs = {
+            "protocol": "http/protobuf",
+            "project_name": project_name,
+            "endpoint": phoenix_endpoint,
+        }
+
+        if api_key:
+            register_kwargs["api_key"] = api_key
+            log_phoenix("Phoenix API key provided for authentication", "info")
+
+        tracer_provider = register(**register_kwargs)
 
         _tracer = tracer_provider.get_tracer(__name__)
 
@@ -1099,8 +1111,10 @@ def parse_arguments():
         python extract_law_text.py --mode gcs --bucket-name mi-bucket --use-local-credentials --gcp-credentials-dir /ruta/a/credenciales
         # Change local output root
         python extract_law_text.py --output-root /ruta/deseada
-        # Custom Phoenix configuration
+        # Custom Phoenix configuration (local)
         python extract_law_text.py --phoenix-endpoint http://localhost:6006/v1/traces --phoenix-project-name mi-proyecto
+        # Phoenix Cloud with API key (for production)
+        python extract_law_text.py --phoenix-endpoint https://app.phoenix.arize.com/s/YOUR_WORKSPACE/v1/trace --phoenix-project-name my-project --phoenix-api-key your-api-key
         """,
     )
 
@@ -1162,6 +1176,12 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        "--phoenix-api-key",
+        default=None,
+        help="Phoenix API key for authentication (optional, required for Phoenix Cloud)",
+    )
+
+    parser.add_argument(
         "--phoenix-log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         default="INFO",
@@ -1184,7 +1204,7 @@ def main() -> int:
     setup_logging(args.phoenix_log_level)
 
     # Initialize Phoenix tracing (doesn't fail if not available)
-    setup_phoenix_tracing(args.phoenix_endpoint, args.phoenix_project_name)
+    setup_phoenix_tracing(args.phoenix_endpoint, args.phoenix_project_name, args.phoenix_api_key)
 
     # Initialize Phoenix tracing
     initialize_phoenix_tracing()

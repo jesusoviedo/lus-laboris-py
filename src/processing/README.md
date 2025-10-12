@@ -104,6 +104,7 @@ uv run extract_law_text.py --mode gcs --bucket-name my-bucket --raw-filename ley
 | `--output-root`        | Root directory for local output (data/raw and data/processed) (optional, useful for Docker) | No | Project root |
 | `--phoenix-endpoint`   | Phoenix endpoint URL for tracing                    | No                 | `http://localhost:6006/v1/traces` |
 | `--phoenix-project-name`| Phoenix project name for tracing                   | No                 | `lus-laboris-processing` |
+| `--phoenix-api-key`    | Phoenix API key for authentication (required for Phoenix Cloud) | No | - |
 | `--phoenix-log-level`  | Phoenix logging level (DEBUG/INFO/WARNING/ERROR)   | No                 | `INFO` |
 | `--skip-quality-validation` | Skip quality validation and reporting | No | False |
 
@@ -170,6 +171,7 @@ You can run the script in local mode and persist output to a mounted volume:
 # Get the absolute path to the data folder
 DATA_DIR=$(realpath ../../data)
 
+# Local mode with Phoenix Local (docker network)
 # Make sure to start Phoenix beforehand to avoid timeout warnings (the process will still run successfully)
 docker run --rm \
   --network=monitoring_default \
@@ -177,6 +179,15 @@ docker run --rm \
   labor-law-extractor \
   --output-root /app \
   --phoenix-endpoint http://phoenix:6006/v1/traces
+
+# Local mode with Phoenix Cloud (requires API key)
+docker run --rm \
+  -v "${DATA_DIR}:/app/data" \
+  labor-law-extractor \
+  --output-root /app \
+  --phoenix-endpoint https://app.phoenix.arize.com/s/YOUR_WORKSPACE/v1/trace \
+  --phoenix-project-name my-project \
+  --phoenix-api-key your-api-key
 ```
 
 This will save all output in your local 'data' folder.
@@ -187,13 +198,28 @@ This will save all output in your local 'data' folder.
 # Get the absolute path to the GCP credentials folder
 GCP_CREDS=$(realpath ../../.gcpcredentials)
 
+# GCS mode with Phoenix Local (docker network)
+docker run --rm \
+  --network=monitoring_default \
+  -v "${GCP_CREDS}:/gcpcreds:ro" \
+  labor-law-extractor \
+  --mode gcs \
+  --bucket-name py-labor-law-rag-bucket \
+  --use-local-credentials \
+  --gcp-credentials-dir /gcpcreds \
+  --phoenix-endpoint http://phoenix:6006/v1/traces
+
+# GCS mode with Phoenix Cloud (requires API key)
 docker run --rm \
   -v "${GCP_CREDS}:/gcpcreds:ro" \
   labor-law-extractor \
   --mode gcs \
   --bucket-name py-labor-law-rag-bucket \
   --use-local-credentials \
-  --gcp-credentials-dir /gcpcreds
+  --gcp-credentials-dir /gcpcreds \
+  --phoenix-endpoint https://app.phoenix.arize.com/s/YOUR_WORKSPACE/v1/trace \
+  --phoenix-project-name my-project \
+  --phoenix-api-key your-api-key
 ```
 
 This allows you to run the script in GCS mode from Docker, mounting the GCP credentials securely.
@@ -284,14 +310,18 @@ Phoenix tracing is configured via command-line arguments with sensible defaults:
 # Use default Phoenix configuration (localhost)
 uv run extract_law_text.py
 
-# Custom Phoenix endpoint
+# Custom Phoenix endpoint (local)
 uv run extract_law_text.py --phoenix-endpoint http://localhost:6006/v1/traces
 
-# Custom Phoenix project name
+# Custom Phoenix project name (local)
 uv run extract_law_text.py --phoenix-project-name my-project
 
-# Both custom Phoenix settings
-uv run extract_law_text.py --phoenix-endpoint https://your-instance.phoenix.arize.com/v1/traces --phoenix-project-name my-project
+# Phoenix Cloud with API key (for production/online execution)
+# Note: Phoenix Cloud requires BOTH endpoint AND api-key
+uv run extract_law_text.py \
+  --phoenix-endpoint https://app.phoenix.arize.com/s/YOUR_WORKSPACE/v1/trace \
+  --phoenix-project-name my-project \
+  --phoenix-api-key your-api-key
 ```
 
 #### **Usage**
@@ -470,6 +500,7 @@ uv run extract_law_text.py --mode gcs --bucket-name mi-bucket --raw-filename ley
 | `--output-root`        | Raíz donde se crearán las carpetas data/raw y data/processed en modo local (opcional, útil para Docker) | No | Raíz del proyecto |
 | `--phoenix-endpoint`   | URL del endpoint de Phoenix para enviar trazas      | No                  | `http://localhost:6006/v1/traces` |
 | `--phoenix-project-name`| Nombre del proyecto para las trazas de Phoenix     | No                  | `lus-laboris-processing` |
+| `--phoenix-api-key`    | Clave API de Phoenix para autenticación (requerida para Phoenix Cloud) | No | - |
 | `--phoenix-log-level`  | Nivel de logging de Phoenix (DEBUG/INFO/WARNING/ERROR) | No               | `INFO` |
 | `--skip-quality-validation` | Omitir validación de calidad y reportes | No | False |
 
@@ -536,6 +567,7 @@ Puedes ejecutar el script en modo local y persistir la salida en un volumen mont
 # Obtener la ruta absoluta de la carpeta data
 DATA_DIR=$(realpath ../../data)
 
+# Modo local con Phoenix Local (red de docker)
 # Asegurarse de levantar Phoenix previamente para evitar warnings de timeout (el proceso igual se ejecuta sin problemas)
 docker run --rm \
   --network=monitoring_default \
@@ -543,6 +575,15 @@ docker run --rm \
   labor-law-extractor \
   --output-root /app \
   --phoenix-endpoint http://phoenix:6006/v1/traces
+
+# Modo local con Phoenix Cloud (requiere API key)
+docker run --rm \
+  -v "${DATA_DIR}:/app/data" \
+  labor-law-extractor \
+  --output-root /app \
+  --phoenix-endpoint https://app.phoenix.arize.com/s/TU_WORKSPACE/v1/trace \
+  --phoenix-project-name mi-proyecto \
+  --phoenix-api-key tu-api-key
 ```
 
 Esto guardará toda la salida en tu carpeta local 'data'.
@@ -553,13 +594,28 @@ Esto guardará toda la salida en tu carpeta local 'data'.
 # Obtener la ruta absoluta de la carpeta de credenciales GCP
 GCP_CREDS=$(realpath ../../.gcpcredentials)
 
+# GCS mode con Phoenix Local (red de docker)
+docker run --rm \
+  --network=monitoring_default \
+  -v "${GCP_CREDS}:/gcpcreds:ro" \
+  labor-law-extractor \
+  --mode gcs \
+  --bucket-name py-labor-law-rag-bucket \
+  --use-local-credentials \
+  --gcp-credentials-dir /gcpcreds \
+  --phoenix-endpoint http://phoenix:6006/v1/traces
+
+# GCS mode con Phoenix Cloud (requiere API key)
 docker run --rm \
   -v "${GCP_CREDS}:/gcpcreds:ro" \
   labor-law-extractor \
   --mode gcs \
   --bucket-name py-labor-law-rag-bucket \
   --use-local-credentials \
-  --gcp-credentials-dir /gcpcreds
+  --gcp-credentials-dir /gcpcreds \
+  --phoenix-endpoint https://app.phoenix.arize.com/s/TU_WORKSPACE/v1/trace \
+  --phoenix-project-name mi-proyecto \
+  --phoenix-api-key tu-api-key
 ```
 
 Esto permite ejecutar el script en modo GCS desde Docker, montando las credenciales de GCP de forma segura.
@@ -650,14 +706,18 @@ El tracing de Phoenix se configura mediante argumentos de línea de comandos con
 # Usar configuración por defecto de Phoenix (localhost)
 uv run extract_law_text.py
 
-# Endpoint personalizado de Phoenix
+# Endpoint personalizado de Phoenix (local)
 uv run extract_law_text.py --phoenix-endpoint http://localhost:6006/v1/traces
 
-# Nombre de proyecto personalizado de Phoenix
+# Nombre de proyecto personalizado de Phoenix (local)
 uv run extract_law_text.py --phoenix-project-name mi-proyecto
 
-# Ambas configuraciones personalizadas de Phoenix
-uv run extract_law_text.py --phoenix-endpoint https://tu-instancia.phoenix.arize.com/v1/traces --phoenix-project-name mi-proyecto
+# Phoenix Cloud con API key (para producción/ejecución online)
+# Nota: Phoenix Cloud requiere AMBOS endpoint Y api-key
+uv run extract_law_text.py \
+  --phoenix-endpoint https://app.phoenix.arize.com/s/TU_WORKSPACE/v1/trace \
+  --phoenix-project-name mi-proyecto \
+  --phoenix-api-key tu-api-key
 ```
 
 #### **Uso**
