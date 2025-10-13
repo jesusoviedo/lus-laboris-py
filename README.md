@@ -70,6 +70,7 @@
 | `services/` | External services (Qdrant, Phoenix) with management script |
 | `notebooks/` | Analysis, experimentation and offline RAG system performance evaluation |
 | `terraform/` | Infrastructure as Code for Google Cloud Platform |
+| `tests/` | Unit and integration tests for quality assurance |
 | `docs/` | Comprehensive project documentation and guides |
 | `docs/images/` | Project images, banners, and visual assets |
 | `utils/` | Utility scripts for automation and management |
@@ -181,12 +182,13 @@ For detailed deployment instructions, see:
 | **API** | [FastAPI Documentation](src/lus_laboris_api/README.md) |
 | **Data Processing** | [Processing Pipeline](src/processing/README.md) |
 | **Vector Store** | [Qdrant Operations](services/vectordb/README.md) |
-| **Setup** | [GCP Project Setup](docs/setup_gcp_project.md) |
+| **Monitoring** | [Phoenix Observability](services/monitoring/README.md) |
+| **Notebooks** | [Jupyter Notebooks Guide](notebooks/README.md) |
+| **Testing** | [Testing Documentation](tests/README.md) |
 | **Infrastructure** | [Terraform Guide](terraform/README.md) |
 | **Automation** | [GitHub Actions](.github/workflows/README.md) |
-| **Development** | [UV Package Manager](docs/uv_guide.md) |
-| **Deployment** | [Docker Guide](docs/docker_guide.md) |
 | **Utilities** | [Utility Scripts](utils/README.md) |
+| **Technical Guides** | [Complete Guides Index](docs/README.md) - GCP, Docker, UV, FastAPI, Phoenix, Qdrant, and more |
 
 ## 👥 Contributing
 
@@ -224,6 +226,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | `services/` | Servicios externos (Qdrant, Phoenix) con script de gestión |
 | `notebooks/` | Análisis, experimentación y evaluación offline del rendimiento del sistema RAG |
 | `terraform/` | Infraestructura como Código para Google Cloud Platform |
+| `tests/` | Tests unitarios y de integración para aseguramiento de calidad |
 | `docs/` | Documentación completa del proyecto y guías |
 | `docs/images/` | Imágenes del proyecto, banners y recursos visuales |
 | `utils/` | Scripts de utilidad para automatización y gestión |
@@ -335,12 +338,13 @@ Para instrucciones detalladas de despliegue, consultar:
 | **API** | [Documentación FastAPI](src/lus_laboris_api/README.md) |
 | **Procesamiento de Datos** | [Pipeline de Procesamiento](src/processing/README.md) |
 | **Base de Datos Vectorial** | [Operaciones Qdrant](services/vectordb/README.md) |
-| **Configuración** | [Configuración de Proyecto GCP](docs/setup_gcp_project.md) |
+| **Monitoreo** | [Observabilidad Phoenix](services/monitoring/README.md) |
+| **Notebooks** | [Guía de Jupyter Notebooks](notebooks/README.md) |
+| **Testing** | [Documentación de Tests](tests/README.md) |
 | **Infraestructura** | [Guía de Terraform](terraform/README.md) |
 | **Automatización** | [GitHub Actions](.github/workflows/README.md) |
-| **Desarrollo** | [Gestor de Paquetes UV](docs/uv_guide.md) |
-| **Despliegue** | [Guía de Docker](docs/docker_guide.md) |
 | **Utilidades** | [Scripts de Utilidad](utils/README.md) |
+| **Guías Técnicas** | [Índice Completo de Guías](docs/README.md) - GCP, Docker, UV, FastAPI, Phoenix, Qdrant, y más |
 
 ## 👥 Contribuciones
 

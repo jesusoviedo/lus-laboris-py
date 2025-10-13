@@ -18,6 +18,7 @@ This directory contains comprehensive guides and documentation for setting up an
 | Guide | Description | Purpose |
 |-------|-------------|---------|
 | [setup_gcp_project.md](setup_gcp_project.md) | Google Cloud Platform setup | Complete guide for creating GCP project, service accounts, and configuring credentials |
+| [gcp_resources_guide.md](gcp_resources_guide.md) | GCP Resources Overview | Detailed overview of all GCP resources used in the project |
 | [uv_guide.md](uv_guide.md) | UV Package Manager | Python package management with UV, including installation, usage, and best practices |
 | [docker_guide.md](docker_guide.md) | Docker, Compose & Hub | Containerization, multi-container management, and image registry |
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | CI/CD automation, including workflow creation, testing, and deployment |
@@ -32,12 +33,13 @@ This directory contains comprehensive guides and documentation for setting up an
 
 1. **Environment Setup**: Copy `.env_example` to `.env` and configure your variables
 2. **For GCP Setup**: Start with [setup_gcp_project.md](setup_gcp_project.md)
-3. **For Python Development**: Follow [uv_guide.md](uv_guide.md)
-4. **For Containerization**: Use [docker_guide.md](docker_guide.md)
-5. **For API Development**: Learn [fastapi_guide.md](fastapi_guide.md)
-6. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
-7. **For Local Testing**: Use [act_guide.md](act_guide.md)
-8. **For Monitoring**: Set up [phoenix_guide.md](phoenix_guide.md)
+3. **For GCP Resources**: Review [gcp_resources_guide.md](gcp_resources_guide.md)
+4. **For Python Development**: Follow [uv_guide.md](uv_guide.md)
+5. **For Containerization**: Use [docker_guide.md](docker_guide.md)
+6. **For API Development**: Learn [fastapi_guide.md](fastapi_guide.md)
+7. **For Automation**: Implement [github_actions_guide.md](github_actions_guide.md)
+8. **For Local Testing**: Use [act_guide.md](act_guide.md)
+9. **For Monitoring**: Set up [phoenix_guide.md](phoenix_guide.md)
 
 ### Prerequisites
 
@@ -56,6 +58,7 @@ Este directorio contiene guías completas y documentación para configurar y usa
 | Guía | Descripción | Propósito |
 |------|-------------|-----------|
 | [setup_gcp_project.md](setup_gcp_project.md) | Configuración de Google Cloud Platform | Guía completa para crear proyecto GCP, cuentas de servicio y configurar credenciales |
+| [gcp_resources_guide.md](gcp_resources_guide.md) | Guía de Recursos GCP | Descripción detallada de todos los recursos GCP utilizados en el proyecto |
 | [uv_guide.md](uv_guide.md) | Gestor de Paquetes UV | Gestión de paquetes Python con UV, incluyendo instalación, uso y mejores prácticas |
 | [docker_guide.md](docker_guide.md) | Docker, Compose & Hub | Containerización, multi-contenedor y registro de imágenes |
 | [github_actions_guide.md](github_actions_guide.md) | GitHub Actions | Automatización CI/CD, incluyendo creación de workflows, pruebas y despliegue |
@@ -70,12 +73,13 @@ Este directorio contiene guías completas y documentación para configurar y usa
 
 1. **Configuración del Entorno**: Copia `.env_example` a `.env` y configura tus variables
 2. **Para Configuración GCP**: Comienza con [setup_gcp_project.md](setup_gcp_project.md)
-3. **Para Desarrollo Python**: Sigue [uv_guide.md](uv_guide.md)
-4. **Para Containerización**: Usa [docker_guide.md](docker_guide.md)
-5. **Para Desarrollo de API**: Aprende [fastapi_guide.md](fastapi_guide.md)
-6. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
-7. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
-8. **Para Monitoreo**: Configura [phoenix_guide.md](phoenix_guide.md)
+3. **Para Recursos GCP**: Revisa [gcp_resources_guide.md](gcp_resources_guide.md)
+4. **Para Desarrollo Python**: Sigue [uv_guide.md](uv_guide.md)
+5. **Para Containerización**: Usa [docker_guide.md](docker_guide.md)
+6. **Para Desarrollo de API**: Aprende [fastapi_guide.md](fastapi_guide.md)
+7. **Para Automatización**: Implementa [github_actions_guide.md](github_actions_guide.md)
+8. **Para Pruebas Locales**: Usa [act_guide.md](act_guide.md)
+9. **Para Monitoreo**: Configura [phoenix_guide.md](phoenix_guide.md)
 
 ### Prerrequisitos
 
