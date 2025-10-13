@@ -1,0 +1,119 @@
+name: Update Batch Job Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-batch-job:
+    name: Update Cloud Run Batch Job Image
+    runs-on: ubuntu-latest
+    env:
+      # Secrets
+      GSA_KEY: ${{ secrets.GSA_KEY }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      GCP_CLOUD_RUN_BATCH_ARGS: ${{ secrets.GCP_CLOUD_RUN_BATCH_ARGS }}
+      # Variables
+      GCP_CLOUD_RUN_BATCH_JOB_NAME: ${{ vars.GCP_CLOUD_RUN_BATCH_JOB_NAME }}
+      DOCKER_IMAGE_NAME_PROCESSING: ${{ vars.DOCKER_IMAGE_NAME_PROCESSING }}
+      GCP_CLOUD_RUN_BATCH_IMAGE_TAG: ${{ vars.GCP_CLOUD_RUN_BATCH_IMAGE_TAG }}
+      GCP_BUCKET_NAME: ${{ vars.GCP_BUCKET_NAME }}
+      GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL: ${{ vars.GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL }}
+
+    steps:
+    - id: checkout
+      name: Checkout code
+      uses: actions/checkout@v4
+
+    - id: auth_gcp
+      name: Authenticate to GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ env.GSA_KEY }}
+
+    - id: setup_gcloud
+      name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - id: update_job
+      name: Update Cloud Run Job Image
+      run: |
+        IMAGE="${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE_NAME_PROCESSING}:${GCP_CLOUD_RUN_BATCH_IMAGE_TAG}"
+
+        echo "🚀 Updating ${GCP_CLOUD_RUN_BATCH_JOB_NAME} to ${IMAGE}..."
+
+        # Expand environment variables in args
+        # Replace placeholders like ${GCP_BUCKET_NAME} with actual values
+        EXPANDED_ARGS=$(echo "${GCP_CLOUD_RUN_BATCH_ARGS}" | \
+          sed "s|\${GCP_BUCKET_NAME}|${GCP_BUCKET_NAME}|g" | \
+          sed "s|\${GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL}|${GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL}|g")
+
+        echo "📋 Job arguments: ${EXPANDED_ARGS}"
+
+        if gcloud run jobs update ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
+          --image=${IMAGE} \
+          --args="${EXPANDED_ARGS}" \
+          --region=${GCP_REGION} \
+          --project=${GCP_PROJECT_ID}; then
+          echo "✅ Job updated successfully!"
+        else
+          echo "❌ Job update failed! Getting details..."
+
+          # Get job details
+          echo "📋 Job details:"
+          gcloud run jobs describe ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
+            --region=${GCP_REGION} \
+            --project=${GCP_PROJECT_ID} \
+            --format=yaml || true
+
+          exit 1
+        fi
+
+    - id: verify_job
+      name: Verify Job Configuration
+      run: |
+        echo "🔍 Verifying job configuration..."
+
+        IMAGE_DEPLOYED=$(gcloud run jobs describe ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
+          --region=${GCP_REGION} \
+          --project=${GCP_PROJECT_ID} \
+          --format='value(spec.template.template.containers[0].image)')
+
+        echo "📦 Image deployed: ${IMAGE_DEPLOYED}"
+
+        ARGS_DEPLOYED=$(gcloud run jobs describe ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
+          --region=${GCP_REGION} \
+          --project=${GCP_PROJECT_ID} \
+          --format='value(spec.template.template.containers[0].args)')
+
+        echo "📋 Arguments deployed: ${ARGS_DEPLOYED}"
+
+        # Verify image matches
+        EXPECTED_IMAGE="${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE_NAME_PROCESSING}:${GCP_CLOUD_RUN_BATCH_IMAGE_TAG}"
+        if [ "${IMAGE_DEPLOYED}" = "${EXPECTED_IMAGE}" ]; then
+          echo "✅ Image verification passed!"
+        else
+          echo "❌ Image mismatch!"
+          echo "   Expected: ${EXPECTED_IMAGE}"
+          echo "   Got: ${IMAGE_DEPLOYED}"
+          exit 1
+        fi
+
+    - id: get_job_info
+      name: Display Job Information
+      run: |
+        echo "📊 Cloud Run Job Information:"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "Job Name: ${GCP_CLOUD_RUN_BATCH_JOB_NAME}"
+        echo "Region: ${GCP_REGION}"
+        echo "Image: ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE_NAME_PROCESSING}:${GCP_CLOUD_RUN_BATCH_IMAGE_TAG}"
+        echo ""
+        echo "📅 Next scheduled execution:"
+        gcloud scheduler jobs describe ${GCP_CLOUD_RUN_BATCH_JOB_NAME}-schedule \
+          --location=${GCP_REGION} \
+          --project=${GCP_PROJECT_ID} \
+          --format='value(schedule)' || echo "No schedule configured"
+        echo ""
+        echo "🔧 To execute manually:"
+        echo "gcloud run jobs execute ${GCP_CLOUD_RUN_BATCH_JOB_NAME} --region=${GCP_REGION}"

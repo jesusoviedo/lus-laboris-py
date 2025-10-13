@@ -48,7 +48,7 @@ QDRANT_URL=http://localhost:6333
 QDRANT_API_KEY=your_api_key_here  # Optional for local development
 ```
 
-> **Note**: The `.env` file should be placed in the project root directory (`lus-laboris-py/.env`), not in the `src/vectorstore/` directory.
+> **Note**: The `.env` file should be placed in the project root directory (`lus-laboris-py/.env`), not in the `services/vectordb/` directory.
 
 ## Documentation
 
@@ -129,7 +129,7 @@ QDRANT_URL=http://localhost:6333
 QDRANT_API_KEY=tu_clave_api_aqui  # Opcional para desarrollo local
 ```
 
-> **Nota**: El archivo `.env` debe colocarse en el directorio raíz del proyecto (`lus-laboris-py/.env`), no en el directorio `src/vectorstore/`.
+> **Nota**: El archivo `.env` debe colocarse en el directorio raíz del proyecto (`lus-laboris-py/.env`), no en el directorio `services/vectordb/`.
 
 ## Documentación
 

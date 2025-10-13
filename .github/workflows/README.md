@@ -83,6 +83,18 @@ Updates secrets in Google Secret Manager and deploys the API to Cloud Run.
   - Useful for quick API updates without full infrastructure changes.
   - **Required Variables**: `GCP_CLOUD_SECRETS_API_ENV_ID`, `GCP_CLOUD_SECRETS_JWT_KEY_ID` (secret names in Secret Manager).
 
+- **update-batch-job-image.yml**:
+Updates the Docker image for the Cloud Run Job (batch processing).
+  - Triggers manually via `workflow_dispatch` (no inputs required).
+  - Uses GitHub Variables to configure the job update (image tag, job name, arguments).
+  - Updates the Docker image to a new version using `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
+  - Automatically expands environment variables in job arguments (e.g., `${GCP_BUCKET_NAME}`).
+  - Verifies that the image was successfully updated.
+  - Displays job information and next scheduled execution time.
+  - Independent from Terraform workflow - allows quick updates without infrastructure changes.
+  - Useful for deploying improvements to the processing script without redeploying entire infrastructure.
+  - **Required Variables**: `GCP_CLOUD_RUN_BATCH_JOB_NAME`, `DOCKER_IMAGE_NAME_PROCESSING`, `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
+
 ## Local Testing with act
 
 To test workflows locally before pushing changes, use the interactive script (run from the current directory):
@@ -176,6 +188,18 @@ Actualiza secretos en Google Secret Manager y despliega la API a Cloud Run.
   - Independiente del workflow completo de infraestructura Terraform.
   - Útil para actualizaciones rápidas de la API sin cambios completos de infraestructura.
   - **Variables Requeridas**: `GCP_CLOUD_SECRETS_API_ENV_ID`, `GCP_CLOUD_SECRETS_JWT_KEY_ID` (nombres de secrets en Secret Manager).
+
+- **update-batch-job-image.yml**:
+Actualiza la imagen Docker del Cloud Run Job (procesamiento batch).
+  - Se activa manualmente mediante `workflow_dispatch` (sin inputs requeridos).
+  - Usa Variables de GitHub para configurar la actualización del job (tag de imagen, nombre del job, argumentos).
+  - Actualiza la imagen Docker a una nueva versión usando `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
+  - Expande automáticamente variables de entorno en los argumentos del job (ej: `${GCP_BUCKET_NAME}`).
+  - Verifica que la imagen se actualizó correctamente.
+  - Muestra información del job y próxima ejecución programada.
+  - Independiente del workflow de Terraform - permite actualizaciones rápidas sin cambios de infraestructura.
+  - Útil para desplegar mejoras al script de procesamiento sin redesplegar toda la infraestructura.
+  - **Variables Requeridas**: `GCP_CLOUD_RUN_BATCH_JOB_NAME`, `DOCKER_IMAGE_NAME_PROCESSING`, `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
 
 ## Pruebas locales con act
 

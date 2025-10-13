@@ -14,6 +14,7 @@ WORKFLOW3="docker-api-build-publish.yml"
 WORKFLOW4="terraform-apply-on-tf-change.yml"
 WORKFLOW5="deploy-qdrant.yml"
 WORKFLOW6="update-api-secrets-deploy.yml"
+WORKFLOW7="update-batch-job-image.yml"
 
 REQUIRED_VARS_WORKFLOW1=()  # No required vars for code-quality
 REQUIRED_VARS_WORKFLOW2=(
@@ -79,6 +80,18 @@ REQUIRED_VARS_WORKFLOW6=(
   "GCP_CLOUD_RUN_API_TIMEOUT"
   "DOCKER_HUB_USERNAME"
   "DOCKER_IMAGE_NAME_RAG_API"
+)
+REQUIRED_VARS_WORKFLOW7=(
+  "GCP_PROJECT_ID"
+  "GCP_REGION"
+  "GSA_KEY"
+  "DOCKER_HUB_USERNAME"
+  "GCP_CLOUD_RUN_BATCH_JOB_NAME"
+  "DOCKER_IMAGE_NAME_PROCESSING"
+  "GCP_CLOUD_RUN_BATCH_IMAGE_TAG"
+  "GCP_CLOUD_RUN_BATCH_ARGS"
+  "GCP_BUCKET_NAME"
+  "GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL"
 )
 
 # List of variables that should be treated as secrets (use -s instead of --var)
@@ -172,6 +185,7 @@ echo "3) Build & Publish Docker Image (API)"
 echo "4) Terraform Apply on .tf Change"
 echo "5) Deploy Qdrant to VM"
 echo "6) Update API Secrets & Deploy to Cloud Run"
+echo "7) Update Batch Job Image"
 echo "0) Salir"
 read -p $'\nOpción: ' opcion
 
@@ -199,6 +213,10 @@ case $opcion in
   6)
     WORKFLOW="$WORKFLOW6"
     VARS=("${REQUIRED_VARS_WORKFLOW6[@]}")
+    ;;
+  7)
+    WORKFLOW="$WORKFLOW7"
+    VARS=("${REQUIRED_VARS_WORKFLOW7[@]}")
     ;;
   0)
     echo "Saliendo."

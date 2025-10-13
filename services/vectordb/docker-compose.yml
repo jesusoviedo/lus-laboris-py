@@ -7,12 +7,15 @@ services:
     - 6334:6334
     volumes:
     - qdrant_storage:/qdrant/storage
+    # Note: Authentication disabled for local development
+    # For production deployment, uncomment the lines below:
     #env_file:
       #- ../../.env
     environment:
     - QDRANT__SERVICE__HTTP_PORT=6333
     - QDRANT__SERVICE__GRPC_PORT=6334
     - QDRANT__LOG_LEVEL=INFO
+      # Uncomment for production (requires QDRANT_API_KEY in .env):
       #- QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
     restart: always
     networks:
