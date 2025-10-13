@@ -894,7 +894,7 @@ The script provides clear error messages for common issues:
    # Check environment variables
    echo $JWT_PRIVATE_KEY_PATH
    echo $JWT_PUBLIC_KEY_PATH
-   echo $JWT_TOKEN_EXPIRY_HOURS
+   echo $JWT_TOKEN_EXPIRY_MINUTES
    ```
 
 ### Integration Examples
@@ -1814,7 +1814,7 @@ El script proporciona mensajes de error claros para problemas comunes:
    # Verificar variables de entorno
    echo $JWT_PRIVATE_KEY_PATH
    echo $JWT_PUBLIC_KEY_PATH
-   echo $JWT_TOKEN_EXPIRY_HOURS
+   echo $JWT_TOKEN_EXPIRY_MINUTES
    ```
 
 ### Ejemplos de Integración

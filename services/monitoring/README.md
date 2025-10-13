@@ -43,24 +43,15 @@ This folder contains the configuration and setup for Phoenix monitoring service,
 
 ### Configuration
 
-Set the following environment variables in your `.env` file located in the project root directory:
+Phoenix runs locally without requiring additional configuration. The service uses default ports and settings suitable for local development.
 
-```env
-# Phoenix Configuration
-PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
-PHOENIX_GRPC_ENDPOINT=localhost:4317
+**Ports Used**:
 
-# Instrumentation Settings
-INSTRUMENT_OPENAI=true
-INSTRUMENT_GEMINI=true
-INSTRUMENT_LLAMA_INDEX=true
+- `6006`: Phoenix UI and HTTP collector
+- `4317`: gRPC collector
+- `9090`: Prometheus metrics (if enabled)
 
-# Prometheus Settings
-PHOENIX_PROMETHEUS_ENABLED=true
-PHOENIX_PROMETHEUS_PORT=9090
-```
-
-> **Note**: The `.env` file should be placed in the project root directory (`lus-laboris-py/.env`), not in the `services/monitoring/` directory.
+> **Note**: For API integration with Phoenix, see the API configuration section in `src/lus_laboris_api/README.md` which uses `API_PHOENIX_*` environment variables.
 
 ## Documentation
 
@@ -146,24 +137,15 @@ Esta carpeta contiene la configuración y setup del servicio de monitoreo Phoeni
 
 ### Configuración
 
-Configura las siguientes variables de entorno en tu archivo `.env` ubicado en el directorio raíz del proyecto:
+Phoenix se ejecuta localmente sin requerir configuración adicional. El servicio usa puertos y configuraciones predeterminadas adecuadas para desarrollo local.
 
-```env
-# Configuración de Phoenix
-PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
-PHOENIX_GRPC_ENDPOINT=localhost:4317
+**Puertos Utilizados**:
 
-# Configuraciones de Instrumentación
-INSTRUMENT_OPENAI=true
-INSTRUMENT_GEMINI=true
-INSTRUMENT_LLAMA_INDEX=true
+- `6006`: UI de Phoenix y colector HTTP
+- `4317`: Colector gRPC
+- `9090`: Métricas de Prometheus (si está habilitado)
 
-# Configuraciones de Prometheus
-PHOENIX_PROMETHEUS_ENABLED=true
-PHOENIX_PROMETHEUS_PORT=9090
-```
-
-> **Nota**: El archivo `.env` debe colocarse en el directorio raíz del proyecto (`lus-laboris-py/.env`), no en el directorio `services/monitoring/`.
+> **Nota**: Para integración con la API de Phoenix, consulta la sección de configuración de la API en `src/lus_laboris_api/README.md` que usa variables de entorno `API_PHOENIX_*`.
 
 ## Documentación
 

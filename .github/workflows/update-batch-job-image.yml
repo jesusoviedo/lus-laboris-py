@@ -75,17 +75,19 @@ jobs:
       run: |
         echo "🔍 Verifying job configuration..."
 
-        IMAGE_DEPLOYED=$(gcloud run jobs describe ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
+        # Get full job description in JSON format
+        JOB_CONFIG=$(gcloud run jobs describe ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
           --region=${GCP_REGION} \
           --project=${GCP_PROJECT_ID} \
-          --format='value(spec.template.template.containers[0].image)')
+          --format=json)
+
+        # Extract image from JSON
+        IMAGE_DEPLOYED=$(echo "$JOB_CONFIG" | jq -r '.spec.template.spec.template.spec.containers[0].image // empty')
 
         echo "📦 Image deployed: ${IMAGE_DEPLOYED}"
 
-        ARGS_DEPLOYED=$(gcloud run jobs describe ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
-          --region=${GCP_REGION} \
-          --project=${GCP_PROJECT_ID} \
-          --format='value(spec.template.template.containers[0].args)')
+        # Extract args from JSON
+        ARGS_DEPLOYED=$(echo "$JOB_CONFIG" | jq -r '.spec.template.spec.template.spec.containers[0].args // empty | join(" ")')
 
         echo "📋 Arguments deployed: ${ARGS_DEPLOYED}"
 

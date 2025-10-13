@@ -185,6 +185,9 @@ API_PHOENIX_ENDPOINT=http://localhost:6006
 API_PHOENIX_API_KEY=your_phoenix_api_key_here
 API_PHOENIX_PROJECT_NAME=lus-laboris-api
 
+# Environment Configuration
+API_ENVIRONMENT=development  # Options: development, production, testing
+
 # Docker Configuration (optional)
 API_ENV_FILE_PATH=/app/.env
 ```
@@ -1154,6 +1157,9 @@ API_PHOENIX_ENABLED=true
 API_PHOENIX_ENDPOINT=http://localhost:6006
 API_PHOENIX_API_KEY=tu_phoenix_api_key_aqui
 API_PHOENIX_PROJECT_NAME=lus-laboris-api
+
+# Configuración de Entorno
+API_ENVIRONMENT=development  # Opciones: development, production, testing
 
 # Docker Configuration (opcional)
 API_ENV_FILE_PATH=/app/.env

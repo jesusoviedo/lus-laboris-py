@@ -173,6 +173,9 @@ DATA_DIR=$(realpath ../../data)
 
 # Local mode with Phoenix Local (docker network)
 # Make sure to start Phoenix beforehand to avoid timeout warnings (the process will still run successfully)
+# Note: The monitoring_default network is automatically created by Docker Compose when you run
+#       'docker-compose up' in the services/monitoring directory. If not explicitly defined,
+#       Docker Compose creates a network named <directory>_default (e.g., monitoring_default).
 docker run --rm \
   --network=monitoring_default \
   -v "${DATA_DIR}:/app/data" \
@@ -569,6 +572,9 @@ DATA_DIR=$(realpath ../../data)
 
 # Modo local con Phoenix Local (red de docker)
 # Asegurarse de levantar Phoenix previamente para evitar warnings de timeout (el proceso igual se ejecuta sin problemas)
+# Nota: La red monitoring_default es creada automaticamente por Docker Compose al ejecutar
+#       'docker-compose up' en el directorio services/monitoring. Si no se define explicitamente,
+#       Docker Compose crea una red llamada <directorio>_default (ej: monitoring_default).
 docker run --rm \
   --network=monitoring_default \
   -v "${DATA_DIR}:/app/data" \

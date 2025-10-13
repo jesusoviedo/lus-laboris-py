@@ -1,34 +1,34 @@
 #!/bin/bash
-# Script para levantar la API en modo desarrollo
-# Uso: ./start_api_dev.sh
+# Development script to start the Lus Laboris API
+# Usage: ./start_api_dev.sh
 
-set -e  # Salir si hay algún error
+set -e  # Exit on any error
 
 echo "🚀 Iniciando Lus Laboris API en modo DESARROLLO..."
 echo "=================================================="
 
-# Verificar que estamos en el directorio correcto
+# Check that we are in the correct directory
 if [ ! -f "api/main.py" ]; then
     echo "❌ Error: No se encontró api/main.py"
     echo "   Asegúrate de ejecutar este script desde src/lus_laboris_api/"
     exit 1
 fi
 
-# Verificar que existe el archivo .env en la raíz del proyecto
+# Check that .env file exists in project root
 if [ ! -f "../../.env" ]; then
     echo "⚠️  Advertencia: No se encontró el archivo .env en la raíz del proyecto"
     echo "   La API usará valores por defecto"
 else
     echo "✅ Cargando variables de entorno desde ../../.env"
-    # Cargar variables de entorno usando dotenv-style parsing
-    # Esto maneja correctamente valores con espacios, comillas, etc.
-    set -a  # Automáticamente exportar variables
-    # Usar grep y eval para manejar correctamente valores con espacios y comillas
+    # Load environment variables using dotenv-style parsing
+    # This correctly handles values with spaces, quotes, etc.
+    set -a  # Automatically export variables
+    # Use grep and eval to correctly handle values with spaces and quotes
     eval "$(grep -v '^#' ../../.env | grep -v '^[[:space:]]*$' | sed 's/^/export /')"
-    set +a  # Desactivar exportación automática
+    set +a  # Disable automatic export
 fi
 
-# Verificar que uv está instalado
+# Check that uv is installed
 if ! command -v uv &> /dev/null; then
     echo "❌ Error: uv no está instalado"
     echo "   Instala uv con: curl -LsSf https://astral.sh/uv/install.sh | sh"
@@ -42,7 +42,7 @@ echo "🔧 Configuración:"
 echo "   - Host: ${API_HOST:-0.0.0.0}"
 echo "   - Puerto: ${API_PORT:-8000}"
 echo "   - Reload: ${API_RELOAD:-true}"
-echo "   - Log Level: ${LOG_LEVEL:-info}"
+echo "   - Log Level: ${API_LOG_LEVEL:-info}"
 
 echo ""
 echo "🌐 La API estará disponible en:"
@@ -56,10 +56,10 @@ echo "🔄 Iniciando servidor con recarga automática..."
 echo "   Presiona Ctrl+C para detener"
 echo ""
 
-# Levantar la API con uvicorn
+# Start the API with uvicorn
 uv run uvicorn api.main:app \
     --host ${API_HOST:-0.0.0.0} \
     --port ${API_PORT:-8000} \
     --reload \
-    --log-level ${LOG_LEVEL:-info} \
+    --log-level ${API_LOG_LEVEL:-info} \
     --access-log

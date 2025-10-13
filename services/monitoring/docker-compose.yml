@@ -11,6 +11,14 @@ services:
     - PHOENIX_WORKING_DIR=/mnt/data
     volumes:
     - phoenix_data:/mnt/data     # PHOENIX_WORKING_DIR
+    networks:
+    - monitoring
+
 volumes:
   phoenix_data:
     driver: local
+
+networks:
+  monitoring:
+    driver: bridge
+    name: monitoring_default
