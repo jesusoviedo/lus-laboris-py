@@ -89,11 +89,13 @@ Updates the Docker image for the Cloud Run Job (batch processing).
   - Uses GitHub Variables to configure the job update (image tag, job name, arguments).
   - Updates the Docker image to a new version using `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
   - Automatically expands environment variables in job arguments (e.g., `${GCP_BUCKET_NAME}`).
+  - Converts space-separated arguments to comma-separated format for proper `gcloud` parsing.
   - Verifies that the image was successfully updated.
   - Displays job information and next scheduled execution time.
   - Independent from Terraform workflow - allows quick updates without infrastructure changes.
   - Useful for deploying improvements to the processing script without redeploying entire infrastructure.
   - **Required Variables**: `GCP_CLOUD_RUN_BATCH_JOB_NAME`, `DOCKER_IMAGE_NAME_PROCESSING`, `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
+  - **Note**: Arguments in `GCP_CLOUD_RUN_BATCH_ARGS` should be space-separated; they are automatically converted to comma-separated format.
 
 ## Local Testing with act
 
@@ -195,11 +197,13 @@ Actualiza la imagen Docker del Cloud Run Job (procesamiento batch).
   - Usa Variables de GitHub para configurar la actualización del job (tag de imagen, nombre del job, argumentos).
   - Actualiza la imagen Docker a una nueva versión usando `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
   - Expande automáticamente variables de entorno en los argumentos del job (ej: `${GCP_BUCKET_NAME}`).
+  - Convierte argumentos separados por espacios a formato separado por comas para parseo correcto de `gcloud`.
   - Verifica que la imagen se actualizó correctamente.
   - Muestra información del job y próxima ejecución programada.
   - Independiente del workflow de Terraform - permite actualizaciones rápidas sin cambios de infraestructura.
   - Útil para desplegar mejoras al script de procesamiento sin redesplegar toda la infraestructura.
   - **Variables Requeridas**: `GCP_CLOUD_RUN_BATCH_JOB_NAME`, `DOCKER_IMAGE_NAME_PROCESSING`, `GCP_CLOUD_RUN_BATCH_IMAGE_TAG`.
+  - **Nota**: Los argumentos en `GCP_CLOUD_RUN_BATCH_ARGS` deben estar separados por espacios; se convierten automáticamente a formato separado por comas.
 
 ## Pruebas locales con act
 

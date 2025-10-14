@@ -49,11 +49,17 @@ jobs:
           sed "s|\${GCP_BUCKET_NAME}|${GCP_BUCKET_NAME}|g" | \
           sed "s|\${GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL}|${GCP_CLOUD_RUN_BATCH_NOTIFY_EMAIL}|g")
 
-        echo "📋 Job arguments: ${EXPANDED_ARGS}"
+        echo "📋 Job arguments (raw): ${EXPANDED_ARGS}"
+
+        # Convert space-separated args to comma-separated format for gcloud
+        # This allows proper parsing of individual arguments
+        COMMA_SEPARATED_ARGS=$(echo "${EXPANDED_ARGS}" | sed 's/ /,/g')
+
+        echo "📋 Job arguments (formatted): ${COMMA_SEPARATED_ARGS}"
 
         if gcloud run jobs update ${GCP_CLOUD_RUN_BATCH_JOB_NAME} \
           --image=${IMAGE} \
-          --args="${EXPANDED_ARGS}" \
+          --args="${COMMA_SEPARATED_ARGS}" \
           --region=${GCP_REGION} \
           --project=${GCP_PROJECT_ID}; then
           echo "✅ Job updated successfully!"
