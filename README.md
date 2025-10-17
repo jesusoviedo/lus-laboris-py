@@ -52,6 +52,8 @@
 
 **lus-laboris-py** is a RAG (Retrieval-Augmented Generation) application that provides intelligent access to Paraguay's Labor Code (Law Nº 213). The system enables users to query legal information through natural language using advanced AI technologies.
 
+<img src="docs/images/architecture-overview.png" alt="Architecture Overview" width="800"/>
+
 ### Key Workflow
 
 - **Data Processing**: Extract, clean, and structure legal text
@@ -59,6 +61,8 @@
 - **Intelligent Querying**: Use OpenAI and Google Gemini with specialized prompts for accurate responses
 - **API Access**: REST API built with FastAPI for seamless integration
 - **Cloud Deployment**: Automated infrastructure management with Terraform and GitHub Actions
+
+<img src="docs/images/data-processing-flow.png" alt="Data Processing Flow" width="800"/>
 
 ## 📂 Project Structure
 
@@ -151,6 +155,8 @@ bash start_api_dev.sh
 - **🔄 CI/CD Pipeline**: Automated testing and deployment workflows
 - **📚 Extensive Documentation**: Detailed guides for setup and usage
 - **🔍 RAG Evaluation Framework**: Complete evaluation system for retrieval and generation quality
+
+<img src="docs/images/rag-query-flow.png" alt="RAG Query Flow" width="800"/>
 
 ## ☁️ Cloud Deployment
 
