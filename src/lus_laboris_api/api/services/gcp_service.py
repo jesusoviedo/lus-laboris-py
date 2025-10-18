@@ -61,7 +61,7 @@ class GCPService:
 
             if not os.path.exists(self.credentials_path):
                 logger.warning(
-                    "Credentials file not found: {self.credentials_path} - GCP features will be unavailable"
+                    f"Credentials file not found: {self.credentials_path} - GCP features will be unavailable"
                 )
                 return False
 
@@ -69,13 +69,13 @@ class GCPService:
                 self.credentials_path
             )
             self.client = storage.Client(credentials=credentials)
-            logger.info("GCS client initialized with credentials: {self.credentials_path}")
+            logger.info(f"GCS client initialized with credentials: {self.credentials_path}")
             self._initialized = True
             return True
 
         except Exception as e:
             logger.warning(
-                "Failed to initialize GCS client: {e!s} - GCP features will be unavailable"
+                f"Failed to initialize GCS client: {e!s} - GCP features will be unavailable"
             )
             return False
 
@@ -113,7 +113,7 @@ class GCPService:
             if use_credentials:
                 # Use provided credentials path
                 if not os.path.exists(credentials_path):
-                    raise FileNotFoundError("Credentials file not found: {credentials_path}")
+                    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
 
                 credentials = service_account.Credentials.from_service_account_file(
                     credentials_path
@@ -133,16 +133,16 @@ class GCPService:
             # Check if file exists
             blob = bucket.blob(file_path)
             if not blob.exists():
-                raise FileNotFoundError("File not found: gs://{bucket_name}/{file_path}")
+                raise FileNotFoundError(f"File not found: gs://{bucket_name}/{file_path}")
 
             # Download file content
-            logger.info("Downloading file from GCS (local mode): gs://{bucket_name}/{file_path}")
+            logger.info(f"Downloading file from GCS (local mode): gs://{bucket_name}/{file_path}")
             content = blob.download_as_text()
 
             # Parse JSON
             data = json.loads(content)
             logger.info(
-                "Successfully loaded JSON file with {len(data.get('articulos', []))} articles"
+                f"Successfully loaded JSON file with {len(data.get('articulos', []))} articles"
             )
 
             return data
@@ -170,16 +170,16 @@ class GCPService:
             # Check if file exists
             blob = bucket.blob(file_path)
             if not blob.exists():
-                raise FileNotFoundError("File not found: gs://{bucket_name}/{file_path}")
+                raise FileNotFoundError(f"File not found: gs://{bucket_name}/{file_path}")
 
             # Download file content
-            logger.info("Downloading file from GCS (cloud mode): gs://{bucket_name}/{file_path}")
+            logger.info(f"Downloading file from GCS (cloud mode): gs://{bucket_name}/{file_path}")
             content = blob.download_as_text()
 
             # Parse JSON
             data = json.loads(content)
             logger.info(
-                "Successfully loaded JSON file with {len(data.get('articulos', []))} articles"
+                f"Successfully loaded JSON file with {len(data.get('articulos', []))} articles"
             )
 
             return data
@@ -196,7 +196,7 @@ class GCPService:
             # If credentials path is provided, use it for this operation
             if credentials_path and not os.getenv("K_SERVICE"):
                 if not os.path.exists(credentials_path):
-                    raise FileNotFoundError("Credentials file not found: {credentials_path}")
+                    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
 
                 credentials = service_account.Credentials.from_service_account_file(
                     credentials_path
@@ -216,16 +216,16 @@ class GCPService:
             # Check if file exists
             blob = bucket.blob(file_path)
             if not blob.exists():
-                raise FileNotFoundError("File not found: gs://{bucket_name}/{file_path}")
+                raise FileNotFoundError(f"File not found: gs://{bucket_name}/{file_path}")
 
             # Download file content
-            logger.info("Downloading file from GCS: gs://{bucket_name}/{file_path}")
+            logger.info(f"Downloading file from GCS: gs://{bucket_name}/{file_path}")
             content = blob.download_as_text()
 
             # Parse JSON
             data = json.loads(content)
             logger.info(
-                "Successfully loaded JSON file with {len(data.get('articulos', []))} articles"
+                f"Successfully loaded JSON file with {len(data.get('articulos', []))} articles"
             )
 
             return data
@@ -246,7 +246,7 @@ class GCPService:
             # If credentials path is provided, use it for this operation
             if credentials_path and not os.getenv("K_SERVICE"):
                 if not os.path.exists(credentials_path):
-                    raise FileNotFoundError("Credentials file not found: {credentials_path}")
+                    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
 
                 credentials = service_account.Credentials.from_service_account_file(
                     credentials_path
@@ -270,7 +270,7 @@ class GCPService:
             blob = bucket.blob(file_path)
             blob.upload_from_string(json_content, content_type="application/json")
 
-            logger.info("Successfully uploaded JSON to GCS: gs://{bucket_name}/{file_path}")
+            logger.info(f"Successfully uploaded JSON to GCS: gs://{bucket_name}/{file_path}")
             return True
 
         except Exception as e:
@@ -285,7 +285,7 @@ class GCPService:
             # If credentials path is provided, use it for this operation
             if credentials_path and not os.getenv("K_SERVICE"):
                 if not os.path.exists(credentials_path):
-                    raise FileNotFoundError("Credentials file not found: {credentials_path}")
+                    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
 
                 credentials = service_account.Credentials.from_service_account_file(
                     credentials_path
@@ -307,7 +307,7 @@ class GCPService:
             file_paths = [blob.name for blob in blobs]
 
             logger.info(
-                "Found {len(file_paths)} files in bucket {bucket_name} with prefix '{prefix}'"
+                f"Found {len(file_paths)} files in bucket {bucket_name} with prefix '{prefix}'"
             )
             return file_paths
 
@@ -323,7 +323,7 @@ class GCPService:
             # If credentials path is provided, use it for this operation
             if credentials_path and not os.getenv("K_SERVICE"):
                 if not os.path.exists(credentials_path):
-                    raise FileNotFoundError("Credentials file not found: {credentials_path}")
+                    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
 
                 credentials = service_account.Credentials.from_service_account_file(
                     credentials_path
@@ -355,7 +355,7 @@ class GCPService:
             # If credentials path is provided, use it for this operation
             if credentials_path and not os.getenv("K_SERVICE"):
                 if not os.path.exists(credentials_path):
-                    raise FileNotFoundError("Credentials file not found: {credentials_path}")
+                    raise FileNotFoundError(f"Credentials file not found: {credentials_path}")
 
                 credentials = service_account.Credentials.from_service_account_file(
                     credentials_path

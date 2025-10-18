@@ -50,15 +50,15 @@ class QdrantService:
                 self.client, "grpc_collections"
             )
             connection_type = "gRPC" if has_grpc and self.prefer_grpc else "HTTP"
-            logger.info("Connected to Qdrant at {self.qdrant_url} using {connection_type}")
+            logger.info(f"Connected to Qdrant at {self.qdrant_url} using {connection_type}")
 
             if connection_type == "gRPC":
                 logger.info(
-                    "gRPC port: {self.grpc_port} - Performance optimized (2-3x faster than HTTP)"
+                    f"gRPC port: {self.grpc_port} - Performance optimized (2-3x faster than HTTP)"
                 )
 
         except Exception as e:
-            logger.error("Failed to connect to Qdrant with gRPC: {e!s}")
+            logger.error(f"Failed to connect to Qdrant with gRPC: {e!s}")
             logger.warning("Falling back to HTTP connection...")
 
             # Fallback: intentar sin gRPC
@@ -69,13 +69,13 @@ class QdrantService:
                     timeout=10.0,
                     prefer_grpc=False,  # Forzar HTTP
                 )
-                logger.info("Connected to Qdrant at {self.qdrant_url} using HTTP (fallback)")
+                logger.info(f"Connected to Qdrant at {self.qdrant_url} using HTTP (fallback)")
                 logger.warning(
                     "gRPC not available - using HTTP (slower). Check Qdrant gRPC port configuration."
                 )
             except Exception as e2:
-                logger.error("Failed to connect to Qdrant even with HTTP: {e2!s}")
-                raise ConnectionError("Failed to connect to Qdrant: {e2!s}")
+                logger.error(f"Failed to connect to Qdrant even with HTTP: {e2!s}")
+                raise ConnectionError(f"Failed to connect to Qdrant: {e2!s}")
 
     def health_check(self) -> dict[str, str]:
         """Check Qdrant health status"""
@@ -95,7 +95,7 @@ class QdrantService:
                 "connection_type": connection_type,
             }
         except Exception as e:
-            logger.error("Qdrant health check failed: {e!s}")
+            logger.error(f"Qdrant health check failed: {e!s}")
             return {"status": "disconnected", "error": str(e)}
 
     def create_collection(
@@ -110,10 +110,10 @@ class QdrantService:
             # Check if collection exists
             if self.collection_exists(collection_name):
                 if replace_existing:
-                    logger.info("Deleting existing collection: {collection_name}")
+                    logger.info(f"Deleting existing collection: {collection_name}")
                     self.client.delete_collection(collection_name)
                 else:
-                    logger.warning("Collection {collection_name} already exists")
+                    logger.warning(f"Collection {collection_name} already exists")
                     return False
 
             # Create collection
@@ -122,11 +122,11 @@ class QdrantService:
                 vectors_config=VectorParams(size=vector_size, distance=distance),
             )
 
-            logger.info("Collection '{collection_name}' created successfully")
+            logger.info(f"Collection '{collection_name}' created successfully")
             return True
 
         except Exception as e:
-            logger.error("Failed to create collection {collection_name}: {e!s}")
+            logger.error(f"Failed to create collection {collection_name}: {e!s}")
             raise
 
     def collection_exists(self, collection_name: str) -> bool:
@@ -135,7 +135,7 @@ class QdrantService:
             collections = self.client.get_collections()
             return any(col.name == collection_name for col in collections.collections)
         except Exception as e:
-            logger.error("Failed to check collection existence: {e!s}")
+            logger.error(f"Failed to check collection existence: {e!s}")
             return False
 
     def get_collection_info(self, collection_name: str) -> dict[str, Any] | None:
@@ -154,7 +154,7 @@ class QdrantService:
                 "status": collection_info.status.value,
             }
         except Exception as e:
-            logger.error("Failed to get collection info: {e!s}")
+            logger.error(f"Failed to get collection info: {e!s}")
             return None
 
     def insert_documents(
@@ -167,7 +167,7 @@ class QdrantService:
         """Insert documents with embeddings into collection"""
         try:
             if not self.collection_exists(collection_name):
-                raise ValueError("Collection {collection_name} does not exist")
+                raise ValueError(f"Collection {collection_name} does not exist")
 
             total_documents = len(documents)
             inserted_count = 0
@@ -189,13 +189,13 @@ class QdrantService:
                 self.client.upsert(collection_name=collection_name, points=points)
 
                 inserted_count += len(points)
-                logger.info("Inserted batch {i//batch_size + 1}: {len(points)} documents")
+                logger.info(f"Inserted batch {i // batch_size + 1}: {len(points)} documents")
 
-            logger.info("Successfully inserted {inserted_count}/{total_documents} documents")
+            logger.info(f"Successfully inserted {inserted_count}/{total_documents} documents")
             return total_documents, inserted_count
 
         except Exception as e:
-            logger.error("Failed to insert documents: {e!s}")
+            logger.error(f"Failed to insert documents: {e!s}")
             raise
 
     def search_documents(
@@ -209,7 +209,7 @@ class QdrantService:
         """Search for similar documents"""
         try:
             if not self.collection_exists(collection_name):
-                raise ValueError("Collection {collection_name} does not exist")
+                raise ValueError(f"Collection {collection_name} does not exist")
 
             # Prepare search parameters
             search_params = {
@@ -239,22 +239,22 @@ class QdrantService:
             return formatted_results
 
         except Exception as e:
-            logger.error("Failed to search documents: {e!s}")
+            logger.error(f"Failed to search documents: {e!s}")
             raise
 
     def delete_collection(self, collection_name: str) -> bool:
         """Delete a collection"""
         try:
             if not self.collection_exists(collection_name):
-                logger.warning("Collection {collection_name} does not exist")
+                logger.warning(f"Collection {collection_name} does not exist")
                 return False
 
             self.client.delete_collection(collection_name)
-            logger.info("Collection '{collection_name}' deleted successfully")
+            logger.info(f"Collection '{collection_name}' deleted successfully")
             return True
 
         except Exception as e:
-            logger.error("Failed to delete collection {collection_name}: {e!s}")
+            logger.error(f"Failed to delete collection {collection_name}: {e!s}")
             raise
 
     def get_collection_stats(self, collection_name: str) -> dict[str, Any] | None:
@@ -272,7 +272,7 @@ class QdrantService:
                 "status": collection_info.status.value,
             }
         except Exception as e:
-            logger.error("Failed to get collection stats: {e!s}")
+            logger.error(f"Failed to get collection stats: {e!s}")
             return None
 
     def list_collections(self) -> list[str]:
@@ -281,7 +281,7 @@ class QdrantService:
             collections = self.client.get_collections()
             return [col.name for col in collections.collections]
         except Exception as e:
-            logger.error("Failed to list collections: {e!s}")
+            logger.error(f"Failed to list collections: {e!s}")
             return []
 
 

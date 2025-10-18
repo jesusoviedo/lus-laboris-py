@@ -40,15 +40,15 @@ class JWTValidator:
                 self.public_key = serialization.load_pem_public_key(
                     f.read(), backend=default_backend()
                 )
-            logger.info("JWT public key loaded successfully from {public_key_path}")
+            logger.info(f"JWT public key loaded successfully from {public_key_path}")
         except FileNotFoundError:
-            logger.error("JWT public key not found at {public_key_path}")
+            logger.error(f"JWT public key not found at {public_key_path}")
             raise ValueError(
                 "JWT public key not found. Please ensure the key file exists at {public_key_path}"
             )
         except Exception as e:
-            logger.error("Failed to load JWT public key: {e!s}")
-            raise ValueError("Failed to load JWT public key: {e!s}")
+            logger.error(f"Failed to load JWT public key: {e!s}")
+            raise ValueError(f"Failed to load JWT public key: {e!s}")
 
     def validate_token(self, token: str) -> dict[str, Any]:
         """Validate a JWT token and return its payload"""
@@ -74,21 +74,21 @@ class JWTValidator:
                 },
             )
 
-            logger.info("JWT token validated for subject: {payload.get('sub', 'unknown')}")
+            logger.info(f"JWT token validated for subject: {payload.get('sub', 'unknown')}")
             return payload
 
         except jwt.ExpiredSignatureError:
             logger.warning("JWT token has expired")
             raise ValueError("Token has expired")
         except jwt.InvalidAudienceError:
-            logger.warning("Invalid JWT audience. Expected: {expected_audience}")
-            raise ValueError("Invalid audience. Expected: {expected_audience}")
+            logger.warning(f"Invalid JWT audience. Expected: {expected_audience}")
+            raise ValueError(f"Invalid audience. Expected: {expected_audience}")
         except jwt.InvalidIssuerError:
-            logger.warning("Invalid JWT issuer. Expected: {expected_issuer}")
-            raise ValueError("Invalid issuer. Expected: {expected_issuer}")
+            logger.warning(f"Invalid JWT issuer. Expected: {expected_issuer}")
+            raise ValueError(f"Invalid issuer. Expected: {expected_issuer}")
         except jwt.InvalidTokenError as e:
-            logger.warning("Invalid JWT token: {e!s}")
-            raise ValueError("Invalid token: {e!s}")
+            logger.warning(f"Invalid JWT token: {e!s}")
+            raise ValueError(f"Invalid token: {e!s}")
 
     def get_public_key_pem(self) -> str:
         """Get the public key in PEM format for external validation"""

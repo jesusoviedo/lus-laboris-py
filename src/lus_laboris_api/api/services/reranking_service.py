@@ -23,7 +23,7 @@ class RerankingService:
 
         if self.use_reranking and self.model_name:
             self._load_model()
-            logger.info("Reranking service initialized with model: {self.model_name}")
+            logger.info(f"Reranking service initialized with model: {self.model_name}")
         else:
             logger.info("Reranking service initialized but disabled")
 
@@ -31,9 +31,9 @@ class RerankingService:
         """Load the reranking model"""
         try:
             self.model = CrossEncoder(self.model_name)
-            logger.info("Reranking model '{self.model_name}' loaded successfully")
+            logger.info(f"Reranking model '{self.model_name}' loaded successfully")
         except Exception as e:
-            logger.exception("Failed to load reranking model '{self.model_name}'")
+            logger.exception(f"Failed to load reranking model '{self.model_name}'")
             raise
 
     def health_check(self) -> dict[str, Any]:
@@ -79,7 +79,7 @@ class RerankingService:
             return documents, {"reranking_applied": False}
 
         try:
-            logger.info("Reranking {len(documents)} documents with model: {self.model_name}")
+            logger.info(f"Reranking {len(documents)} documents with model: {self.model_name}")
 
             # Prepare query-document pairs for reranking
             query_doc_pairs = []
@@ -117,7 +117,7 @@ class RerankingService:
                 },
             }
 
-            logger.info("Reranking completed: {len(reranked_documents)} documents returned")
+            logger.info(f"Reranking completed: {len(reranked_documents)} documents returned")
             return reranked_documents, metadata
 
         except Exception as e:

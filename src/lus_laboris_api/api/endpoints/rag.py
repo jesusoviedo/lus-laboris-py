@@ -47,7 +47,7 @@ async def ask_question(
     """
     session_id = None
     try:
-        logger.info("Received question: {question_data.question[:100]}...")
+        logger.info(f"Received question: {question_data.question[:100]}...")
 
         # Create sesión de monitoreo
         session_id = phoenix_service.create_session()
@@ -77,12 +77,12 @@ async def ask_question(
                 "Question answered successfully in {result['processing_time_seconds']:.3f}s for session {session_id}"
             )
         else:
-            logger.error("Failed to answer question: {result.get('error')}")
+            logger.error(f"Failed to answer question: {result.get('error')}")
 
         return response
 
     except Exception as e:
-        logger.error("Unexpected error in ask_question: {e!s}")
+        logger.error(f"Unexpected error in ask_question: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {e!s}",

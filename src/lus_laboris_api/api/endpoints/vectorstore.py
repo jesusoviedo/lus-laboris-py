@@ -123,10 +123,10 @@ async def _load_to_vectorstore_background(
             "processing_time_seconds": processing_time,
         }
 
-        logger.info("Background job {job_id} completed successfully")
+        logger.info(f"Background job {job_id} completed successfully")
 
     except Exception as e:
-        logger.error("Background job {job_id} failed: {e!s}")
+        logger.error(f"Background job {job_id} failed: {e!s}")
 
         # Track error
         if session_id:
@@ -229,10 +229,10 @@ async def _load_to_vectorstore_gcp_background(
             "processing_time_seconds": processing_time,
         }
 
-        logger.info("Background job {job_id} completed successfully")
+        logger.info(f"Background job {job_id} completed successfully")
 
     except Exception as e:
-        logger.error("Background job {job_id} failed: {e!s}")
+        logger.error(f"Background job {job_id} failed: {e!s}")
 
         # Track error
         if session_id:
@@ -270,7 +270,7 @@ def _extract_token_payload(request: Request) -> dict[str, Any]:
                 "token_iat": payload.get("iat"),
             }
     except Exception as e:
-        logger.warning("Failed to extract token payload: {e}")
+        logger.warning(f"Failed to extract token payload: {e}")
 
     return {"user": "unknown", "error": "token_not_decoded"}
 
@@ -305,7 +305,7 @@ async def get_collection_info(collection_name: str, current_user: str = Depends(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Failed to get collection info: {e!s}")
+        logger.error(f"Failed to get collection info: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get collection info: {e!s}",
@@ -367,7 +367,7 @@ async def delete_collection(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Failed to delete collection: {e!s}")
+        logger.error(f"Failed to delete collection: {e!s}")
 
         # Track error
         if session_id:
@@ -407,7 +407,7 @@ async def list_collections(current_user: str = Depends(get_current_user)):
         )
 
     except Exception as e:
-        logger.error("Failed to list collections: {e!s}")
+        logger.error(f"Failed to list collections: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to list collections: {e!s}",
@@ -453,7 +453,7 @@ async def load_to_vectorstore_local(
             _load_to_vectorstore_background, job_id, request, current_user, token_payload
         )
 
-        logger.info("Background job {job_id} queued for user {current_user}")
+        logger.info(f"Background job {job_id} queued for user {current_user}")
 
         # Return immediately with job information
         return LoadToVectorstoreResponse(
@@ -470,7 +470,7 @@ async def load_to_vectorstore_local(
         )
 
     except Exception as e:
-        logger.error("Failed to queue background job: {e!s}")
+        logger.error(f"Failed to queue background job: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to initiate data loading job: {e!s}",
@@ -518,7 +518,7 @@ async def load_to_vectorstore_gcp(
             _load_to_vectorstore_gcp_background, job_id, request, current_user, token_payload
         )
 
-        logger.info("Background job {job_id} queued for user {current_user}")
+        logger.info(f"Background job {job_id} queued for user {current_user}")
 
         # Return immediately with job information
         return LoadToVectorstoreResponse(
@@ -535,7 +535,7 @@ async def load_to_vectorstore_gcp(
         )
 
     except Exception as e:
-        logger.error("Failed to queue background job: {e!s}")
+        logger.error(f"Failed to queue background job: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to initiate data loading job: {e!s}",
@@ -588,8 +588,8 @@ async def _process_data_for_embedding(
             documents.append(doc)
             texts.append(text_for_embedding)
 
-        logger.info("Processing {len(documents)} documents for embedding")
-        logger.info("Source: {source}")
+        logger.info(f"Processing {len(documents)} documents for embedding")
+        logger.info(f"Source: {source}")
 
         # Generate embeddings
         embeddings, embedding_metadata = embedding_service.generate_embeddings(
@@ -599,7 +599,7 @@ async def _process_data_for_embedding(
         return documents, embeddings, embedding_metadata
 
     except Exception as e:
-        logger.error("Failed to process data for embedding: {e!s}")
+        logger.error(f"Failed to process data for embedding: {e!s}")
         raise
 
 
@@ -612,18 +612,18 @@ async def _load_local_data_new(request: LoadToVectorstoreLocalRequest) -> dict[s
         file_path = data_path / request.filename
 
         if not file_path.exists():
-            raise FileNotFoundError("File not found: {file_path}")
+            raise FileNotFoundError(f"File not found: {file_path}")
 
-        logger.info("Loading local data from: {file_path}")
+        logger.info(f"Loading local data from: {file_path}")
 
         with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
-        logger.info("Loaded {len(data.get('articulos', []))} articles from local file")
+        logger.info(f"Loaded {len(data.get('articulos', []))} articles from local file")
         return data
 
     except Exception as e:
-        logger.error("Failed to load local data: {e!s}")
+        logger.error(f"Failed to load local data: {e!s}")
         raise
 
 
@@ -645,11 +645,11 @@ async def _load_gcp_data_new(request: LoadToVectorstoreGCPRequest) -> dict[str, 
                 filename=request.filename, folder=request.folder, bucket_name=request.bucket_name
             )
 
-        logger.info("Loaded {len(data.get('articulos', []))} articles from GCS")
+        logger.info(f"Loaded {len(data.get('articulos', []))} articles from GCS")
         return data
 
     except Exception as e:
-        logger.error("Failed to load GCP data: {e!s}")
+        logger.error(f"Failed to load GCP data: {e!s}")
         raise
 
 
@@ -694,7 +694,7 @@ async def list_all_jobs(current_user: str = Depends(require_vectorstore_write)):
         }
 
     except Exception as e:
-        logger.error("Failed to list all jobs: {e!s}")
+        logger.error(f"Failed to list all jobs: {e!s}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to list jobs: {e!s}"
         )

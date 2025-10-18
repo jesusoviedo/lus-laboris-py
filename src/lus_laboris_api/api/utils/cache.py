@@ -49,7 +49,7 @@ class HealthCheckCache:
             del self._timestamps[key]
             return None
 
-        logger.debug("Cache hit for '{key}' (age: {age:.2f}s)")
+        logger.debug(f"Cache hit for '{key}' (age: {age:.2f}s)")
         return self._cache[key]
 
     def set(self, key: str, value: dict[str, Any]):
@@ -62,7 +62,7 @@ class HealthCheckCache:
         """
         self._cache[key] = value
         self._timestamps[key] = time.time()
-        logger.debug("Cache set for '{key}' (TTL: {self.ttl_seconds}s)")
+        logger.debug(f"Cache set for '{key}' (TTL: {self.ttl_seconds}s)")
 
     def clear(self, key: str | None = None):
         """
@@ -75,7 +75,7 @@ class HealthCheckCache:
             if key in self._cache:
                 del self._cache[key]
                 del self._timestamps[key]
-                logger.debug("Cache cleared for '{key}'")
+                logger.debug(f"Cache cleared for '{key}'")
         else:
             self._cache.clear()
             self._timestamps.clear()

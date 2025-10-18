@@ -50,7 +50,7 @@ class PhoenixMonitoringService:
 
             # If gRPC is enabled, use gRPC endpoint
             if use_grpc and grpc_endpoint:
-                logger.info("Attempting to connect to Phoenix via gRPC at {grpc_endpoint}")
+                logger.info(f"Attempting to connect to Phoenix via gRPC at {grpc_endpoint}")
 
                 # Register Phoenix with gRPC endpoint
                 self.tracer_provider = register(
@@ -64,7 +64,7 @@ class PhoenixMonitoringService:
                 transport = "gRPC"
             else:
                 # Fallback to HTTP
-                logger.info("Connecting to Phoenix via HTTP at {phoenix_endpoint}")
+                logger.info(f"Connecting to Phoenix via HTTP at {phoenix_endpoint}")
 
                 self.tracer_provider = register(
                     project_name=self.project_name,
@@ -83,10 +83,10 @@ class PhoenixMonitoringService:
             self._initialize_openinference_instrumentors()
 
             processor_type = "BatchSpanProcessor" if is_production else "SimpleSpanProcessor"
-            logger.info("Phoenix monitoring initialized for project: {self.project_name}")
-            logger.info("Using {processor_type} (environment: {settings.api_environment})")
+            logger.info(f"Phoenix monitoring initialized for project: {self.project_name}")
+            logger.info(f"Using {processor_type} (environment: {settings.api_environment})")
             logger.info(
-                "Transport: {transport} - {'Optimized for performance' if transport == 'gRPC' else 'Standard HTTP'}"
+                f"Transport: {transport} - {'Optimized for performance' if transport == 'gRPC' else 'Standard HTTP'}"
             )
 
         except Exception as e:
@@ -143,13 +143,13 @@ class PhoenixMonitoringService:
             "metrics": {},
         }
 
-        logger.info("Created monitoring session: {session_id}")
+        logger.info(f"Created monitoring session: {session_id}")
         return session_id
 
     def end_session(self, session_id: str) -> dict[str, Any]:
         """Finalizar una sesión y calcular métricas finales"""
         if session_id not in self.session_tracker:
-            logger.warning("Session {session_id} not found")
+            logger.warning(f"Session {session_id} not found")
             return {}
 
         session_data = self.session_tracker[session_id]
@@ -162,7 +162,7 @@ class PhoenixMonitoringService:
         session_metrics = self._calculate_session_metrics(session_data)
         session_data["final_metrics"] = session_metrics
 
-        logger.info("Session {session_id} ended. Duration: {session_data['duration']:.2f}s")
+        logger.info(f"Session {session_id} ended. Duration: {session_data['duration']:.2f}s")
 
         # Limpiar sesión después de un tiempo
         del self.session_tracker[session_id]
@@ -267,7 +267,7 @@ class PhoenixMonitoringService:
 
                 span.set_status(Status(StatusCode.OK))
 
-                logger.info("Tracked LLM call: {provider}/{model} for session {session_id}")
+                logger.info(f"Tracked LLM call: {provider}/{model} for session {session_id}")
 
         except Exception as e:
             logger.exception("Failed to track LLM call")
@@ -312,7 +312,7 @@ class PhoenixMonitoringService:
 
                 span.set_status(Status(StatusCode.OK))
 
-                logger.info("Tracked vectorstore search for session {session_id}")
+                logger.info(f"Tracked vectorstore search for session {session_id}")
 
         except Exception as e:
             logger.exception("Failed to track vectorstore search")
@@ -357,7 +357,7 @@ class PhoenixMonitoringService:
 
                 span.set_status(Status(StatusCode.OK))
 
-                logger.info("Tracked embedding generation for session {session_id}")
+                logger.info(f"Tracked embedding generation for session {session_id}")
 
         except Exception as e:
             logger.exception("Failed to track embedding generation")
@@ -407,7 +407,7 @@ class PhoenixMonitoringService:
                 span.set_status(Status(StatusCode.OK))
 
                 logger.debug(
-                    "Tracked vectorstore operation '{operation_type}' for session {session_id}"
+                    f"Tracked vectorstore operation '{operation_type}' for session {session_id}"
                 )
 
         except Exception as e:
@@ -453,7 +453,7 @@ class PhoenixMonitoringService:
 
                 span.set_status(Status(StatusCode.OK))
 
-                logger.info("Tracked reranking for session {session_id}")
+                logger.info(f"Tracked reranking for session {session_id}")
 
         except Exception as e:
             logger.exception("Failed to track reranking")
@@ -496,7 +496,7 @@ class PhoenixMonitoringService:
                 status = Status(StatusCode.OK) if success else Status(StatusCode.ERROR)
                 span.set_status(status)
 
-                logger.info("Tracked authentication for session {session_id}")
+                logger.info(f"Tracked authentication for session {session_id}")
 
         except Exception as e:
             logger.exception("Failed to track authentication")
@@ -653,7 +653,7 @@ class PhoenixMonitoringService:
                 basic_health["collector_reachable"] = True
 
             except Exception as conn_error:
-                logger.warning("Phoenix connection test failed: {conn_error}")
+                logger.warning(f"Phoenix connection test failed: {conn_error}")
                 basic_health["phoenix_connection"] = "degraded"
                 basic_health["collector_reachable"] = False
                 basic_health["connection_error"] = str(conn_error)

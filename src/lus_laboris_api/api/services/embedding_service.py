@@ -22,7 +22,7 @@ class EmbeddingService:
         self.models = {}
         self.default_model = settings.api_embedding_model
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info("Embedding service initialized on device: {self.device}")
+        logger.info(f"Embedding service initialized on device: {self.device}")
 
     def health_check(self) -> dict[str, str]:
         """Check embedding service health status"""
@@ -47,10 +47,10 @@ class EmbeddingService:
         """Load a specific embedding model"""
         try:
             if model_name in self.models:
-                logger.info("Model {model_name} already loaded")
+                logger.info(f"Model {model_name} already loaded")
                 return self.models[model_name]
 
-            logger.info("Loading embedding model: {model_name}")
+            logger.info(f"Loading embedding model: {model_name}")
             start_time = time.time()
 
             # Load model
@@ -68,11 +68,11 @@ class EmbeddingService:
             # Cache model
             self.models[model_name] = model_info
 
-            logger.info("Model {model_name} loaded successfully in {model_info['load_time']:.2f}s")
+            logger.info(f"Model {model_name} loaded successfully in {model_info['load_time']:.2f}s")
             return model_info
 
         except Exception as e:
-            logger.exception("Failed to load model {model_name}")
+            logger.exception(f"Failed to load model {model_name}")
             raise
 
     def get_model_info(self, model_name: str) -> dict[str, Any] | None:
@@ -81,7 +81,7 @@ class EmbeddingService:
             try:
                 self._load_model(model_name)
             except Exception as e:
-                logger.exception("Failed to load model {model_name}")
+                logger.exception(f"Failed to load model {model_name}")
                 return None
 
         return self.models[model_name]
@@ -102,11 +102,11 @@ class EmbeddingService:
             # Load model if not already loaded
             model_info = self.get_model_info(model_name)
             if not model_info:
-                raise ValueError("Failed to load model: {model_name}")
+                raise ValueError(f"Failed to load model: {model_name}")
 
             model = model_info["model"]
 
-            logger.info("Generating embeddings for {len(texts)} texts using {model_name}")
+            logger.info(f"Generating embeddings for {len(texts)} texts using {model_name}")
             start_time = time.time()
 
             # Generate embeddings
@@ -131,7 +131,7 @@ class EmbeddingService:
                 "device": self.device,
             }
 
-            logger.info("Generated embeddings in {processing_time:.2f}s")
+            logger.info(f"Generated embeddings in {processing_time:.2f}s")
             return embeddings, metadata
 
         except Exception as e:
@@ -157,7 +157,7 @@ class EmbeddingService:
             self._load_model(model_name)
             return True
         except Exception as e:
-            logger.exception("Failed to preload model {model_name}")
+            logger.exception(f"Failed to preload model {model_name}")
             return False
 
     def unload_model(self, model_name: str) -> bool:
@@ -165,12 +165,12 @@ class EmbeddingService:
         try:
             if model_name in self.models:
                 del self.models[model_name]
-                logger.info("Model {model_name} unloaded")
+                logger.info(f"Model {model_name} unloaded")
                 return True
-            logger.warning("Model {model_name} not loaded")
+            logger.warning(f"Model {model_name} not loaded")
             return False
         except Exception as e:
-            logger.exception("Failed to unload model {model_name}")
+            logger.exception(f"Failed to unload model {model_name}")
             return False
 
     def get_model_dimensions(self, model_name: str) -> int | None:
@@ -196,7 +196,7 @@ class EmbeddingService:
                 # Euclidean distance (inverted for similarity)
                 distance = np.linalg.norm(embedding1 - embedding2)
                 return 1 / (1 + distance)
-            raise ValueError("Unsupported similarity metric: {metric}")
+            raise ValueError(f"Unsupported similarity metric: {metric}")
         except Exception as e:
             logger.exception("Failed to calculate similarity")
             raise

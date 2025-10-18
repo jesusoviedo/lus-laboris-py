@@ -98,7 +98,7 @@ async def get_service_status(token_payload: dict[str, Any] = Depends(optional_au
         # Log access
         if is_authenticated:
             user = token_payload.get("sub", "unknown")
-            logger.info("Detailed service status requested by authenticated user: {user}")
+            logger.info(f"Detailed service status requested by authenticated user: {user}")
         else:
             logger.debug("Basic service status requested (no authentication)")
 

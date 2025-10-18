@@ -34,10 +34,10 @@ class SecurityManager:
         try:
             payload = self.jwt_validator.validate_token(credentials.credentials)
             user = payload.get("sub", "unknown")
-            logger.info("Token validated successfully for user: {user}")
+            logger.info(f"Token validated successfully for user: {user}")
             return payload
         except ValueError as e:
-            logger.warning("Token validation failed: {e!s}")
+            logger.warning(f"Token validation failed: {e!s}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=f"Invalid token: {e!s}",
@@ -65,7 +65,7 @@ class SecurityManager:
     def get_current_user(self, token_payload: dict) -> str:
         """Get current user from token payload"""
         user = token_payload.get("sub", "unknown")
-        logger.debug("Current user: {user}")
+        logger.debug(f"Current user: {user}")
         return user
 
     def get_user_permissions(self, token_payload: dict) -> list[str]:

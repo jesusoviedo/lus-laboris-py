@@ -40,7 +40,7 @@ class RAGService:
         self._initialize_llm_clients()
 
         logger.info(
-            "RAG service initialized with provider: {self.llm_provider}, model: {self.llm_model}"
+            f"RAG service initialized with provider: {self.llm_provider}, model: {self.llm_model}"
         )
 
     def _initialize_llm_clients(self):
@@ -65,7 +65,7 @@ class RAGService:
                     genai.configure()  # Will use GEMINI_API_KEY env var as fallback
                 logger.info("Gemini configured successfully")
             else:
-                raise ValueError("Unsupported LLM provider: {self.llm_provider}")
+                raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
         except Exception as e:
             logger.exception("Failed to initialize LLM client")
             raise
@@ -172,7 +172,7 @@ class RAGService:
 
         context_parts = []
 
-        for _i, doc in enumerate(documents, 1):
+        for i, doc in enumerate(documents, 1):
             # Extract information from document
             payload = doc["payload"]
             articulo_text = payload.get("articulo", "Texto no disponible")
@@ -181,13 +181,13 @@ class RAGService:
 
             # Format document
             doc_text = f"{articulo_text} [Capítulo: {capitulo_descripcion} - Artículo número: {articulo_numero}]"
-            context_parts.append("Documento {i}:\n{doc_text}\n")
+            context_parts.append(f"Documento {i}:\n{doc_text}\n")
 
         return "\n".join(context_parts)
 
     def _create_prompt(self, query: str, context: str) -> str:
         """Create prompt for LLM"""
-        prompt = textwrap.dedent("""\
+        prompt = textwrap.dedent(f"""\
             Eres un asistente especializado en derecho laboral paraguayo.
             Responde la pregunta del usuario basándote únicamente en el contexto proporcionado.
 
@@ -275,7 +275,7 @@ class RAGService:
         elif self.llm_provider == "gemini":
             response = self._generate_gemini_response(prompt)  # Gemini still synchronous
         else:
-            raise ValueError("Unsupported LLM provider: {self.llm_provider}")
+            raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
 
         # Track LLM call
         phoenix_service.track_llm_call(
@@ -360,9 +360,9 @@ class RAGService:
             }
 
             logger.info(
-                "Question answered successfully in {processing_time:.3f}s for session {session_id}"
+                f"Question answered successfully in {processing_time:.3f}s for session {session_id}"
             )
-            logger.debug("Evaluation enqueued for asynchronous processing (session {session_id})")
+            logger.debug(f"Evaluation enqueued for asynchronous processing (session {session_id})")
             return response
 
         except Exception as e:

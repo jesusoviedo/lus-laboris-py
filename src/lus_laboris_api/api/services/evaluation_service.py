@@ -48,7 +48,7 @@ class EvaluationService:
 
             self.eval_model = OpenAIModel(model=eval_model, api_key=settings.openai_api_key)
 
-            logger.info("Phoenix evaluators initialized with model: {eval_model}")
+            logger.info(f"Phoenix evaluators initialized with model: {eval_model}")
 
         except Exception as e:
             logger.exception("Failed to initialize evaluators")
@@ -104,7 +104,7 @@ class EvaluationService:
         }
 
         self.evaluation_queue.put(eval_task)
-        logger.debug("Evaluation enqueued for session {session_id}")
+        logger.debug(f"Evaluation enqueued for session {session_id}")
 
     def _run_evaluation(self, eval_task: dict[str, Any]):
         """Execute Phoenix Evals evaluations (runs async loop)"""
@@ -125,7 +125,7 @@ class EvaluationService:
         answer = eval_task["answer"]
 
         try:
-            logger.info("Running parallel evaluations for session {session_id}")
+            logger.info(f"Running parallel evaluations for session {session_id}")
 
             # ✅ OPTIMIZATION: Run all 3 evaluations in parallel
             start_time = time.time()
@@ -166,11 +166,11 @@ class EvaluationService:
             self._save_evaluation_to_phoenix(session_id, evaluation_metrics, eval_task)
 
             logger.info(
-                "Parallel evaluation completed for session {session_id} in {eval_time:.2f}s: {evaluation_metrics}"
+                f"Parallel evaluation completed for session {session_id} in {eval_time:.2f}s: {evaluation_metrics}"
             )
 
         except Exception as e:
-            logger.exception("Failed to run evaluation for session {session_id}")
+            logger.exception(f"Failed to run evaluation for session {session_id}")
 
     def _evaluate_relevance(self, question: str, context: str, answer: str) -> float | None:
         """Evaluate response relevance using Phoenix Evals"""
@@ -314,7 +314,7 @@ class EvaluationService:
                 },
             )
 
-            logger.debug("Evaluation metrics saved to Phoenix for session {session_id}")
+            logger.debug(f"Evaluation metrics saved to Phoenix for session {session_id}")
 
         except Exception as e:
             logger.exception("Failed to save evaluation to Phoenix")

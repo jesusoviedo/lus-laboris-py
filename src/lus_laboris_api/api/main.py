@@ -40,26 +40,26 @@ async def lifespan(app: FastAPI):
         # Check Qdrant connection
         qdrant_status = qdrant_service.health_check()
         if qdrant_status.get("status") != "connected":
-            logger.warning("Qdrant connection issue: {qdrant_status}")
+            logger.warning(f"Qdrant connection issue: {qdrant_status}")
 
         # Check GCP connection
         gcp_status = gcp_service.health_check()
         if gcp_status.get("status") != "connected":
-            logger.warning("GCP connection issue: {gcp_status}")
+            logger.warning(f"GCP connection issue: {gcp_status}")
 
         # Initialize embedding service
         embedding_status = embedding_service.health_check()
         if embedding_status.get("status") != "healthy":
-            logger.warning("Embedding service issue: {embedding_status}")
+            logger.warning(f"Embedding service issue: {embedding_status}")
 
         # Initialize RAG service
         rag_status = rag_service.health_check()
         if rag_status.get("status") != "healthy":
-            logger.warning("RAG service issue: {rag_status}")
+            logger.warning(f"RAG service issue: {rag_status}")
 
         # Initialize evaluation service
         eval_status = evaluation_service.health_check()
-        logger.info("Evaluation service status: {eval_status.get('status')}")
+        logger.info(f"Evaluation service status: {eval_status.get('status')}")
 
         logger.info("All services initialized successfully")
 
@@ -116,7 +116,7 @@ async def http_exception_handler(request, exc):
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     """Handle general exceptions"""
-    logger.error("Unhandled exception: {exc!s}")
+    logger.error(f"Unhandled exception: {exc!s}")
     return JSONResponse(
         status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
@@ -140,8 +140,8 @@ if __name__ == "__main__":
     reload = settings.api_reload
     log_level = settings.api_log_level
 
-    logger.info("Starting API server on {host}:{port}")
-    logger.info("Reload mode: {reload}")
-    logger.info("Log level: {log_level}")
+    logger.info(f"Starting API server on {host}:{port}")
+    logger.info(f"Reload mode: {reload}")
+    logger.info(f"Log level: {log_level}")
 
     uvicorn.run("main:app", host=host, port=port, reload=reload, log_level=log_level)
