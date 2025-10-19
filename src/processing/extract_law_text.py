@@ -29,6 +29,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 import uuid
 import warnings
 from contextlib import contextmanager
@@ -437,17 +438,20 @@ def phoenix_span(
                 f"Starting Phoenix span: {operation_name} (kind: {kind.name}) [Session: {_session_id[:8] if _session_id else 'N/A'}]",
                 "debug",
             )
-            yield span
         except Exception as e:
             log_phoenix(f"Error creando span Phoenix: {e}", "warning")
-            yield None
-        finally:
-            if span:
-                try:
-                    span.end()
-                    log_phoenix(f"Finalizando span Phoenix: {operation_name}", "debug")
-                except Exception as e:
-                    log_phoenix(f"Error finalizando span Phoenix: {e}", "warning")
+            span = None
+
+        # Yield outside of try/except to avoid "generator didn't stop after throw()" error
+        yield span
+
+        # Cleanup span in finally block
+        if span:
+            try:
+                span.end()
+                log_phoenix(f"Finalizando span Phoenix: {operation_name}", "debug")
+            except Exception as e:
+                log_phoenix(f"Error finalizando span Phoenix: {e}", "warning")
     else:
         log_phoenix(f"Phoenix no disponible, ejecutando sin span: {operation_name}", "debug")
         yield None
@@ -474,10 +478,14 @@ def roman_to_int(roman: str) -> int:
 def download_law_page(url: str, output_path: str = "data/raw/codigo_trabajo_py.html") -> None:
     """
     Downloads the HTML page of the law and saves it locally.
+    Includes retry logic and better error handling for network issues.
 
     Args:
         url: URL of the law page
         output_path: Path where to save the HTML file
+
+    Raises:
+        requests.exceptions.RequestException: If download fails after retries
     """
     with phoenix_span(
         "download_law_page", SpanKind.CLIENT, {"url": url, "output_path": output_path}
@@ -486,13 +494,62 @@ def download_law_page(url: str, output_path: str = "data/raw/codigo_trabajo_py.h
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
         log_process(f"Descargando desde: {url}", "step")
-        response = requests.get(url)
-        response.raise_for_status()
 
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(response.text)
+        # Retry configuration
+        max_retries = 3
+        retry_delay = 2  # seconds
 
-        log_process(f"Page downloaded and saved to: {out_path}", "success")
+        # Headers to avoid being blocked as bot
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+        }
+
+        last_error = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                log_process(f"Intento {attempt}/{max_retries}...", "info")
+                response = requests.get(url, headers=headers, timeout=30)
+                response.raise_for_status()
+
+                with open(out_path, "w", encoding="utf-8") as f:
+                    f.write(response.text)
+
+                log_process(f"Page downloaded and saved to: {out_path}", "success")
+                return  # Success, exit function
+
+            except requests.exceptions.HTTPError as e:
+                last_error = e
+                status_code = e.response.status_code if e.response else "unknown"
+                log_process(f"HTTP Error {status_code}: {e}", "error")
+
+                # Don't retry on 4xx errors (client errors)
+                if 400 <= e.response.status_code < 500:
+                    raise
+
+            except requests.exceptions.Timeout as e:
+                last_error = e
+                log_process(f"Timeout error: {e}", "error")
+
+            except requests.exceptions.ConnectionError as e:
+                last_error = e
+                log_process(f"Connection error: {e}", "error")
+
+            except requests.exceptions.RequestException as e:
+                last_error = e
+                log_process(f"Request error: {e}", "error")
+
+            # Wait before retry (except on last attempt)
+            if attempt < max_retries:
+                wait_time = retry_delay * attempt  # Exponential backoff
+                log_process(f"Esperando {wait_time}s antes de reintentar...", "info")
+                time.sleep(wait_time)
+
+        # If we get here, all retries failed
+        error_msg = f"Failed to download after {max_retries} attempts: {last_error}"
+        log_process(error_msg, "error")
+        raise requests.exceptions.RequestException(error_msg) from last_error
 
 
 def extract_metadata(lines: list[str]) -> dict[str, Any]:

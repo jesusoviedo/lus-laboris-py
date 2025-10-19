@@ -393,15 +393,51 @@ uv run extract_law_text.py --phoenix-log-level ERROR
 - **Professional format**: Consistent timestamps and categorization
 - **Easy filtering**: Quickly identify important messages
 
+# **Error Handling & Resilience**
+
+The script includes robust error handling to deal with network issues and service unavailability:
+
+### **Network Resilience**
+
+**Automatic Retry Logic** (for HTTP downloads):
+
+- **3 retry attempts** with exponential backoff (2s, 4s, 6s)
+- **30-second timeout** per request to avoid hanging
+- **Anti-bot headers** (User-Agent, Accept, Accept-Language) to avoid blocking
+- **Smart retry strategy**:
+  - 4xx errors (client errors): **No retry** (immediate fail)
+  - 5xx errors (server errors): **Retry 3 times**
+  - Timeout errors: **Retry 3 times**
+  - Connection errors: **Retry 3 times**
+
+**Example behavior with server errors:**
+
+```bash
+Intento 1/3... ❌ 523 Server Error
+Esperando 2s antes de reintentar...
+Intento 2/3... ❌ 523 Server Error
+Esperando 4s antes de reintentar...
+Intento 3/3... ❌ 523 Server Error
+Error: Failed to download after 3 attempts
+```
+
+### **Phoenix Tracing Resilience**
+
+**Graceful Degradation**:
+
+- **Context manager bug fixed**: Proper handling of exceptions in `phoenix_span()`
+- **Automatic verification**: Checks if Phoenix is reachable before processing
+- **Warning if unavailable**: Shows warnings but continues processing (traces won't be collected)
+- **No crashes**: Phoenix errors never stop the extraction process
+
 # **Important Notes**
 
 - **Tracing is always active**: The script always attempts to send traces
-- **Phoenix verification**: Before processing, the script checks if Phoenix is reachable
-- **Warning if unavailable**: If Phoenix is not running, you'll see warnings but processing continues
-- **No data loss**: If Phoenix becomes available during execution, traces will be sent
+- **Phoenix must be running first**: Start Phoenix before running the script to capture traces
+- **Automatic retries**: Download failures are automatically retried 3 times
+- **Network timeouts**: Requests timeout after 30 seconds to avoid hanging
 - GCS mode creates temporary directories that are automatically cleaned up when finished
 - For GCS mode, ensure you have write permissions to the specified bucket
-- The script handles network and processing errors robustly
 - Temporary files are created with the `lus_laboris_` prefix for easy identification
 
 ---
@@ -792,13 +828,49 @@ uv run extract_law_text.py --phoenix-log-level ERROR
 - **Formato profesional**: Timestamps y categorización consistente
 - **Fácil filtrado**: Identificar rápidamente mensajes importantes
 
-### **Notas Importantes**
+# **Manejo de Errores y Resiliencia**
+
+El script incluye manejo robusto de errores para lidiar con problemas de red e indisponibilidad de servicios:
+
+### **Resiliencia de Red**
+
+**Lógica de Reintentos Automáticos** (para descargas HTTP):
+
+- **3 intentos de reintento** con backoff exponencial (2s, 4s, 6s)
+- **Timeout de 30 segundos** por request para evitar colgarse
+- **Headers anti-bot** (User-Agent, Accept, Accept-Language) para evitar bloqueos
+- **Estrategia de reintento inteligente**:
+  - Errores 4xx (errores de cliente): **No reintenta** (falla inmediato)
+  - Errores 5xx (errores de servidor): **Reintenta 3 veces**
+  - Errores de timeout: **Reintenta 3 veces**
+  - Errores de conexión: **Reintenta 3 veces**
+
+**Ejemplo de comportamiento con errores de servidor:**
+
+```bash
+Intento 1/3... ❌ 523 Server Error
+Esperando 2s antes de reintentar...
+Intento 2/3... ❌ 523 Server Error
+Esperando 4s antes de reintentar...
+Intento 3/3... ❌ 523 Server Error
+Error: Failed to download after 3 attempts
+```
+
+### **Resiliencia de Tracing Phoenix**
+
+**Degradación Graceful**:
+
+- **Bug del context manager corregido**: Manejo apropiado de excepciones en `phoenix_span()`
+- **Verificación automática**: Verifica si Phoenix es alcanzable antes de procesar
+- **Advertencia si no disponible**: Muestra advertencias pero continúa procesando (trazas no se recogerán)
+- **Sin crashes**: Errores de Phoenix nunca detienen el proceso de extracción
+
+# **Notas Importantes**
 
 - **Trazado siempre activo**: El script siempre intenta enviar trazas
-- **Verificación de Phoenix**: Antes del procesamiento, el script verifica si Phoenix es alcanzable
-- **Advertencia si no disponible**: Si Phoenix no está ejecutándose, verás advertencias pero el procesamiento continuará
-- **Sin pérdida de datos**: Si Phoenix se vuelve disponible durante la ejecución, las trazas se enviarán
+- **Phoenix debe estar corriendo primero**: Iniciar Phoenix antes de ejecutar el script para capturar trazas
+- **Reintentos automáticos**: Fallos de descarga se reintentan automáticamente 3 veces
+- **Timeouts de red**: Los requests timeout después de 30 segundos para evitar colgarse
 - El modo GCS crea directorios temporales que se limpian automáticamente al finalizar
 - Para el modo GCS, asegúrate de tener permisos de escritura en el bucket especificado
-- El script maneja errores de red y de procesamiento de manera robusta
 - Los archivos temporales se crean con el prefijo `lus_laboris_` para facilitar la identificación
