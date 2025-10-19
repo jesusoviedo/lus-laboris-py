@@ -4,11 +4,21 @@ Pydantic models for API requests
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class LoadToVectorstoreLocalRequest(BaseModel):
     """Request model for loading data to vectorstore from local files"""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "filename": "codigo_trabajo_articulos.json",
+                "local_data_path": "data/processed",
+                "replace_collection": False,
+            }
+        }
+    )
 
     filename: str = Field(
         ..., description="Name of the JSON file to load (without path)", min_length=1
@@ -24,18 +34,20 @@ class LoadToVectorstoreLocalRequest(BaseModel):
         False, description="Whether to replace existing collection if it exists"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "filename": "codigo_trabajo_articulos.json",
-                "local_data_path": "data/processed",
-                "replace_collection": False,
-            }
-        }
-
 
 class LoadToVectorstoreGCPRequest(BaseModel):
     """Request model for loading data to vectorstore from GCS"""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "filename": "codigo_trabajo_articulos.json",
+                "folder": "processed",
+                "bucket_name": "mi-bucket",
+                "replace_collection": False,
+            }
+        }
+    )
 
     filename: str = Field(
         ..., description="Name of the JSON file to load (without path)", min_length=1
@@ -52,20 +64,24 @@ class LoadToVectorstoreGCPRequest(BaseModel):
         False, description="Whether to replace existing collection if it exists"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "filename": "codigo_trabajo_articulos.json",
-                "folder": "processed",
-                "bucket_name": "mi-bucket",
-                "replace_collection": False,
-            }
-        }
-
 
 # Legacy model for backward compatibility
 class LoadToVectorstoreRequest(BaseModel):
     """Request model for loading data to vectorstore (legacy)"""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "mode": "local",
+                "filename": "codigo_trabajo_articulos.json",
+                "collection_name": "labor_law_articles",
+                "local_data_path": "data/processed",
+                "batch_size": 100,
+                "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                "replace_collection": False,
+            }
+        }
+    )
 
     mode: Literal["local", "gcp"] = Field(
         ...,
@@ -109,22 +125,15 @@ class LoadToVectorstoreRequest(BaseModel):
         False, description="Whether to replace existing collection if it exists"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "mode": "local",
-                "filename": "codigo_trabajo_articulos.json",
-                "collection_name": "labor_law_articles",
-                "local_data_path": "data/processed",
-                "batch_size": 100,
-                "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-                "replace_collection": False,
-            }
-        }
-
 
 class QuestionRequest(BaseModel):
     """Request model for asking questions to the RAG system"""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {"question": "¿Cuáles son los derechos del trabajador en caso de despido?"}
+        }
+    )
 
     question: str = Field(
         ...,
@@ -132,8 +141,3 @@ class QuestionRequest(BaseModel):
         min_length=5,
         max_length=1000,
     )
-
-    class Config:
-        json_schema_extra = {
-            "example": {"question": "¿Cuáles son los derechos del trabajador en caso de despido?"}
-        }

@@ -7,9 +7,15 @@ import os
 from pathlib import Path
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger(__name__)
+
+# Compute env_file path outside of class for Pydantic V2
+_project_root = Path(__file__).parent.parent.parent.parent
+_path_env_file_default = _project_root / ".env"
+_env_file_path = os.getenv("API_ENV_FILE_PATH", _path_env_file_default)
+_env_file = Path(_env_file_path) if isinstance(_env_file_path, str) else _env_file_path
 
 
 class Settings(BaseSettings):
@@ -75,26 +81,22 @@ class Settings(BaseSettings):
     # Environment Configuration
     api_environment: str = "development"
 
-    class Config:
-        project_root = Path(__file__).parent.parent.parent.parent
-        path_env_file_default = project_root / ".env"
-
-        # Get the environment file path from the environment variable or use the default
-        # Convert to Path to ensure consistency
-        env_file_path = os.getenv("API_ENV_FILE_PATH", path_env_file_default)
-        env_file = Path(env_file_path) if isinstance(env_file_path, str) else env_file_path
-        env_file_encoding = "utf-8"
-        case_sensitive = False
-        extra = "ignore"  # Ignore extra variables from the .env
+    # Pydantic V2 configuration
+    model_config = SettingsConfigDict(
+        env_file=_env_file,
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",  # Ignore extra variables from the .env
+    )
 
 
 # Global settings instance
 settings = Settings()
 
 # Log which .env file is being used
-logger.info(f"Using .env file: {settings.Config.env_file}")
+logger.info(f"Using .env file: {_env_file}")
 
 # Optional: Debug information
 if settings.api_debug_config:
-    logger.info(f"File exists: {settings.Config.env_file.exists()}")
-    logger.info(f"Project root: {settings.Config.project_root}")
+    logger.info(f"File exists: {_env_file.exists()}")
+    logger.info(f"Project root: {_project_root}")
