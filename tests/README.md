@@ -145,6 +145,8 @@ cd tests
 
 For detailed information about the integration test, check the script's header comments or run it with `-h` flag.
 
+> **⚠️ Important Note**: The integration tests may be updated and improved in the coming days. We recommend checking this folder regularly for updates and enhancements to the test suite. Always review the latest version of the integration test script before running it.
+
 ## Configuration
 
 ### Pytest Settings
@@ -383,6 +385,8 @@ cd tests
 6. Keywords relevantes en respuesta
 
 Para información detallada sobre el test de integración, revisar los comentarios del header del script o ejecutarlo con la flag `-h`.
+
+> **⚠️ Nota Importante**: Las pruebas de integración pueden ser actualizadas y mejoradas en los próximos días. Recomendamos verificar esta carpeta regularmente para actualizaciones y mejoras en la suite de tests. Siempre revisa la última versión del script de prueba de integración antes de ejecutarlo.
 
 ## Configuración
 
