@@ -58,6 +58,8 @@ NC='\033[0m' # No Color
 SERVICES_STARTED=false
 API_STARTED=false
 CLEANUP_NEEDED=false
+CURRENT_STEP="Inicialización"
+LAST_ERROR=""
 
 # ============================================================================
 # HELPER FUNCTIONS / FUNCIONES DE AYUDA
@@ -74,6 +76,7 @@ print_header() {
 }
 
 print_step() {
+    CURRENT_STEP="$1"
     echo -e "\n${BLUE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}${BOLD}▶ $1${NC}"
     echo -e "${BLUE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
@@ -134,7 +137,11 @@ cleanup() {
     if [ $exit_code -eq 0 ]; then
         echo -e "${GREEN}${BOLD}✅ INTEGRATION TEST PASSED - Todas las pruebas exitosas${NC}"
     else
-        echo -e "${RED}${BOLD}❌ INTEGRATION TEST FAILED - Falló en algún paso${NC}"
+        echo -e "${RED}${BOLD}❌ INTEGRATION TEST FAILED${NC}"
+        echo -e "${RED}   Paso que falló: ${CURRENT_STEP}${NC}"
+        if [ -n "$LAST_ERROR" ]; then
+            echo -e "${RED}   Error: ${LAST_ERROR}${NC}"
+        fi
     fi
     echo -e "${CYAN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
@@ -165,7 +172,8 @@ wait_for_service() {
         attempt=$((attempt + 1))
     done
 
-    print_error "$service_name no respondió después de ${WAIT_TIMEOUT}s"
+    LAST_ERROR="$service_name no respondió después de ${WAIT_TIMEOUT}s"
+    print_error "$LAST_ERROR"
     return 1
 }
 
@@ -175,14 +183,26 @@ check_prerequisites() {
 
     # Check Docker
     if ! docker info > /dev/null 2>&1; then
-        print_error "Docker no está ejecutándose"
+        LAST_ERROR="Docker no está ejecutándose"
+        print_error "$LAST_ERROR"
         exit 1
     fi
     print_success "Docker: OK"
 
+    # Check jq (required for JSON parsing)
+    if ! command -v jq > /dev/null 2>&1; then
+        LAST_ERROR="jq no está instalado (requerido para parsear JSON)"
+        print_error "$LAST_ERROR"
+        print_info "Instalar con: sudo apt-get install jq (Ubuntu/Debian)"
+        print_info "           o: brew install jq (macOS)"
+        exit 1
+    fi
+    print_success "jq: OK"
+
     # Check .env file
     if [ ! -f "$PROJECT_ROOT/.env" ]; then
-        print_error "Archivo .env no encontrado en $PROJECT_ROOT"
+        LAST_ERROR="Archivo .env no encontrado en $PROJECT_ROOT"
+        print_error "$LAST_ERROR"
         exit 1
     fi
     print_success ".env: OK"
@@ -263,7 +283,8 @@ step_data_extraction() {
     uv run extract_law_text.py --skip-quality-validation
 
     if [ ! -f "$expected_output" ]; then
-        print_error "Archivo de salida no fue creado en $expected_output"
+        LAST_ERROR="Archivo de salida no fue creado en $expected_output"
+        print_error "$LAST_ERROR"
         exit 1
     fi
 
@@ -310,7 +331,8 @@ step_generate_token() {
     local token_output=$(cd "$UTILS_DIR" && uv run python generate_jwt_token.py --username admin --expiry 60 2>/dev/null | grep -v "^🔑\|^═\|^Token válido\|^Expira" | tr -d '\n' | xargs)
 
     if [ -z "$token_output" ]; then
-        print_error "Token no fue generado"
+        LAST_ERROR="Token no fue generado"
+        print_error "$LAST_ERROR"
         print_info "Intentando generar con output a archivo..."
         cd "$UTILS_DIR"
         uv run python generate_jwt_token.py --username admin --expiry 60 --output "$TEMP_DIR/jwt_token.txt" > /dev/null 2>&1
@@ -323,7 +345,8 @@ step_generate_token() {
     fi
 
     if [ -z "$JWT_TOKEN" ]; then
-        print_error "Token está vacío después de todos los intentos"
+        LAST_ERROR="Token está vacío después de todos los intentos"
+        print_error "$LAST_ERROR"
         exit 1
     fi
 
@@ -366,7 +389,8 @@ EOF
     print_info "HTTP Status: $http_code"
 
     if [ "$http_code" != "202" ]; then
-        print_error "Vectorización falló (esperaba 202, recibió $http_code)"
+        LAST_ERROR="Vectorización falló (esperaba 202, recibió $http_code)"
+        print_error "$LAST_ERROR"
         echo "$body" | jq '.' || echo "$body"
         exit 1
     fi
@@ -378,7 +402,8 @@ EOF
     local job_id=$(echo "$body" | jq -r '.job_id // ""')
 
     if [ -z "$job_id" ]; then
-        print_error "No se recibió job_id"
+        LAST_ERROR="No se recibió job_id en la respuesta de vectorización"
+        print_error "$LAST_ERROR"
         exit 1
     fi
 
@@ -420,7 +445,8 @@ EOF
             print_info "  - Tiempo de procesamiento: ${proc_time}s"
             return 0
         elif [ "$status" = "failed" ]; then
-            print_error "Job falló"
+            LAST_ERROR="Job de vectorización falló"
+            print_error "$LAST_ERROR"
             echo "$job_status" | jq '.'
             exit 1
         fi
@@ -428,7 +454,8 @@ EOF
         echo -ne "   Esperando... ${elapsed}s/${max_wait}s (status: $status)\r"
     done
 
-    print_error "Job no completó en ${max_wait}s"
+    LAST_ERROR="Job de vectorización no completó en ${max_wait}s"
+    print_error "$LAST_ERROR"
     exit 1
 }
 
@@ -462,7 +489,8 @@ EOF
     print_info "HTTP Status: $http_code"
 
     if [ "$http_code" != "200" ]; then
-        print_error "Consulta RAG falló"
+        LAST_ERROR="Consulta RAG falló (esperaba 200, recibió $http_code)"
+        print_error "$LAST_ERROR"
         echo "$body" | jq '.' || echo "$body"
         exit 1
     fi
@@ -497,14 +525,16 @@ step_verify_results() {
     local response_file="$TEMP_DIR/rag_response.json"
 
     if [ ! -f "$response_file" ]; then
-        print_error "Archivo de respuesta no encontrado"
+        LAST_ERROR="Archivo de respuesta RAG no encontrado: $response_file"
+        print_error "$LAST_ERROR"
         exit 1
     fi
 
     # Verification 1: Success flag
     local success=$(jq -r '.success' "$response_file")
     if [ "$success" != "true" ]; then
-        print_error "Campo 'success' no es true"
+        LAST_ERROR="Verificación falló: Campo 'success' no es true"
+        print_error "$LAST_ERROR"
         exit 1
     fi
     print_success "✓ Campo 'success': true"
@@ -512,7 +542,8 @@ step_verify_results() {
     # Verification 2: Answer is not empty
     local answer=$(jq -r '.answer' "$response_file")
     if [ -z "$answer" ] || [ "$answer" = "null" ]; then
-        print_error "Respuesta está vacía"
+        LAST_ERROR="Verificación falló: Respuesta del LLM está vacía"
+        print_error "$LAST_ERROR"
         exit 1
     fi
     print_success "✓ Respuesta no vacía (${#answer} caracteres)"
@@ -520,7 +551,8 @@ step_verify_results() {
     # Verification 3: Documents retrieved
     local docs_count=$(jq -r '.documents | length' "$response_file")
     if [ "$docs_count" -lt 1 ]; then
-        print_error "No se recuperaron documentos"
+        LAST_ERROR="Verificación falló: No se recuperaron documentos de Qdrant"
+        print_error "$LAST_ERROR"
         exit 1
     fi
     print_success "✓ Documentos recuperados: $docs_count"
@@ -528,7 +560,8 @@ step_verify_results() {
     # Verification 4: Documents have required fields
     local first_doc_has_content=$(jq -r '.documents[0] | has("content")' "$response_file")
     if [ "$first_doc_has_content" != "true" ]; then
-        print_error "Documentos no tienen campo 'content'"
+        LAST_ERROR="Verificación falló: Documentos no tienen campo 'content'"
+        print_error "$LAST_ERROR"
         exit 1
     fi
     print_success "✓ Documentos tienen estructura correcta"
@@ -536,7 +569,8 @@ step_verify_results() {
     # Verification 5: Session ID exists
     local session_id=$(jq -r '.session_id' "$response_file")
     if [ -z "$session_id" ] || [ "$session_id" = "null" ]; then
-        print_error "Session ID no existe"
+        LAST_ERROR="Verificación falló: Session ID no existe (Phoenix no está funcionando)"
+        print_error "$LAST_ERROR"
         exit 1
     fi
     print_success "✓ Session ID: $session_id"

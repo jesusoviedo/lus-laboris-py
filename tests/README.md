@@ -127,6 +127,7 @@ cd tests
 **Prerequisites:**
 
 - Docker running
+- `jq` installed (JSON parser) - Install: `sudo apt-get install jq` (Ubuntu) or `brew install jq` (macOS)
 - Configured `.env` file
 - JWT keys (auto-generated if missing)
 - UV installed
@@ -365,6 +366,7 @@ cd tests
 **Prerequisitos:**
 
 - Docker ejecutándose
+- `jq` instalado (parser JSON) - Instalar: `sudo apt-get install jq` (Ubuntu) o `brew install jq` (macOS)
 - Archivo `.env` configurado
 - Claves JWT (se auto-generan si faltan)
 - UV instalado
