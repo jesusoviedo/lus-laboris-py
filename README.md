@@ -216,8 +216,6 @@ For detailed deployment instructions, see:
 | **Utilities** | [Utility Scripts](utils/README.md) |
 | **Technical Guides** | [Complete Guides Index](docs/README.md) - GCP, Docker, UV, FastAPI, Phoenix, Qdrant, and more |
 
-<img src="docs/images/cicd-pipeline.png" alt="CICD Pipeline" width="800"/>
-
 ## 👥 Contributing
 
 1. Fork the repository
@@ -399,8 +397,6 @@ Para instrucciones detalladas de despliegue, consultar:
 | **Automatización** | [GitHub Actions](.github/workflows/README.md) |
 | **Utilidades** | [Scripts de Utilidad](utils/README.md) |
 | **Guías Técnicas** | [Índice Completo de Guías](docs/README.md) - GCP, Docker, UV, FastAPI, Phoenix, Qdrant, y más |
-
-<img src="docs/images/cicd-pipeline.png" alt="CICD Pipeline" width="800"/>
 
 ## 👥 Contribuciones
 
