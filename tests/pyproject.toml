@@ -1,0 +1,20 @@
+[project]
+name = "tests"
+version = "0.1.0"
+description = "Integration and unit tests for lus-laboris-py"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.119.0",
+    "httpx>=0.28.1",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=0.25.2",
+    "lus-laboris-api",
+]
+
+[tool.uv.sources]
+lus-laboris-api = { path = "../src/lus_laboris_api", editable = true }
+
+# Note: lus-laboris-api is included as editable dependency to bring all API dependencies
+# We use sys.path manipulation in conftest.py to import directly as 'api.main' instead of 'lus_laboris_api.api.main'
+# This maintains separate uv.lock files while allowing tests to access all required dependencies

@@ -1,0 +1,5 @@
+# Gitleaks ignore file
+# This file contains fingerprints of false positives that should be ignored
+
+# Mock JWT token for testing - not a real secret
+tests/conftest.py:jwt:106
