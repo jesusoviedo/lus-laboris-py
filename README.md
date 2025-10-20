@@ -66,6 +66,8 @@
 
 ## 📂 Project Structure
 
+### Directories
+
 | Directory | Purpose |
 |-----------|---------|
 | `data/` | Raw and processed legal data storage |
@@ -79,6 +81,20 @@
 | `docs/images/` | Project images, banners, and visual assets |
 | `utils/` | Utility scripts for automation and management |
 | `.github/workflows/` | CI/CD automation workflows |
+
+### Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `.env` | Environment variables (API keys, GCP config, etc.) - **Not in repo** |
+| `.env_example` | Example environment variables template |
+| `.pre-commit-config.yaml` | Pre-commit hooks configuration (code quality, security) |
+| `.gitleaksignore` | Gitleaks false positives exclusion list |
+| `.markdownlint.json` | Markdown linting rules |
+| `.python-version` | Python version specification for the project |
+| `pyproject.toml` | Python project configuration (workspace, dependencies) |
+| `uv.lock` | UV dependency lock file |
+| `.gitignore` | Git ignore patterns |
 
 ## ⚙️ Prerequisites
 
@@ -181,6 +197,10 @@ For detailed deployment instructions, see:
 - [docs/gcp_resources_guide.md](docs/gcp_resources_guide.md) - GCP resources overview
 - [.github/workflows/README.md](.github/workflows/README.md) - Workflows documentation
 
+<img src="docs/images/gcp-infrastructure.png" alt="GCP Infrastructure" width="800"/>
+
+<img src="docs/images/cicd-pipeline.png" alt="CI/CD Pipeline" width="800"/>
+
 ## 📚 Documentation
 
 | Component | Documentation |
@@ -195,6 +215,8 @@ For detailed deployment instructions, see:
 | **Automation** | [GitHub Actions](.github/workflows/README.md) |
 | **Utilities** | [Utility Scripts](utils/README.md) |
 | **Technical Guides** | [Complete Guides Index](docs/README.md) - GCP, Docker, UV, FastAPI, Phoenix, Qdrant, and more |
+
+<img src="docs/images/cicd-pipeline.png" alt="CICD Pipeline" width="800"/>
 
 ## 👥 Contributing
 
@@ -214,6 +236,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **lus-laboris-py** es una aplicación RAG (Retrieval-Augmented Generation) que proporciona acceso inteligente al Código del Trabajo de Paraguay (Ley Nº 213). El sistema permite a los usuarios consultar información legal a través de lenguaje natural utilizando tecnologías avanzadas de IA.
 
+<img src="docs/images/architecture-overview.png" alt="Architecture Overview" width="800"/>
+
 ### Flujo Principal
 
 - **Procesamiento de Datos**: Extracción, limpieza y estructuración del texto legal
@@ -222,7 +246,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Acceso API**: API REST construida con FastAPI para integración fluida
 - **Despliegue en la Nube**: Gestión automatizada de infraestructura con Terraform y GitHub Actions
 
+<img src="docs/images/data-processing-flow.png" alt="Data Processing Flow" width="800"/>
+
 ## 📂 Estructura del Proyecto
+
+### Directorios
 
 | Directorio | Propósito |
 |------------|-----------|
@@ -237,6 +265,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | `docs/images/` | Imágenes del proyecto, banners y recursos visuales |
 | `utils/` | Scripts de utilidad para automatización y gestión |
 | `.github/workflows/` | Workflows de automatización CI/CD |
+
+### Archivos de Configuración
+
+| Archivo | Propósito |
+|---------|-----------|
+| `.env` | Variables de entorno (API keys, configuración GCP, etc.) - **No en repo** |
+| `.env_example` | Plantilla de ejemplo de variables de entorno |
+| `.pre-commit-config.yaml` | Configuración de hooks pre-commit (calidad de código, seguridad) |
+| `.gitleaksignore` | Lista de exclusión de falsos positivos de Gitleaks |
+| `.markdownlint.json` | Reglas de linting para Markdown |
+| `.python-version` | Especificación de versión de Python para el proyecto |
+| `pyproject.toml` | Configuración de proyecto Python (workspace, dependencias) |
+| `uv.lock` | Archivo de lock de dependencias de UV |
+| `.gitignore` | Patrones de exclusión de Git |
 
 ## ⚙️ Requisitos Previos
 
@@ -314,6 +356,8 @@ bash start_api_dev.sh
 - **📚 Documentación Extensa**: Guías detalladas para configuración y uso
 - **🔍 Framework de Evaluación RAG**: Sistema completo de evaluación para calidad de recuperación y generación
 
+<img src="docs/images/rag-query-flow.png" alt="RAG Query Flow" width="800"/>
+
 ## ☁️ Despliegue en la Nube
 
 La infraestructura del proyecto se despliega en Google Cloud Platform usando Terraform y workflows de GitHub Actions.
@@ -337,6 +381,10 @@ Para instrucciones detalladas de despliegue, consultar:
 - [docs/gcp_resources_guide.md](docs/gcp_resources_guide.md) - Guía de recursos de GCP
 - [.github/workflows/README.md](.github/workflows/README.md) - Documentación de workflows
 
+<img src="docs/images/gcp-infrastructure.png" alt="GCP Infrastructure" width="800"/>
+
+<img src="docs/images/cicd-pipeline.png" alt="CI/CD Pipeline" width="800"/>
+
 ## 📚 Documentación
 
 | Componente | Documentación |
@@ -351,6 +399,8 @@ Para instrucciones detalladas de despliegue, consultar:
 | **Automatización** | [GitHub Actions](.github/workflows/README.md) |
 | **Utilidades** | [Scripts de Utilidad](utils/README.md) |
 | **Guías Técnicas** | [Índice Completo de Guías](docs/README.md) - GCP, Docker, UV, FastAPI, Phoenix, Qdrant, y más |
+
+<img src="docs/images/cicd-pipeline.png" alt="CICD Pipeline" width="800"/>
 
 ## 👥 Contribuciones
 
