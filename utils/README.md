@@ -22,6 +22,89 @@ This folder contains utility scripts and tools for the lus-laboris-py project. T
 | `generate_jwt_keys.sh` | JWT Keys Generator | Generate RSA public/private key pairs for JWT authentication |
 | `generate_jwt_token.py` | JWT Token Generator | Generate and validate JWT tokens for API authentication |
 | `setup_jwt_token.sh` | JWT Token Setup Script | Automated generation of RSA keys and JWT tokens in a single command |
+| `mi_pipeline.py` | CI/CD Pipeline Diagram Generator | Generate visual CI/CD pipeline diagram showing GitHub Actions workflows |
+| `mi_infra.py` | GCP Infrastructure Diagram Generator | Generate visual GCP infrastructure diagram showing cloud components |
+
+## Architecture Diagram Generators
+
+The `mi_pipeline.py` and `mi_infra.py` scripts generate visual architecture diagrams for the project using the Python `diagrams` library.
+
+### CI/CD Pipeline Diagram (`mi_pipeline.py`)
+
+Generates a comprehensive diagram showing the complete CI/CD pipeline with GitHub Actions workflows.
+
+**Features:**
+
+- Visual representation of GitHub Actions workflows
+- Shows automated workflows (code quality, Docker builds, Terraform)
+- Displays manual deployment workflows
+- Illustrates the flow from code push to GCP deployment
+- Color-coded clusters for easy identification
+- Curved lines for modern aesthetic
+
+**Usage:**
+
+```bash
+cd utils
+uv run mi_pipeline.py
+```
+
+**Output:** `docs/images/cicd-pipeline.png` (380 KB)
+
+**Diagram Components:**
+
+- Developer trigger (git push + manual)
+- Automated Workflows: Code Quality, Docker Builds, Terraform
+- Docker Hub (image registry)
+- Deployment Workflows: Deploy Qdrant, Update Batch Job, Deploy API
+- GCP Services: Cloud Run, Compute Engine, Storage, Secret Manager
+
+### GCP Infrastructure Diagram (`mi_infra.py`)
+
+Generates a detailed diagram showing the Google Cloud Platform infrastructure and component interactions.
+
+**Features:**
+
+- Visual representation of all GCP resources
+- Shows data flow between services
+- Organized in logical layers (Batch Processing, Data Layer, API Service Layer)
+- Terraform provisioning visualization
+- Color-coded by service type
+- Smooth curved lines
+
+**Usage:**
+
+```bash
+cd utils
+uv run mi_infra.py
+```
+
+**Output:** `docs/images/gcp-infrastructure.png` (160 KB)
+
+**Diagram Components:**
+
+- Batch Processing: Cloud Scheduler + Cloud Run Job
+- Data Layer: Cloud Storage + Vector Database (Qdrant VM)
+- API Service Layer: Cloud Run Service + Secret Manager
+- Terraform: Infrastructure as Code provisioning
+
+**Color Scheme:**
+
+- 🟣 Purple: Batch Processing
+- 🟢 Green: Data Layer
+- 🔵 Blue: API Service Layer
+- 🔧 Terraform: Infrastructure provisioning
+
+### Prerequisites
+
+Both scripts require the `diagrams` library:
+
+```bash
+cd utils
+uv sync
+```
+
+The `diagrams` library is automatically included in `pyproject.toml` dependencies.
 
 ## GCP Utilities
 
@@ -946,6 +1029,89 @@ Esta carpeta contiene scripts de utilidad y herramientas para el proyecto lus-la
 | `generate_jwt_keys.sh` | Generador de Claves JWT | Generar pares de claves RSA pública/privada para autenticación JWT |
 | `generate_jwt_token.py` | Generador de Tokens JWT | Generar y validar tokens JWT para autenticación de API |
 | `setup_jwt_token.sh` | Script de Configuración JWT | Generación automatizada de claves RSA y tokens JWT en un solo comando |
+| `mi_pipeline.py` | Generador de Diagrama de Pipeline CI/CD | Generar diagrama visual del pipeline CI/CD con workflows de GitHub Actions |
+| `mi_infra.py` | Generador de Diagrama de Infraestructura GCP | Generar diagrama visual de infraestructura GCP mostrando componentes cloud |
+
+## Generadores de Diagramas de Arquitectura
+
+Los scripts `mi_pipeline.py` y `mi_infra.py` generan diagramas visuales de arquitectura para el proyecto usando la librería Python `diagrams`.
+
+### Diagrama de Pipeline CI/CD (`mi_pipeline.py`)
+
+Genera un diagrama integral mostrando el pipeline CI/CD completo con workflows de GitHub Actions.
+
+**Características:**
+
+- Representación visual de workflows de GitHub Actions
+- Muestra workflows automatizados (calidad de código, builds Docker, Terraform)
+- Muestra workflows de deployment manual
+- Ilustra el flujo desde el code push hasta el deployment en GCP
+- Clusters con colores para fácil identificación
+- Líneas curvas para estética moderna
+
+**Uso:**
+
+```bash
+cd utils
+uv run mi_pipeline.py
+```
+
+**Salida:** `docs/images/cicd-pipeline.png` (380 KB)
+
+**Componentes del Diagrama:**
+
+- Trigger del Developer (git push + manual)
+- Workflows Automatizados: Code Quality, Docker Builds, Terraform
+- Docker Hub (registro de imágenes)
+- Workflows de Deployment: Deploy Qdrant, Update Batch Job, Deploy API
+- Servicios GCP: Cloud Run, Compute Engine, Storage, Secret Manager
+
+### Diagrama de Infraestructura GCP (`mi_infra.py`)
+
+Genera un diagrama detallado mostrando la infraestructura de Google Cloud Platform y las interacciones entre componentes.
+
+**Características:**
+
+- Representación visual de todos los recursos GCP
+- Muestra el flujo de datos entre servicios
+- Organizado en capas lógicas (Batch Processing, Data Layer, API Service Layer)
+- Visualización del provisionamiento con Terraform
+- Colores codificados por tipo de servicio
+- Líneas curvas suaves
+
+**Uso:**
+
+```bash
+cd utils
+uv run mi_infra.py
+```
+
+**Salida:** `docs/images/gcp-infrastructure.png` (160 KB)
+
+**Componentes del Diagrama:**
+
+- Batch Processing: Cloud Scheduler + Cloud Run Job
+- Data Layer: Cloud Storage + Vector Database (Qdrant VM)
+- API Service Layer: Cloud Run Service + Secret Manager
+- Terraform: Provisionamiento de Infrastructure as Code
+
+**Esquema de Colores:**
+
+- 🟣 Morado: Batch Processing
+- 🟢 Verde: Data Layer
+- 🔵 Azul: API Service Layer
+- 🔧 Terraform: Provisionamiento de infraestructura
+
+### Prerrequisitos
+
+Ambos scripts requieren la librería `diagrams`:
+
+```bash
+cd utils
+uv sync
+```
+
+La librería `diagrams` está incluida automáticamente en las dependencias de `pyproject.toml`.
 
 ## Utilidades GCP
 
